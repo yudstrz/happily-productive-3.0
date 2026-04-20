@@ -2,6 +2,7 @@
 
 import React from "react";
 import { HP_TOKENS, HP_FONT, HP_TEXT } from "@/lib/constants";
+import { useHP } from "@/lib/HPContext";
 import HPGlyph from "@/components/ui/HPGlyph";
 import HPCard from "@/components/ui/HPCard";
 import HPChip from "@/components/ui/HPChip";

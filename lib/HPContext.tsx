@@ -11,6 +11,10 @@ interface HPState {
   feed: any[];
   goals: any[];
   habits: any[];
+  weeklyPriorities: any[];
+  skills: any[];
+  learning: any[];
+  coaching: any;
   wellbeing: any;
   points: number;
   notifications: number;

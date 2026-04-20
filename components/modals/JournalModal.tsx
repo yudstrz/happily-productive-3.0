@@ -1,12 +1,19 @@
 "use client";
 
 import React, { useState } from "react";
+import { useHP } from "@/lib/HPContext";
 import { 
   HP_TOKENS, 
   HP_FONT, 
   HP_TEXT 
 } from "@/lib/constants";
 import Modal from "@/components/ui/Modal";
+
+const primaryBtn: React.CSSProperties = {
+  padding: '14px', borderRadius: 99, border: 'none', background: HP_TOKENS.sage,
+  color: '#fff', fontFamily: HP_FONT, fontWeight: 800, fontSize: 15, cursor: 'pointer',
+  boxShadow: `0 4px 14px ${HP_TOKENS.sageSoft}`,
+};
 
 interface JournalModalProps {
   onClose: () => void;
@@ -48,7 +55,7 @@ export default function JournalModal({ onClose, type = 'reflection' }: JournalMo
 
   return (
     <Modal onClose={onClose} title={title}>
-      <div style={{ padding: 14, background: type === 'reflection' ? HP_TOKENS.sageWash : HP_TOKENS.coralWash, borderRadius: 14, marginBottom: 16 }}>
+      <div style={{ padding: 14, background: type === 'reflection' ? HP_TOKENS.sageWash : HP_TOKENS.coralSoft, borderRadius: 14, marginBottom: 16 }}>
         <div style={{ ...HP_TEXT.small, color: type === 'reflection' ? HP_TOKENS.sage : HP_TOKENS.coral, fontWeight: 800 }}>
           {type === 'reflection' ? 'PROMPT HARI INI' : 'LOG RASA SYUKUR'}
         </div>

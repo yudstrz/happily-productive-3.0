@@ -1,7 +1,8 @@
 "use client";
 
 import React from "react";
-import { HP_TOKENS, HP_TEXT } from "@/lib/constants";
+import { HP_TOKENS, HP_TEXT, HP_FONT } from "@/lib/constants";
+import { useHP } from "@/lib/HPContext";
 import HPPlaceholder from "@/components/ui/HPPlaceholder";
 
 interface RewardCardProps {
