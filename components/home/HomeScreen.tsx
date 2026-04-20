@@ -70,6 +70,20 @@ export default function HomeScreen({ openModal }: any) {
     });
   };
 
+  const toggleHabit = (name: string) => {
+    updateState((s: any) => {
+      const hIndex = s.habits.findIndex((h: any) => h.name === name);
+      const wasDone = s.habits[hIndex].done;
+      if (!wasDone) { 
+        setConfetti(true); 
+        setTimeout(() => setConfetti(false), 1200); 
+      }
+      const newHabits = [...s.habits];
+      newHabits[hIndex] = { ...newHabits[hIndex], done: !wasDone };
+      return { ...s, habits: newHabits };
+    });
+  };
+
   const energyHint = (e: string) => {
     if (e === 'low') return 'Energimu sedang rendah 🌱 Mulai dari task ringan dulu — handoff sinkron ikon cocok sekarang.';
     if (e === 'mid') return 'Energi sedang pas untuk kolaborasi 🌿 Review wireframe dulu, kirim handoff setelah lunch.';
@@ -167,7 +181,7 @@ export default function HomeScreen({ openModal }: any) {
 
         {/* LAYER 3 — Insights */}
         <div style={{ marginTop: 8 }}>
-          <SectionHeader icon="heart" label="Untuk kamu" action="Lihat semua"/>
+          <SectionHeader icon="heart" label="Untuk kamu" action="Lihat semua" onAction={() => openModal('coach')}/>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {HP_AI_INSIGHTS.map((ins, i) => (
               <InsightCard key={i} ins={ins} idx={i}/>
@@ -185,7 +199,7 @@ export default function HomeScreen({ openModal }: any) {
           />
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
             {state.habits.map((h: any, i: number) => (
-              <HabitCell key={i} h={h}/>
+              <HabitCell key={i} h={h} onToggle={() => toggleHabit(h.name)}/>
             ))}
           </div>
         </div>

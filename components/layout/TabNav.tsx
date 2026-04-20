@@ -13,7 +13,7 @@ export default function TabNav({ tab, setTab }: TabNavProps) {
   const tabs = [
     { key: 'home', label: 'Home', icon: 'home' },
     { key: 'goals', label: 'Goals', icon: 'target' },
-    { key: 'recognize', label: 'Recognize', icon: 'heart' },
+    { key: 'recognize', label: 'Recognition', icon: 'heart' },
     { key: 'growth', label: 'Growth', icon: 'tree' },
     { key: 'wellbeing', label: 'Wellbeing', icon: 'leaf' },
   ];
