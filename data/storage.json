@@ -1,9 +1,9 @@
 {
   "state": {
-    "mood": null,
-    "energy": null,
-    "tag": null,
-    "intention": "",
+    "mood": "calm",
+    "energy": "mid",
+    "tag": "Fokus",
+    "intention": "Selesaikan handoff design system agar tim engineering lancar eksekusi.",
     "priorities": [
       {
         "id": 1,
@@ -61,10 +61,34 @@
         "likes": 21,
         "time": "Kemarin"
       }
-    ]
+    ],
+    "goals": [
+      { "id": 1, "title": "Launch Apps Redesign", "progress": 68, "alignment": 92, "owner": "Sari", "due": "30 Apr", "tone": "sage", "metric": "8 / 12 milestones" },
+      { "id": 2, "title": "DS Migration Q2", "progress": 42, "alignment": 85, "owner": "Team", "due": "15 Jun", "tone": "blue", "metric": "210 / 500 components" },
+      { "id": 3, "title": "Mentoring 2 junior designer", "progress": 55, "alignment": 78, "owner": "Sari", "due": "Ongoing", "tone": "lavender", "metric": "11 / 20 sessions" }
+    ],
+    "habits": [
+      { "name": "Tidur 7+ jam", "streak": 8, "target": 7, "done": true, "emoji": "🌙" },
+      { "name": "Jalan kaki 15 menit", "streak": 3, "target": 7, "done": false, "emoji": "🚶" },
+      { "name": "Meditasi pagi", "streak": 12, "target": 7, "done": true, "emoji": "🧘" },
+      { "name": "Jurnal syukur", "streak": 5, "target": 7, "done": false, "emoji": "📓" }
+    ],
+    "wellbeing": {
+      "score": 78,
+      "dims": [
+        { "key": "mental", "label": "Mental", "score": 76, "tone": "sage", "trend": "+4" },
+        { "key": "physical", "label": "Fisik", "score": 64, "tone": "blue", "trend": "+1" },
+        { "key": "financial", "label": "Finansial", "score": 82, "tone": "yellow", "trend": "+0" },
+        { "key": "social", "label": "Sosial", "score": 88, "tone": "lavender", "trend": "+6" }
+      ]
+    },
+    "points": 1340,
+    "notifications": 3
   },
   "user": {
     "name": "Sari Wijaya",
-    "streak": 12
+    "role": "Product Designer",
+    "streak": 12,
+    "points": 1340
   }
 }

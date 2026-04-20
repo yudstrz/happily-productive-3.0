@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useHP } from "@/lib/HPContext";
 import { 
   HP_TOKENS, 
   HP_FONT, 
@@ -15,8 +16,6 @@ import HPGlyph from "@/components/ui/HPGlyph";
 import Modal from "@/components/ui/Modal";
 
 interface CheckInModalProps {
-  state: any;
-  setState: React.Dispatch<React.SetStateAction<any>>;
   onClose: () => void;
 }
 
@@ -31,16 +30,19 @@ const ghostBtn: React.CSSProperties = {
   color: HP_TOKENS.inkSoft, fontFamily: HP_FONT, fontWeight: 800, fontSize: 15, cursor: 'pointer',
 };
 
-export default function CheckInModal({ state, setState, onClose }: CheckInModalProps) {
-  const [mood, setMood] = useState(state.mood || null);
-  const [energy, setEnergy] = useState(state.energy || null);
-  const [tag, setTag] = useState(state.tag || null);
+export default function CheckInModal({ onClose }: CheckInModalProps) {
+  const { state, updateState } = useHP();
+  const [mood, setMood] = useState(state?.mood || null);
+  const [energy, setEnergy] = useState(state?.energy || null);
+  const [tag, setTag] = useState(state?.tag || null);
   const [step, setStep] = useState(1);
 
   const save = () => {
-    setState((s: any) => ({ ...s, mood, energy, tag }));
+    updateState({ mood, energy, tag });
     onClose();
   };
+
+  if (!state) return null;
 
   return (
     <Modal onClose={onClose}>
@@ -132,3 +134,4 @@ export default function CheckInModal({ state, setState, onClose }: CheckInModalP
     </Modal>
   );
 }
+

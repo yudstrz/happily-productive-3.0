@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
+import { useHP } from "@/lib/HPContext";
 import { HP_TOKENS, HP_FONT, HP_TEXT } from "@/lib/constants";
-import { HP_FEED } from "@/lib/mockData";
 import HPGlyph from "@/components/ui/HPGlyph";
 import HPCard from "@/components/ui/HPCard";
 import ScreenHeader from "@/components/ui/ScreenHeader";
@@ -16,13 +16,17 @@ interface RecognizeScreenProps {
 }
 
 export default function RecognizeScreen({ openModal }: RecognizeScreenProps) {
+  const { state } = useHP();
+
+  if (!state) return null;
+
   return (
     <div style={{ padding: '0 16px 120px', fontFamily: HP_FONT }}>
       <ScreenHeader title="Recognize" subtitle="Apresiasi yang kamu beri & terima"/>
 
       <HPCard style={{ background: `linear-gradient(135deg, ${HP_TOKENS.yellowWash}, ${HP_TOKENS.sageWash})`, border: 'none' }} padding={16}>
         <div style={{ display: 'flex', gap: 20 }}>
-          <StatBlock label="Poin kamu" value="1,340" icon="trophy" tone="yellow"/>
+          <StatBlock label="Poin kamu" value={state.points.toLocaleString()} icon="trophy" tone="yellow"/>
           <StatBlock label="Diberi" value="24" icon="heart" tone="coral"/>
           <StatBlock label="Diterima" value="31" icon="sparkle" tone="sage"/>
         </div>
@@ -60,7 +64,7 @@ export default function RecognizeScreen({ openModal }: RecognizeScreenProps) {
         onAction={() => openModal('filter_feed')}
       />
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        {HP_FEED.map(f => <AppreciationCard key={f.id} f={f}/>)}
+        {state.feed.map((f: any) => <AppreciationCard key={f.id} f={f}/>)}
       </div>
 
       <SectionHeader 
@@ -78,3 +82,4 @@ export default function RecognizeScreen({ openModal }: RecognizeScreenProps) {
     </div>
   );
 }
+

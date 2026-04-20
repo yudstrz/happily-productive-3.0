@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useHP } from "@/lib/HPContext";
 import { 
   HP_TOKENS, 
   HP_FONT, 
@@ -11,7 +12,6 @@ import {
   HP_ENERGY, 
   HP_AI_INSIGHTS, 
   HP_HABITS, 
-  HP_USER 
 } from "@/lib/mockData";
 import HPGlyph from "@/components/ui/HPGlyph";
 import HPAvatar from "@/components/ui/HPAvatar";
@@ -25,9 +25,8 @@ import InsightCard from "@/components/home/InsightCard";
 import HabitCell from "@/components/home/HabitCell";
 
 interface HomeScreenProps {
-  state: any;
-  setState: React.Dispatch<React.SetStateAction<any>>;
   openModal: (name: string) => void;
+  tab: string;
 }
 
 const iconBtnStyle: React.CSSProperties = {
@@ -35,8 +34,8 @@ const iconBtnStyle: React.CSSProperties = {
   background: HP_TOKENS.card, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
 };
 
-export default function HomeScreen({ state, setState, openModal }: HomeScreenProps) {
-  const { mood, energy, priorities } = state;
+export default function HomeScreen({ openModal }: any) {
+  const { state, updateState, user } = useHP();
   const [greeting, setGreeting] = useState('');
   const [confetti, setConfetti] = useState(false);
 
@@ -48,13 +47,17 @@ export default function HomeScreen({ state, setState, openModal }: HomeScreenPro
     else setGreeting('Selamat malam');
   }, []);
 
+  if (!state || !user) return null;
+
+  const { mood, energy, priorities } = state;
+
   const moodObj = HP_MOODS.find(m => m.key === mood);
   const energyObj = HP_ENERGY.find(e => e.key === energy);
   const done = priorities.filter((p: any) => p.done).length;
   const total = priorities.length;
 
   const togglePriority = (id: number) => {
-    setState((s: any) => {
+    updateState((s: any) => {
       const pIndex = s.priorities.findIndex((p: any) => p.id === id);
       const wasDone = s.priorities[pIndex].done;
       if (!wasDone) { 
@@ -82,10 +85,10 @@ export default function HomeScreen({ state, setState, openModal }: HomeScreenPro
         {/* Top bar */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 4px 12px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <HPAvatar name={HP_USER.name} size={40} color={HP_TOKENS.sage}/>
+            <HPAvatar name={user.name} size={40} color={HP_TOKENS.sage}/>
             <div>
               <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, fontWeight: 700 }}>{greeting} 👋</div>
-              <div style={{ ...HP_TEXT.h, fontSize: 16 }}>{HP_USER.name.split(' ')[0]}</div>
+              <div style={{ ...HP_TEXT.h, fontSize: 16 }}>{user.name.split(' ')[0]}</div>
             </div>
           </div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
@@ -93,11 +96,13 @@ export default function HomeScreen({ state, setState, openModal }: HomeScreenPro
               display: 'flex', alignItems: 'center', gap: 5, padding: '7px 12px', borderRadius: 99,
               background: HP_TOKENS.yellowSoft, fontFamily: HP_FONT, fontWeight: 900, fontSize: 13, color: '#8A6814',
             }}>
-              🔥 <span>{HP_USER.streak}</span>
+              🔥 <span>{user.streak}</span>
             </div>
             <button onClick={() => openModal('notifications')} className="hp-tap" style={iconBtnStyle}>
               <HPGlyph name="bell" size={20} color={HP_TOKENS.inkSoft}/>
-              <div style={{ position: 'absolute', top: 8, right: 8, width: 8, height: 8, borderRadius: 4, background: HP_TOKENS.coral }}/>
+              {state.notifications > 0 && (
+                <div style={{ position: 'absolute', top: 8, right: 8, width: 8, height: 8, borderRadius: 4, background: HP_TOKENS.coral }}/>
+              )}
             </button>
           </div>
         </div>
@@ -114,7 +119,7 @@ export default function HomeScreen({ state, setState, openModal }: HomeScreenPro
 
         {/* Intention */}
         <div style={{ marginTop: 12 }}>
-          <IntentionCard state={state} setState={setState}/>
+          <IntentionCard state={state} setState={updateState}/>
         </div>
 
         {/* LAYER 2 — Priorities */}
@@ -168,7 +173,7 @@ export default function HomeScreen({ state, setState, openModal }: HomeScreenPro
         <div style={{ marginTop: 8 }}>
           <SectionHeader icon="leaf" label="Kebiasaan kecil" action="Atur"/>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-            {HP_HABITS.map((h, i) => (
+            {state.habits.map((h: any, i: number) => (
               <HabitCell key={i} h={h}/>
             ))}
           </div>
@@ -196,3 +201,4 @@ export default function HomeScreen({ state, setState, openModal }: HomeScreenPro
     </div>
   );
 }
+

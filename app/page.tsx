@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { HPProvider, useHP } from "@/lib/HPContext";
 import { HP_TOKENS } from "@/lib/constants";
-import { 
-  HP_PRIORITIES, 
-  HP_FEED 
-} from "@/lib/mockData";
+
+// Components
 import HPGlyph from "@/components/ui/HPGlyph";
 import TabNav from "@/components/layout/TabNav";
 
@@ -25,67 +24,25 @@ import ReflectModal from "@/components/modals/ReflectModal";
 import CoachModal from "@/components/modals/CoachModal";
 import NotificationsModal from "@/components/modals/NotificationsModal";
 import JournalModal from "@/components/modals/JournalModal";
+import GoalModal from "@/components/modals/GoalModal";
 
-export default function Home() {
+function AppContent() {
+  const { state, loading, resetData } = useHP();
   const [tab, setTab] = useState('home');
   const [modal, setModal] = useState<string | null>(null);
-  const [state, setState] = useState<any>(null);
 
-  useEffect(() => {
-    fetch('/api/storage')
-      .then(res => res.json())
-      .then(data => {
-        if (data.state) {
-          setState(data.state);
-        } else {
-          // Fallback if file not found or malformed
-          setState({
-            mood: null,
-            energy: null,
-            tag: null,
-            intention: '',
-            priorities: HP_PRIORITIES,
-            feed: HP_FEED,
-            points: 1340,
-          });
-        }
-      });
-  }, []);
-
-  useEffect(() => {
-    if (state) {
-      fetch('/api/storage', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ state, user: { name: 'Sari Wijaya', streak: 12, points: state.points } })
-      });
-    }
-  }, [state]);
-
-  if (!state) return <div style={{ background: HP_TOKENS.paper, height: '100vh' }} />;
+  if (loading || !state) return <div style={{ background: HP_TOKENS.paper, height: '100vh' }} />;
 
   const openModal = (name: string) => setModal(name);
   const closeModal = () => setModal(null);
 
-  const reset = () => {
-    setState({
-      mood: null,
-      energy: null,
-      tag: null,
-      intention: '',
-      priorities: HP_PRIORITIES,
-      feed: HP_FEED,
-      points: 1340,
-    });
-  };
-
   const renderScreen = () => {
     const pad = { paddingTop: 58 };
-    if (tab === 'home') return <div style={pad}><HomeScreen state={state} setState={setState} openModal={openModal}/></div>;
-    if (tab === 'goals') return <div style={pad}><GoalsScreen state={state} openModal={openModal}/></div>;
+    if (tab === 'home') return <div style={pad}><HomeScreen tab={tab} openModal={openModal}/></div>;
+    if (tab === 'goals') return <div style={pad}><GoalsScreen openModal={openModal}/></div>;
     if (tab === 'recognize') return <div style={pad}><RecognizeScreen openModal={openModal}/></div>;
     if (tab === 'growth') return <div style={pad}><GrowthScreen openModal={openModal}/></div>;
-    if (tab === 'wellbeing') return <div style={pad}><WellbeingScreen state={state} openModal={openModal}/></div>;
+    if (tab === 'wellbeing') return <div style={pad}><WellbeingScreen openModal={openModal}/></div>;
     return null;
   };
 
@@ -123,15 +80,26 @@ export default function Home() {
       <TabNav tab={tab} setTab={setTab}/>
 
       {/* Modal Renderer */}
-      {modal === 'checkin' && <CheckInModal state={state} setState={setState} onClose={closeModal}/>}
+      {modal === 'checkin' && <CheckInModal onClose={closeModal}/>}
       {modal === 'focus' && <FocusModal onClose={closeModal}/>}
-      {modal === 'appreciate' && <AppreciateModal setState={setState} onClose={closeModal}/>}
+      {modal === 'appreciate' && <AppreciateModal onClose={closeModal}/>}
       {modal === 'pause' && <PauseModal onClose={closeModal}/>}
       {modal === 'reflect' && <ReflectModal onClose={closeModal}/>}
       {modal === 'coach' && <CoachModal onClose={closeModal}/>}
       {modal === 'notifications' && <NotificationsModal onClose={closeModal}/>}
       {modal === 'journal' && <JournalModal onClose={closeModal}/>}
-      {modal === 'gratitude' && <JournalModal onClose={closeModal}/>} {/* Reusing journal for now as per prototype */}
+      {modal === 'gratitude' && <JournalModal onClose={closeModal}/>}
+      {modal === 'new_goal' && <GoalModal onClose={closeModal}/>}
     </div>
   );
 }
+
+
+export default function Home() {
+  return (
+    <HPProvider>
+      <AppContent />
+    </HPProvider>
+  );
+}
+

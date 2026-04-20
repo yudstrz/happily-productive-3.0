@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
+import { useHP } from "@/lib/HPContext";
 import { HP_TOKENS, HP_FONT, HP_TEXT } from "@/lib/constants";
-import { HP_WELLBEING_DIMS } from "@/lib/mockData";
 import HPGlyph from "@/components/ui/HPGlyph";
 import HPCard from "@/components/ui/HPCard";
 import ScreenHeader from "@/components/ui/ScreenHeader";
@@ -12,7 +12,6 @@ import DimensionCard from "@/components/wellbeing/DimensionCard";
 import ProgramCard from "@/components/wellbeing/ProgramCard";
 
 interface WellbeingScreenProps {
-  state: any;
   openModal: (name: string) => void;
 }
 
@@ -22,8 +21,13 @@ const softBtn: React.CSSProperties = {
   fontFamily: HP_FONT, fontWeight: 700, fontSize: 13, color: HP_TOKENS.ink, cursor: 'pointer',
 };
 
-export default function WellbeingScreen({ state, openModal }: WellbeingScreenProps) {
-  const avg = Math.round(HP_WELLBEING_DIMS.reduce((a, b) => a + b.score, 0) / HP_WELLBEING_DIMS.length);
+export default function WellbeingScreen({ openModal }: WellbeingScreenProps) {
+  const { state } = useHP();
+  
+  if (!state) return null;
+
+  const { wellbeing } = state;
+  const avg = Math.round(wellbeing.dims.reduce((a: number, b: any) => a + b.score, 0) / wellbeing.dims.length);
   
   return (
     <div style={{ padding: '0 16px 120px', fontFamily: HP_FONT }}>
@@ -32,7 +36,7 @@ export default function WellbeingScreen({ state, openModal }: WellbeingScreenPro
       <HPCard style={{ background: `linear-gradient(135deg, ${HP_TOKENS.sageWash}, ${HP_TOKENS.blueWash})`, border: 'none' }} padding={18}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <div style={{ position: 'relative' }}>
-            <ReadinessRing value={avg}/>
+            <ReadinessRing value={wellbeing.score || avg}/>
           </div>
           <div style={{ flex: 1 }}>
             <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute }}>Wellbeing score</div>
@@ -45,7 +49,7 @@ export default function WellbeingScreen({ state, openModal }: WellbeingScreenPro
       </HPCard>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 12 }}>
-        {HP_WELLBEING_DIMS.map(d => <DimensionCard key={d.key} d={d}/>)}
+        {wellbeing.dims.map((d: any) => <DimensionCard key={d.key} d={d}/>)}
       </div>
 
       <button 
@@ -123,3 +127,4 @@ export default function WellbeingScreen({ state, openModal }: WellbeingScreenPro
     </div>
   );
 }
+

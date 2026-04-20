@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
+import { useHP } from "@/lib/HPContext";
 import { HP_TOKENS, HP_FONT, HP_TEXT } from "@/lib/constants";
-import { HP_GOALS } from "@/lib/mockData";
 import HPGlyph from "@/components/ui/HPGlyph";
 import HPCard from "@/components/ui/HPCard";
 import ScreenHeader from "@/components/ui/ScreenHeader";
@@ -11,13 +11,15 @@ import SectionHeader from "@/components/home/SectionHeader";
 import GoalCard from "@/components/goals/GoalCard";
 
 interface GoalsScreenProps {
-  state: any;
   openModal: (name: string) => void;
 }
 
-export default function GoalsScreen({ state, openModal }: GoalsScreenProps) {
+export default function GoalsScreen({ openModal }: GoalsScreenProps) {
+  const { state } = useHP();
   const [tab, setTab] = useState('personal');
   
+  if (!state) return null;
+
   return (
     <div style={{ padding: '0 16px 120px', fontFamily: HP_FONT }}>
       <ScreenHeader title="Goals" subtitle="OKR kamu & selarasnya dengan tim"/>
@@ -53,12 +55,12 @@ export default function GoalsScreen({ state, openModal }: GoalsScreenProps) {
       <SectionHeader 
         icon="target" 
         label="OKR aktif" 
-        count={String(HP_GOALS.length)} 
+        count={String(state.goals.length)} 
         action="+ Baru"
         onAction={() => openModal('new_goal')}
       />
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        {HP_GOALS.map(g => <GoalCard key={g.id} g={g}/>)}
+        {state.goals.map((g: any) => <GoalCard key={g.id} g={g}/>)}
       </div>
 
       <SectionHeader 
@@ -95,3 +97,4 @@ export default function GoalsScreen({ state, openModal }: GoalsScreenProps) {
     </div>
   );
 }
+

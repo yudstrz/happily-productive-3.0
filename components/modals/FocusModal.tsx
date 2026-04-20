@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useHP } from "@/lib/HPContext";
 import { 
   HP_TOKENS, 
   HP_FONT, 
@@ -19,6 +20,7 @@ const iconBtnStyle: React.CSSProperties = {
 };
 
 export default function FocusModal({ onClose }: FocusModalProps) {
+  const { state } = useHP();
   const [duration, setDuration] = useState(25);
   const [started, setStarted] = useState(false);
   const [secs, setSecs] = useState(25 * 60);
@@ -29,6 +31,9 @@ export default function FocusModal({ onClose }: FocusModalProps) {
     return () => clearInterval(id);
   }, [started]);
 
+  if (!state) return null;
+
+  const focusTask = state.priorities.find((p: any) => !p.done)?.title || "General Focus";
   const mins = Math.floor(secs / 60);
   const ss = secs % 60;
 
@@ -57,7 +62,8 @@ export default function FocusModal({ onClose }: FocusModalProps) {
             <div style={{ fontSize: 50 }}>🌿</div>
             <div style={{ ...HP_TEXT.display, fontSize: 28, color: '#fff', marginTop: 16 }}>Deep work tanpa gangguan</div>
             <div style={{ ...HP_TEXT.body, color: 'rgba(255,255,255,0.75)', marginTop: 8, maxWidth: 280 }}>
-              Notifikasi off. Kita hanya simpan waktu fokusmu.
+              Notifikasi off. Kita fokus selesaikan: <br/>
+              <span style={{ fontWeight: 800 }}>"{focusTask}"</span>
             </div>
             <div style={{ display: 'flex', gap: 10, marginTop: 36 }}>
               {[25, 45, 90].map(d => (
@@ -106,7 +112,7 @@ export default function FocusModal({ onClose }: FocusModalProps) {
               {String(mins).padStart(2,'0')}:{String(ss).padStart(2,'0')}
             </div>
             <div style={{ ...HP_TEXT.body, color: 'rgba(255,255,255,0.8)', marginTop: 12 }}>
-              Review wireframe onboarding v3
+              {focusTask}
             </div>
             <div style={{ marginTop: 40, width: 200 }}>
               <HPBar value={((duration * 60 - secs) / (duration * 60)) * 100} tone="yellow" height={4}/>
@@ -135,3 +141,4 @@ export default function FocusModal({ onClose }: FocusModalProps) {
     </div>
   );
 }
+

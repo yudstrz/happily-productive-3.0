@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useHP } from "@/lib/HPContext";
 import { 
   HP_TOKENS, 
   HP_FONT, 
@@ -16,31 +17,42 @@ import Modal from "@/components/ui/Modal";
 
 interface AppreciateModalProps {
   onClose: () => void;
-  setState: React.Dispatch<React.SetStateAction<any>>;
 }
 
-export default function AppreciateModal({ onClose, setState }: AppreciateModalProps) {
+export default function AppreciateModal({ onClose }: AppreciateModalProps) {
+  const { state, updateState, updateUser } = useHP();
   const [to, setTo] = useState<any>(null);
   const [value, setValue] = useState<string | null>(null);
   const [msg, setMsg] = useState('');
 
   const send = () => {
-    if (!to || !value || !msg) return;
-    setState((s: any) => ({
+    if (!to || !value || !msg || !state) return;
+
+    const newFeedItem = {
+      id: Date.now(), 
+      from: 'Sari Wijaya', 
+      to: to.name, 
+      value, 
+      msg, 
+      likes: 0, 
+      time: 'Baru saja',
+    };
+
+    updateState((s: any) => ({
       ...s,
-      feed: [{
-        id: Date.now(), 
-        from: 'Sari Wijaya', 
-        to: to.name, 
-        value, 
-        msg, 
-        likes: 0, 
-        time: 'Baru saja',
-      }, ...s.feed],
+      feed: [newFeedItem, ...s.feed],
       points: (s.points || 1340) + 5,
     }));
+
+    updateUser((u: any) => ({
+      ...u,
+      points: (u.points || 1340) + 5,
+    }));
+
     onClose();
   };
+
+  if (!state) return null;
 
   return (
     <Modal onClose={onClose} title="Beri apresiasi">
@@ -163,3 +175,4 @@ export default function AppreciateModal({ onClose, setState }: AppreciateModalPr
     </Modal>
   );
 }
+

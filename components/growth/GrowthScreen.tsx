@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useHP } from "@/lib/HPContext";
 import { HP_TOKENS, HP_FONT, HP_TEXT } from "@/lib/constants";
 import { HP_SKILLS } from "@/lib/mockData";
 import HPGlyph from "@/components/ui/HPGlyph";
@@ -23,6 +24,10 @@ const primaryBtn: React.CSSProperties = {
 };
 
 export default function GrowthScreen({ openModal }: GrowthScreenProps) {
+  const { state } = useHP();
+
+  if (!state) return null;
+
   return (
     <div style={{ padding: '0 16px 120px', fontFamily: HP_FONT }}>
       <ScreenHeader title="Growth" subtitle="Pengembangan & karir kamu"/>
@@ -124,3 +129,4 @@ export default function GrowthScreen({ openModal }: GrowthScreenProps) {
     </div>
   );
 }
+
