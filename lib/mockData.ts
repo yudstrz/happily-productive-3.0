@@ -8,6 +8,18 @@ export const HP_USER = {
   avatar: '#4A7C59',
 };
 
+export const HP_REWARDS = [
+  { id: 1, title: "Extra cuti 1 hari", points: 500, tone: "sage", emoji: "🏖️", category: "Wellbeing", desc: "Nikmati satu hari penuh istirahat untuk mengisi ulang energimu." },
+  { id: 2, title: "Voucher lunch 100k", points: 250, tone: "yellow", emoji: "🍱", category: "Lifestyle", desc: "Makan siang enak bareng teman kerja — ditanggung kantor!" },
+  { id: 3, title: "Workshop UX intensif", points: 800, tone: "blue", emoji: "🎨", category: "Growth", desc: "Ikuti workshop 2 hari bersama praktisi UX terkemuka." },
+  { id: 4, title: "Donasi program sosial", points: 100, tone: "coral", emoji: "🌱", category: "Impact", desc: "Ubah poinmu menjadi donasi nyata untuk komunitas sekitar." },
+  { id: 5, title: "Tiket bioskop 2x", points: 300, tone: "lavender", emoji: "🎬", category: "Lifestyle", desc: "Nonton film favorit bersama teman atau keluarga." },
+  { id: 6, title: "Pulsa / e-wallet 50k", points: 150, tone: "sage", emoji: "📱", category: "Lifestyle", desc: "Top up pulsa atau saldo e-wallet langsung ke akunmu." },
+  { id: 7, title: "Voucher belanja 200k", points: 400, tone: "yellow", emoji: "🛍️", category: "Lifestyle", desc: "Belanja kebutuhanmu dengan voucher dari partner kami." },
+  { id: 8, title: "Kelas online premium", points: 600, tone: "blue", emoji: "💻", category: "Growth", desc: "Akses kursus online dari platform terkemuka selama 3 bulan." },
+  { id: 9, title: "Sesi wellness 1:1", points: 350, tone: "coral", emoji: "🧘", category: "Wellbeing", desc: "Konsultasi pribadi dengan wellness coach berpengalaman." },
+];
+
 export const HP_MOODS = [
   { key: 'joy', label: 'Bahagia', emoji: '😊', tone: 'yellow', value: 5 },
   { key: 'calm', label: 'Tenang', emoji: '🙂', tone: 'sage', value: 4 },

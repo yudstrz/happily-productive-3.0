@@ -18,6 +18,8 @@ interface HPState {
   wellbeing: any;
   points: number;
   notifications: number;
+  rewards: any[];
+  rewardHistory: any[];
 }
 
 interface HPUser {
