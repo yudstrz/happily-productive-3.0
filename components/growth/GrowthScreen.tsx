@@ -125,7 +125,13 @@ export default function GrowthScreen({ openModal }: GrowthScreenProps) {
             <div style={{ ...HP_TEXT.h, fontSize: 15 }}>{state.coaching?.coachName}</div>
             <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, marginTop: 2 }}>{state.coaching?.role} · {state.coaching?.time}</div>
           </div>
-          <button style={{ ...primaryBtn, background: HP_TOKENS.blue }} className="hp-tap">Buka</button>
+          <button 
+            onClick={() => openModal('coaching_session')} 
+            style={{ ...primaryBtn, background: HP_TOKENS.blue }} 
+            className="hp-tap"
+          >
+            Buka
+          </button>
         </div>
         <div style={{ 
           marginTop: 12, 

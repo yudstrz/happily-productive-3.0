@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { HP_TOKENS, HP_FONT, HP_TEXT } from "@/lib/constants";
 import { useHP } from "@/lib/HPContext";
 import HPGlyph from "@/components/ui/HPGlyph";
@@ -19,7 +19,9 @@ const feedBtn: React.CSSProperties = {
 };
 
 export default function AppreciationCard({ f }: AppreciationCardProps) {
-  const { updateState } = useHP();
+  const { updateState, user } = useHP();
+  const [showComments, setShowComments] = useState(false);
+
   const valueTone: Record<string, any> = { 
     Collaboration: 'sage', 
     Innovation: 'blue', 
@@ -40,7 +42,22 @@ export default function AppreciationCard({ f }: AppreciationCardProps) {
   const handleComment = () => {
     const msg = prompt("Tulis komentar kamu:");
     if (msg) {
-      alert("Komentar berhasil ditambahkan!");
+      const newComment = {
+        id: Date.now(),
+        from: user?.name || "CurrentUser",
+        text: msg,
+        time: "Baru saja"
+      };
+
+      updateState((s: any) => ({
+        ...s,
+        feed: s.feed.map((item: any) => 
+          item.id === f.id 
+            ? { ...item, comments: [newComment, ...(item.comments || [])] } 
+            : item
+        )
+      }));
+      setShowComments(true);
     }
   };
 
@@ -48,10 +65,11 @@ export default function AppreciationCard({ f }: AppreciationCardProps) {
     const newItem = {
       ...f,
       id: Date.now(),
-      from: "Sari Wijaya", // current user
+      from: user?.name || "CurrentUser",
       time: "Baru saja",
       msg: `[Re-appreciate] ${f.msg}`,
-      likes: 0
+      likes: 0,
+      comments: []
     };
     updateState((s: any) => ({
       ...s,
@@ -84,16 +102,41 @@ export default function AppreciationCard({ f }: AppreciationCardProps) {
         borderTop: `1px solid ${HP_TOKENS.lineSoft}` 
       }}>
         <button onClick={handleLike} style={feedBtn} className="hp-tap">
-          <HPGlyph name="heart" size={16} color={f.likes > 0 ? HP_TOKENS.coral : HP_TOKENS.inkSoft}/> {f.likes}
+          <HPGlyph name="heart" size={16} color={f.likes > 0 ? HP_TOKENS.coral : HP_TOKENS.inkSoft}/> {f.likes || 0}
         </button>
         <button onClick={handleComment} style={feedBtn} className="hp-tap">
-          <HPGlyph name="chat" size={16} color={HP_TOKENS.inkSoft}/> Komentar
+          <HPGlyph name="chat" size={16} color={HP_TOKENS.inkSoft}/> 
+          Komentar {f.comments?.length > 0 ? `(${f.comments.length})` : ''}
         </button>
         <button onClick={handleReAppreciate} style={feedBtn} className="hp-tap">
           <HPGlyph name="sparkle" size={16} color={HP_TOKENS.inkSoft}/> Re-appreciate
         </button>
       </div>
+
+      {/* Comments List */}
+      {(f.comments && f.comments.length > 0) && (
+        <div style={{ 
+          marginTop: 12, 
+          padding: '12px 14px', 
+          background: HP_TOKENS.lineSoft, 
+          borderRadius: 14,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 10
+        }}>
+          {f.comments.map((c: any) => (
+            <div key={c.id}>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <HPAvatar name={c.from} size={24}/>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 12, fontWeight: 800 }}>{c.from} <span style={{ fontWeight: 400, color: HP_TOKENS.inkMute, marginLeft: 4 }}>{c.time}</span></div>
+                  <div style={{ ...HP_TEXT.body, fontSize: 13, marginTop: 2 }}>{c.text}</div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </HPCard>
   );
 }
-
