@@ -17,7 +17,7 @@ export default function GoalCard({ g }: GoalCardProps) {
     sage: HP_TOKENS.sage, 
     blue: HP_TOKENS.blue, 
     lavender: '#6B5F8E',
-    yellow: HP_TOKENS.gold
+    yellow: HP_TOKENS.yellow
   };
 
   const deleteGoal = () => {
