@@ -32,7 +32,8 @@ export default function PauseModal({ onClose }: PauseModalProps) {
     return () => clearInterval(id);
   }, []);
 
-  const label = { inhale: 'Tarik napas', hold: 'Tahan', exhale: 'Lepaskan' }[phase as keyof typeof label];
+  const labels: Record<string, string> = { inhale: 'Tarik napas', hold: 'Tahan', exhale: 'Lepaskan' };
+  const label = labels[phase as keyof typeof labels] || 'Bernapas';
   const scale = phase === 'inhale' ? 1.2 : phase === 'hold' ? 1.2 : 0.8;
 
   return (

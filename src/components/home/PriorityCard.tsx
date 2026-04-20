@@ -17,7 +17,8 @@ export default function PriorityCard({ p, onToggle }: PriorityCardProps) {
   };
   
   const t = toneMap[p.tone] || toneMap.sage;
-  const eIcon = { low: '🌱', mid: '🌿', high: '🔥' }[p.energy as keyof typeof eIcon] || '🌱';
+  const energyMap: Record<string, string> = { low: '🌱', mid: '🌿', high: '🔥' };
+  const eIcon = energyMap[p.energy as keyof typeof energyMap] || '🌱';
   
   return (
     <div style={{

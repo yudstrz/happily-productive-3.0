@@ -9,6 +9,7 @@ interface HPCardProps {
   padding?: number;
   onClick?: () => void;
   soft?: boolean;
+  className?: string;
 }
 
 export default function HPCard({ 
@@ -16,11 +17,13 @@ export default function HPCard({
   style = {}, 
   padding = 16, 
   onClick, 
-  soft = false 
+  soft = false,
+  className
 }: HPCardProps) {
   return (
     <div 
       onClick={onClick} 
+      className={className}
       style={{
         background: soft ? HP_TOKENS.lineSoft : HP_TOKENS.card,
         borderRadius: 20,
