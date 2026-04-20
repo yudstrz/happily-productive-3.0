@@ -2,6 +2,7 @@
 
 import React from "react";
 import { HP_TOKENS, HP_TEXT } from "@/lib/constants";
+import { useHP } from "@/lib/HPContext";
 import HPCard from "@/components/ui/HPCard";
 import HPChip from "@/components/ui/HPChip";
 import HPBar from "@/components/ui/HPBar";
