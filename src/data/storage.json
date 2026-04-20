@@ -1,0 +1,70 @@
+{
+  "state": {
+    "mood": null,
+    "energy": null,
+    "tag": null,
+    "intention": "",
+    "priorities": [
+      {
+        "id": 1,
+        "title": "Review wireframe onboarding v3",
+        "goal": "Launch Apps Redesign",
+        "energy": "high",
+        "est": "45m",
+        "done": false,
+        "tone": "sage"
+      },
+      {
+        "id": 2,
+        "title": "Kirim handoff ke tim engineering",
+        "goal": "Launch Apps Redesign",
+        "energy": "mid",
+        "est": "20m",
+        "done": false,
+        "tone": "sage"
+      },
+      {
+        "id": 3,
+        "title": "Sinkronisasi ikon design system",
+        "goal": "DS Migration Q2",
+        "energy": "low",
+        "est": "30m",
+        "done": true,
+        "tone": "blue"
+      }
+    ],
+    "feed": [
+      {
+        "id": 1,
+        "from": "Budi Santoso",
+        "to": "Sari Wijaya",
+        "value": "Collaboration",
+        "msg": "Makasih banyak Sari — handoff kemarin super jelas, tim eng langsung bisa jalan tanpa blocker. 🌱",
+        "likes": 12,
+        "time": "2 jam lalu"
+      },
+      {
+        "id": 2,
+        "from": "Anya Putri",
+        "to": "Rizky Hidayat",
+        "value": "Innovation",
+        "msg": "Ide prototype Rizky buat checkout flow bener-bener ngubah persepsi user. Kreatif banget!",
+        "likes": 8,
+        "time": "5 jam lalu"
+      },
+      {
+        "id": 3,
+        "from": "Dian Kusuma",
+        "to": "Tim Research",
+        "value": "Respect",
+        "msg": "Makasih tim research udah dengerin concern designer sebelum finalize insight report.",
+        "likes": 21,
+        "time": "Kemarin"
+      }
+    ]
+  },
+  "user": {
+    "name": "Sari Wijaya",
+    "streak": 12
+  }
+}

@@ -1,0 +1,135 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --hp-sage: #8FB39B;
+  --hp-sage-dark: #4A7C59;
+  --hp-sage-soft: #F1F6F3;
+  --hp-coral: #E88B7D;
+  --hp-coral-soft: #FDEEEB;
+  --hp-blue: #8AB6D6;
+  --hp-blue-soft: #F0F6FA;
+  --hp-gold: #D4A373;
+  --hp-paper: #FBF7F2;
+  --hp-ink: #2C2A28;
+  --hp-ink-mute: #8A837C;
+  --hp-line: rgba(44,42,40,0.08);
+  --hp-line-soft: rgba(44,42,40,0.04);
+  --hp-card: #FFFFFF;
+  --hp-font: 'Nunito', -apple-system, system-ui, sans-serif;
+  --hp-font-mono: 'JetBrains Mono', monospace;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  background: #EFE9E0;
+  min-height: 100vh;
+  font-family: var(--hp-font);
+  color: var(--hp-ink);
+  overflow-x: hidden;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px 12px;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* Animations */
+@keyframes hpFadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes hpSlideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes hpDot { 0%, 60%, 100% { opacity: 0.3; transform: translateY(0); } 30% { opacity: 1; transform: translateY(-3px); } }
+@keyframes hpPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+@keyframes hpFloat { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-8px) rotate(3deg); } }
+@keyframes hpFloatSlow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+@keyframes hpWiggle { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-6deg); } 75% { transform: rotate(6deg); } }
+@keyframes hpBounceIn { 0% { transform: scale(0.3); opacity: 0; } 60% { transform: scale(1.1); opacity: 1; } 100% { transform: scale(1); } }
+@keyframes hpPop { 0% { transform: scale(1); } 40% { transform: scale(1.18); } 100% { transform: scale(1); } }
+@keyframes hpShine { 0% { transform: translateX(-100%); } 100% { transform: translateX(300%); } }
+@keyframes hpBlob { 0%, 100% { border-radius: 60% 40% 50% 60% / 50% 60% 40% 50%; } 50% { border-radius: 40% 60% 60% 40% / 60% 50% 50% 40%; } }
+@keyframes hpRise { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes hpGlow { 0%, 100% { box-shadow: 0 0 0 0 rgba(74,124,89,0.35); } 50% { box-shadow: 0 0 0 12px rgba(74,124,89,0); } }
+@keyframes hpSparkle { 0%, 100% { opacity: 0; transform: scale(0.6) rotate(0); } 50% { opacity: 1; transform: scale(1) rotate(180deg); } }
+
+/* Utilities */
+.hp-stagger > * { animation: hpRise 420ms cubic-bezier(.2,.8,.2,1) backwards; }
+.hp-stagger > *:nth-child(1) { animation-delay: 60ms; }
+.hp-stagger > *:nth-child(2) { animation-delay: 140ms; }
+.hp-stagger > *:nth-child(3) { animation-delay: 220ms; }
+.hp-stagger > *:nth-child(4) { animation-delay: 300ms; }
+.hp-stagger > *:nth-child(5) { animation-delay: 380ms; }
+
+.hp-tap { transition: transform 180ms cubic-bezier(.2,.8,.2,1); }
+.hp-tap:active { transform: scale(0.96); }
+
+/* Layout Components */
+.hp-shell {
+  position: relative;
+  width: 100%;
+  max-width: 402px; /* Standard mobile width in desktop view */
+  height: 874px;   /* Standard mobile height */
+  margin: 0 auto;
+}
+
+.hp-surround {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 240px;
+  pointer-events: none;
+}
+
+.hp-surround.left { right: calc(100% + 28px); text-align: right; }
+.hp-surround.right { left: calc(100% + 28px); }
+
+.hp-surround h4 {
+  margin: 0 0 4px;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--hp-ink);
+  letter-spacing: -0.1px;
+}
+
+.hp-surround p {
+  margin: 0 0 16px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--hp-ink-mute);
+  line-height: 1.45;
+}
+
+.hp-surround .dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--hp-sage-dark);
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+@media (max-width: 1200px) {
+  .hp-surround { display: none; }
+  .hp-shell {
+    height: 100vh;
+    max-width: 100%;
+    margin: 0;
+  }
+  body {
+    padding: 0;
+  }
+}
+
+/* Scrollbar Hide */
+::-webkit-scrollbar { width: 0; height: 0; }
