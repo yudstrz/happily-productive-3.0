@@ -161,7 +161,3 @@ export default function WellbeingScreen({ openModal }: WellbeingScreenProps) {
   );
 }
 
-    </div>
-  );
-}
-
