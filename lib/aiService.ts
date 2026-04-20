@@ -1,6 +1,9 @@
-export async function generateCoachingTopic(goals: any[], skills: any[]) {
-  const prompt = `Based on these active goals: ${goals.map(g => g.title).join(', ')} 
-  and these skill progressions: ${skills.map(s => `${s.name} (${s.current}/${s.target})`).join(', ')}, 
+// Accept nullable params defensively — state values like mood/goals can be null on init
+export async function generateCoachingTopic(goals: any[] | null | undefined, skills: any[] | null | undefined) {
+  const safeGoals = goals ?? [];
+  const safeSkills = skills ?? [];
+  const prompt = `Based on these active goals: ${safeGoals.map((g: any) => g.title).join(', ')} 
+  and these skill progressions: ${safeSkills.map((s: any) => `${s.name} (${s.current}/${s.target})`).join(', ')}, 
   suggest one specific, empathetic, and humanist 1-on-1 coaching topic for an employee and their manager. 
   Keep it short (max 2 sentences) and avoid corporate buzzwords.`;
 
@@ -19,8 +22,10 @@ export async function generateCoachingTopic(goals: any[], skills: any[]) {
   }
 }
 
-export async function generateDailyPrompt(mood: string, goals: any[]) {
-  const prompt = `User is currently feeling "${mood}". Their active goals are: ${goals.map(g => g.title).join(', ')}.
+export async function generateDailyPrompt(mood: string | null | undefined, goals: any[] | null | undefined) {
+  const safeMood = mood ?? 'calm';
+  const safeGoals = goals ?? [];
+  const prompt = `User is currently feeling "${safeMood}". Their active goals are: ${safeGoals.map((g: any) => g.title).join(', ')}.
   Suggest one thoughtful, empathetic, and humanist reflection prompt for their daily journal. 
   Keep it short, deep, and avoiding corporate jargon. One question only.`;
 
@@ -38,4 +43,3 @@ export async function generateDailyPrompt(mood: string, goals: any[]) {
     return "Apa satu hal kecil yang bikin kamu bangga hari ini?";
   }
 }
-
