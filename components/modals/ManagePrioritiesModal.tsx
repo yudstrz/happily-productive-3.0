@@ -19,6 +19,8 @@ export default function ManagePrioritiesModal({ onClose }: ManagePrioritiesModal
   const [newTitle, setNewTitle] = useState("");
   const [energy, setEnergy] = useState("mid");
 
+  if (!state) return null;
+
   const addPriority = () => {
     if (!newTitle) return;
     const newP = {
@@ -44,7 +46,7 @@ export default function ManagePrioritiesModal({ onClose }: ManagePrioritiesModal
     }));
   };
 
-  if (!state) return null;
+
 
   return (
     <Modal onClose={onClose} title="Kelola Prioritas">
