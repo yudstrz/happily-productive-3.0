@@ -17,6 +17,7 @@ export default function GoalModal({ onClose }: GoalModalProps) {
   const { updateState } = useHP();
   const [title, setTitle] = useState("");
   const [due, setDue] = useState("");
+  const [scope, setScope] = useState("personal");
 
   const save = () => {
     if (!title || !due) return;
@@ -30,15 +31,22 @@ export default function GoalModal({ onClose }: GoalModalProps) {
           title,
           progress: 0,
           alignment: 80,
-          owner: "Sari",
+          owner: scope === 'personal' ? "Sari" : scope === 'team' ? "Team" : "Management",
           due,
-          tone: "blue",
-          metric: "0 / 1 tasks",
+          tone: scope === 'personal' ? "sage" : scope === 'team' ? "blue" : "yellow",
+          metric: "0 / 1 milestones",
+          scope,
         }
       ]
     }));
     onClose();
   };
+
+  const scopes = [
+    { key: 'personal', label: 'Saya' },
+    { key: 'team', label: 'Tim' },
+    { key: 'company', label: 'Perusahaan' },
+  ];
 
   return (
     <Modal onClose={onClose} title="Tambah Goal Baru">
@@ -69,6 +77,24 @@ export default function GoalModal({ onClose }: GoalModalProps) {
           }}
         />
 
+        <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, fontWeight: 700, marginTop: 20 }}>SCOPE / ROLE</div>
+        <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+          {scopes.map(s => (
+            <button
+              key={s.key}
+              onClick={() => setScope(s.key)}
+              style={{
+                flex: 1, padding: '12px 8px', borderRadius: 12, border: 'none',
+                background: scope === s.key ? HP_TOKENS.ink : HP_TOKENS.lineSoft,
+                color: scope === s.key ? '#fff' : HP_TOKENS.ink,
+                fontFamily: HP_FONT, fontWeight: 800, fontSize: 13, cursor: 'pointer',
+              }}
+            >
+              {s.label}
+            </button>
+          ))}
+        </div>
+
         <button 
           onClick={save} 
           disabled={!title || !due}
@@ -87,3 +113,4 @@ export default function GoalModal({ onClose }: GoalModalProps) {
     </Modal>
   );
 }
+

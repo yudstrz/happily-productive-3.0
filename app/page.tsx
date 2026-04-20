@@ -25,16 +25,25 @@ import CoachModal from "@/components/modals/CoachModal";
 import NotificationsModal from "@/components/modals/NotificationsModal";
 import JournalModal from "@/components/modals/JournalModal";
 import GoalModal from "@/components/modals/GoalModal";
+import ManagePrioritiesModal from "@/components/modals/ManagePrioritiesModal";
+import ManageHabitsModal from "@/components/modals/ManageHabitsModal";
+import ManageWeeklyModal from "@/components/modals/ManageWeeklyModal";
+import ManageSkillsModal from "@/components/modals/ManageSkillsModal";
+import ManageLearningModal from "@/components/modals/ManageLearningModal";
+import ScheduleCoachingModal from "@/components/modals/ScheduleCoachingModal";
+import LearningDetailModal from "@/components/modals/LearningDetailModal";
+import ManageProgramsModal from "@/components/modals/ManageProgramsModal";
 
 function AppContent() {
   const { state, loading, resetData } = useHP();
   const [tab, setTab] = useState('home');
-  const [modal, setModal] = useState<string | null>(null);
+  const [modal, setModal] = useState<{name: string, props?: any} | null>(null);
 
   if (loading || !state) return <div style={{ background: HP_TOKENS.paper, height: '100vh' }} />;
 
-  const openModal = (name: string) => setModal(name);
+  const openModal = (name: string, props?: any) => setModal({ name, props });
   const closeModal = () => setModal(null);
+
 
   const renderScreen = () => {
     const pad = { paddingTop: 58 };
@@ -80,19 +89,30 @@ function AppContent() {
       <TabNav tab={tab} setTab={setTab}/>
 
       {/* Modal Renderer */}
-      {modal === 'checkin' && <CheckInModal onClose={closeModal}/>}
-      {modal === 'focus' && <FocusModal onClose={closeModal}/>}
-      {modal === 'appreciate' && <AppreciateModal onClose={closeModal}/>}
-      {modal === 'pause' && <PauseModal onClose={closeModal}/>}
-      {modal === 'reflect' && <ReflectModal onClose={closeModal}/>}
-      {modal === 'coach' && <CoachModal onClose={closeModal}/>}
-      {modal === 'notifications' && <NotificationsModal onClose={closeModal}/>}
-      {modal === 'journal' && <JournalModal onClose={closeModal}/>}
-      {modal === 'gratitude' && <JournalModal onClose={closeModal}/>}
-      {modal === 'new_goal' && <GoalModal onClose={closeModal}/>}
+      {modal?.name === 'checkin' && <CheckInModal onClose={closeModal}/>}
+      {modal?.name === 'focus' && <FocusModal onClose={closeModal}/>}
+      {modal?.name === 'appreciate' && <AppreciateModal onClose={closeModal}/>}
+      {modal?.name === 'pause' && <PauseModal onClose={closeModal}/>}
+      {modal?.name === 'reflect' && <ReflectModal onClose={closeModal}/>}
+      {modal?.name === 'coach' && <CoachModal onClose={closeModal}/>}
+      {modal?.name === 'notifications' && <NotificationsModal onClose={closeModal}/>}
+      {modal?.name === 'journal' && <JournalModal onClose={closeModal} {...modal.props}/>}
+      {modal?.name === 'new_goal' && <GoalModal onClose={closeModal}/>}
+      {modal?.name === 'manage_priorities' && <ManagePrioritiesModal onClose={closeModal}/>}
+      {modal?.name === 'manage_habits' && <ManageHabitsModal onClose={closeModal}/>}
+      {modal?.name === 'manage_weekly' && <ManageWeeklyModal onClose={closeModal}/>}
+      {modal?.name === 'manage_skills' && <ManageSkillsModal onClose={closeModal}/>}
+      {modal?.name === 'manage_learning' && <ManageLearningModal onClose={closeModal}/>}
+      {modal?.name === 'schedule_coaching' && <ScheduleCoachingModal onClose={closeModal}/>}
+      {modal?.name === 'learning_detail' && <LearningDetailModal onClose={closeModal}/>}
+      {modal?.name === 'manage_programs' && <ManageProgramsModal onClose={closeModal}/>}
     </div>
+
+
+
   );
 }
+
 
 
 export default function Home() {

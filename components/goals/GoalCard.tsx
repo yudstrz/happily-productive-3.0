@@ -11,17 +11,38 @@ interface GoalCardProps {
 }
 
 export default function GoalCard({ g }: GoalCardProps) {
+  const { updateState } = useHP();
   const tones: Record<string, string> = { 
     sage: HP_TOKENS.sage, 
     blue: HP_TOKENS.blue, 
-    lavender: '#6B5F8E' 
+    lavender: '#6B5F8E',
+    yellow: HP_TOKENS.gold
+  };
+
+  const deleteGoal = () => {
+    if (confirm(`Hapus goal "${g.title}"?`)) {
+      updateState((s: any) => ({
+        ...s,
+        goals: s.goals.filter((item: any) => item.id !== g.id)
+      }));
+    }
   };
   
   return (
     <HPCard padding={14}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
         <div style={{ flex: 1 }}>
-          <div style={{ ...HP_TEXT.h, fontSize: 15 }}>{g.title}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ ...HP_TEXT.h, fontSize: 15 }}>{g.title}</div>
+            <button 
+              onClick={deleteGoal}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2, display: 'flex' }}
+            >
+              <div style={{ width: 14, height: 14, borderRadius: 7, background: HP_TOKENS.lineSoft, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span style={{ fontSize: 10, color: HP_TOKENS.inkFade, fontWeight: 900 }}>×</span>
+              </div>
+            </button>
+          </div>
           <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, marginTop: 4 }}>
             {g.metric} · Due {g.due}
           </div>
@@ -45,3 +66,4 @@ export default function GoalCard({ g }: GoalCardProps) {
     </HPCard>
   );
 }
+

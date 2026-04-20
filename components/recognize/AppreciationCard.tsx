@@ -18,12 +18,45 @@ const feedBtn: React.CSSProperties = {
 };
 
 export default function AppreciationCard({ f }: AppreciationCardProps) {
+  const { updateState } = useHP();
   const valueTone: Record<string, any> = { 
     Collaboration: 'sage', 
     Innovation: 'blue', 
     Respect: 'lavender', 
     Ownership: 'yellow', 
     Growth: 'coral' 
+  };
+
+  const handleLike = () => {
+    updateState((s: any) => ({
+      ...s,
+      feed: s.feed.map((item: any) => 
+        item.id === f.id ? { ...item, likes: (item.likes || 0) + 1 } : item
+      )
+    }));
+  };
+
+  const handleComment = () => {
+    const msg = prompt("Tulis komentar kamu:");
+    if (msg) {
+      alert("Komentar berhasil ditambahkan!");
+    }
+  };
+
+  const handleReAppreciate = () => {
+    const newItem = {
+      ...f,
+      id: Date.now(),
+      from: "Sari Wijaya", // current user
+      time: "Baru saja",
+      msg: `[Re-appreciate] ${f.msg}`,
+      likes: 0
+    };
+    updateState((s: any) => ({
+      ...s,
+      feed: [newItem, ...s.feed]
+    }));
+    alert("Berhasil membagikan ulang apresiasi!");
   };
   
   return (
@@ -49,16 +82,17 @@ export default function AppreciationCard({ f }: AppreciationCardProps) {
         paddingTop: 10, 
         borderTop: `1px solid ${HP_TOKENS.lineSoft}` 
       }}>
-        <button style={feedBtn} className="hp-tap">
-          <HPGlyph name="heart" size={16} color={HP_TOKENS.inkSoft}/> {f.likes}
+        <button onClick={handleLike} style={feedBtn} className="hp-tap">
+          <HPGlyph name="heart" size={16} color={f.likes > 0 ? HP_TOKENS.coral : HP_TOKENS.inkSoft}/> {f.likes}
         </button>
-        <button style={feedBtn} className="hp-tap">
+        <button onClick={handleComment} style={feedBtn} className="hp-tap">
           <HPGlyph name="chat" size={16} color={HP_TOKENS.inkSoft}/> Komentar
         </button>
-        <button style={feedBtn} className="hp-tap">
+        <button onClick={handleReAppreciate} style={feedBtn} className="hp-tap">
           <HPGlyph name="sparkle" size={16} color={HP_TOKENS.inkSoft}/> Re-appreciate
         </button>
       </div>
     </HPCard>
   );
 }
+

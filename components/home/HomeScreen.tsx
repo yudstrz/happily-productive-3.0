@@ -124,7 +124,13 @@ export default function HomeScreen({ openModal }: any) {
 
         {/* LAYER 2 — Priorities */}
         <div style={{ marginTop: 8 }}>
-          <SectionHeader icon="target" label="Prioritas hari ini" count={`${done}/${total}`} action="Kelola"/>
+          <SectionHeader 
+            icon="target" 
+            label="Prioritas hari ini" 
+            count={`${done}/${total}`} 
+            action="Kelola"
+            onAction={() => openModal('manage_priorities')}
+          />
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {priorities.map((p: any) => (
               <PriorityCard key={p.id} p={p} onToggle={() => togglePriority(p.id)}/>
@@ -171,13 +177,19 @@ export default function HomeScreen({ openModal }: any) {
 
         {/* Habits */}
         <div style={{ marginTop: 8 }}>
-          <SectionHeader icon="leaf" label="Kebiasaan kecil" action="Atur"/>
+          <SectionHeader 
+            icon="leaf" 
+            label="Kebiasaan kecil" 
+            action="Atur"
+            onAction={() => openModal('manage_habits')}
+          />
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
             {state.habits.map((h: any, i: number) => (
               <HabitCell key={i} h={h}/>
             ))}
           </div>
         </div>
+
 
         {/* Closing ritual */}
         <button onClick={() => openModal('reflect')} className="hp-tap" style={{

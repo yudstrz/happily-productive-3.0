@@ -63,11 +63,19 @@
       }
     ],
     "goals": [
-      { "id": 1, "title": "Launch Apps Redesign", "progress": 68, "alignment": 92, "owner": "Sari", "due": "30 Apr", "tone": "sage", "metric": "8 / 12 milestones" },
-      { "id": 2, "title": "DS Migration Q2", "progress": 42, "alignment": 85, "owner": "Team", "due": "15 Jun", "tone": "blue", "metric": "210 / 500 components" },
-      { "id": 3, "title": "Mentoring 2 junior designer", "progress": 55, "alignment": 78, "owner": "Sari", "due": "Ongoing", "tone": "lavender", "metric": "11 / 20 sessions" }
+      { "id": 1, "title": "Launch Apps Redesign", "progress": 68, "alignment": 92, "owner": "Sari", "due": "30 Apr", "tone": "sage", "metric": "8 / 12 milestones", "scope": "personal" },
+      { "id": 2, "title": "DS Migration Q2", "progress": 42, "alignment": 85, "owner": "Team", "due": "15 Jun", "tone": "blue", "metric": "210 / 500 components", "scope": "team" },
+      { "id": 3, "title": "Mentoring 2 junior designer", "progress": 55, "alignment": 78, "owner": "Sari", "due": "Ongoing", "tone": "lavender", "metric": "11 / 20 sessions", "scope": "personal" },
+      { "id": 4, "title": "Global Market Expansion", "progress": 15, "alignment": 100, "owner": "Management", "due": "31 Dec", "tone": "yellow", "metric": "1 / 4 regions", "scope": "company" }
+    ],
+    "weeklyPriorities": [
+      { "id": 1, "text": "Finalize onboarding wireframe v3", "done": false },
+      { "id": 2, "text": "Review design system handoff", "done": false },
+      { "id": 3, "text": "Mentoring session dengan Rizky", "done": true },
+      { "id": 4, "text": "Research interview × 3", "done": false }
     ],
     "habits": [
+
       { "name": "Tidur 7+ jam", "streak": 8, "target": 7, "done": true, "emoji": "🌙" },
       { "name": "Jalan kaki 15 menit", "streak": 3, "target": 7, "done": false, "emoji": "🚶" },
       { "name": "Meditasi pagi", "streak": 12, "target": 7, "done": true, "emoji": "🧘" },
@@ -80,10 +88,36 @@
         { "key": "physical", "label": "Fisik", "score": 64, "tone": "blue", "trend": "+1" },
         { "key": "financial", "label": "Finansial", "score": 82, "tone": "yellow", "trend": "+0" },
         { "key": "social", "label": "Sosial", "score": 88, "tone": "lavender", "trend": "+6" }
-      ]
+      ],
+      "programs": [
+        { "id": 1, "title": "21 Hari Meditasi", "progress": 57, "joined": 142, "tone": "lavender", "day": "Hari 12 dari 21" },
+        { "id": 2, "title": "Step Challenge", "progress": 74, "joined": 89, "tone": "yellow", "day": "7,420 langkah hari ini" },
+        { "id": 3, "title": "Gratitude Week", "progress": 40, "joined": 210, "tone": "coral", "day": "Hari 2 dari 7" }
+      ],
+      "journals": [],
+      "dailyPrompt": "Apa satu hal kecil yang bikin kamu bangga hari ini?"
+    },
+
+    "skills": [
+      { "name": "Design Systems", "current": 85, "target": 95 },
+      { "name": "User Research", "current": 45, "target": 70 },
+      { "name": "Interaction Design", "current": 72, "target": 85 },
+      { "name": "Leadership", "current": 30, "target": 60 }
+    ],
+    "learning": [
+      { "id": 1, "title": "Influence without Authority", "meta": "8 menit · Microlearning", "tag": "Leadership", "tone": "coral", "status": "new" },
+      { "id": 2, "title": "Design System Governance", "meta": "45 menit · Video", "tag": "Design Systems", "tone": "blue", "status": "started" },
+      { "id": 3, "title": "Storytelling for Designers", "meta": "22 menit · Article", "tag": "Storytelling", "tone": "yellow", "status": "new" }
+    ],
+    "coaching": {
+      "coachName": "Dewi Lestari",
+      "role": "Manager kamu",
+      "time": "Rabu, 14:00",
+      "aiTopic": "Kamu lapor hambatan di Goal DS Migration 2 minggu berturut — mungkin bahas ini dulu?"
     },
     "points": 1340,
     "notifications": 3
+
   },
   "user": {
     "name": "Sari Wijaya",

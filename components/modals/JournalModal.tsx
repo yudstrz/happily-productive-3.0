@@ -10,23 +10,50 @@ import Modal from "@/components/ui/Modal";
 
 interface JournalModalProps {
   onClose: () => void;
+  type?: 'reflection' | 'gratitude';
 }
 
-const primaryBtn: React.CSSProperties = {
-  padding: '14px', borderRadius: 99, border: 'none', background: HP_TOKENS.sage,
-  color: '#fff', fontFamily: HP_FONT, fontWeight: 800, fontSize: 15, cursor: 'pointer',
-  boxShadow: `0 4px 14px ${HP_TOKENS.sageSoft}`,
-};
-
-export default function JournalModal({ onClose }: JournalModalProps) {
+export default function JournalModal({ onClose, type = 'reflection' }: JournalModalProps) {
+  const { state, updateState } = useHP();
   const [text, setText] = useState('');
 
+  const save = () => {
+    if (!text) return;
+    const newEntry = {
+      id: Date.now(),
+      type,
+      text,
+      date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long' })
+    };
+
+    updateState((s: any) => ({
+      ...s,
+      wellbeing: {
+        ...s.wellbeing,
+        journals: [newEntry, ...(s.wellbeing.journals || [])]
+      },
+      points: (s.points || 0) + 10,
+      user: {
+        ...s.user,
+        points: (s.user?.points || 0) + 10
+      }
+    }));
+
+    alert(`Bagus! Jurnal ${type === 'reflection' ? 'refleksi' : 'rasa syukur'} kamu tersimpan. Kamu dapat +10 poin! 🌱`);
+    onClose();
+  };
+
+  const title = type === 'reflection' ? 'Reflection journal' : 'Gratitude log';
+  const prompt = type === 'reflection' ? (state?.wellbeing?.dailyPrompt || "Apa satu hal kecil yang bikin kamu bangga hari ini?") : "Tulis 3 hal yang kamu syukuri hari ini...";
+
   return (
-    <Modal onClose={onClose} title="Reflection journal">
-      <div style={{ padding: 14, background: HP_TOKENS.sageWash, borderRadius: 14, marginBottom: 16 }}>
-        <div style={{ ...HP_TEXT.small, color: HP_TOKENS.sage, fontWeight: 800 }}>PROMPT DARI AI</div>
+    <Modal onClose={onClose} title={title}>
+      <div style={{ padding: 14, background: type === 'reflection' ? HP_TOKENS.sageWash : HP_TOKENS.coralWash, borderRadius: 14, marginBottom: 16 }}>
+        <div style={{ ...HP_TEXT.small, color: type === 'reflection' ? HP_TOKENS.sage : HP_TOKENS.coral, fontWeight: 800 }}>
+          {type === 'reflection' ? 'PROMPT HARI INI' : 'LOG RASA SYUKUR'}
+        </div>
         <div style={{ ...HP_TEXT.h, fontSize: 15, marginTop: 6 }}>
-          "Apa satu hal kecil yang bikin kamu bangga hari ini?"
+          "{prompt}"
         </div>
       </div>
       <textarea
@@ -34,7 +61,7 @@ export default function JournalModal({ onClose }: JournalModalProps) {
         value={text} 
         onChange={e => setText(e.target.value)} 
         rows={10}
-        placeholder="Tulis apa aja — ini fully private, end-to-end encrypted."
+        placeholder="Tulis apa saja — ini fully private, end-to-end encrypted."
         style={{
           width: '100%', 
           padding: 14, 
@@ -61,12 +88,14 @@ export default function JournalModal({ onClose }: JournalModalProps) {
         🔒 E2E encrypted · tidak bisa diakses HR, manager, atau siapapun.
       </div>
       <button 
-        onClick={onClose} 
-        style={{ ...primaryBtn, width: '100%', marginTop: 18 }}
+        onClick={save} 
+        disabled={!text}
+        style={{ ...primaryBtn, width: '100%', marginTop: 18, opacity: !text ? 0.5 : 1 }}
         className="hp-tap"
       >
-        Simpan
+        Simpan Jurnal ✨
       </button>
     </Modal>
   );
 }
+

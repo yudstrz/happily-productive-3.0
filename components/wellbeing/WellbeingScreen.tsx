@@ -10,9 +10,10 @@ import SectionHeader from "@/components/home/SectionHeader";
 import ReadinessRing from "@/components/growth/ReadinessRing";
 import DimensionCard from "@/components/wellbeing/DimensionCard";
 import ProgramCard from "@/components/wellbeing/ProgramCard";
+import { generateDailyPrompt } from "@/lib/aiService";
 
 interface WellbeingScreenProps {
-  openModal: (name: string) => void;
+  openModal: (name: string, props?: any) => void;
 }
 
 const softBtn: React.CSSProperties = {
@@ -22,13 +23,24 @@ const softBtn: React.CSSProperties = {
 };
 
 export default function WellbeingScreen({ openModal }: WellbeingScreenProps) {
-  const { state } = useHP();
+  const { state, updateState } = useHP();
+  const [refreshing, setRefreshing] = React.useState(false);
   
   if (!state) return null;
 
   const { wellbeing } = state;
-  const avg = Math.round(wellbeing.dims.reduce((a: number, b: any) => a + b.score, 0) / wellbeing.dims.length);
+  const avg = Math.round((wellbeing.dims || []).reduce((a: number, b: any) => a + b.score, 0) / (wellbeing.dims?.length || 1));
   
+  const refreshPrompt = async () => {
+    setRefreshing(true);
+    const prompt = await generateDailyPrompt(state.mood, state.goals);
+    updateState((s: any) => ({
+      ...s,
+      wellbeing: { ...s.wellbeing, dailyPrompt: prompt }
+    }));
+    setRefreshing(false);
+  };
+
   return (
     <div style={{ padding: '0 16px 120px', fontFamily: HP_FONT }}>
       <ScreenHeader title="Wellbeing" subtitle="Holistik: mental, fisik, finansial, sosial"/>
@@ -90,11 +102,23 @@ export default function WellbeingScreen({ openModal }: WellbeingScreenProps) {
         <HPGlyph name="arrow" size={18} color={HP_TOKENS.inkMute}/>
       </button>
 
-      <SectionHeader icon="calendar" label="Program & tantangan"/>
+      <SectionHeader 
+        icon="calendar" 
+        label="Program & tantangan" 
+        action="Kelola"
+        onAction={() => openModal('manage_programs')}
+      />
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        <ProgramCard title="21 Hari Meditasi" progress={57} joined={142} tone="lavender" day="Hari 12 dari 21"/>
-        <ProgramCard title="Step Challenge" progress={74} joined={89} tone="yellow" day="7,420 langkah hari ini"/>
-        <ProgramCard title="Gratitude Week" progress={40} joined={210} tone="coral" day="Hari 2 dari 7"/>
+        {(wellbeing.programs || []).map((p: any) => (
+          <ProgramCard 
+            key={p.id} 
+            title={p.title} 
+            progress={p.progress} 
+            joined={p.joined} 
+            tone={p.tone} 
+            day={p.day}
+          />
+        ))}
       </div>
 
       <SectionHeader 
@@ -105,25 +129,38 @@ export default function WellbeingScreen({ openModal }: WellbeingScreenProps) {
       />
       <HPCard padding={14}>
         <div style={{ display: 'flex', gap: 12 }}>
-          <button onClick={() => openModal('journal')} style={{ ...softBtn, flex: 1 }} className="hp-tap">
+          <button onClick={() => openModal('journal', { type: 'reflection' })} style={{ ...softBtn, flex: 1 }} className="hp-tap">
             <HPGlyph name="book" size={18} color={HP_TOKENS.sage}/>
             <div>Reflection journal</div>
           </button>
-          <button onClick={() => openModal('gratitude')} style={{ ...softBtn, flex: 1 }} className="hp-tap">
+          <button onClick={() => openModal('journal', { type: 'gratitude' })} style={{ ...softBtn, flex: 1 }} className="hp-tap">
             <HPGlyph name="heart" size={18} color={HP_TOKENS.coral}/>
             <div>Gratitude log</div>
           </button>
         </div>
         <div style={{ marginTop: 12, padding: 12, background: HP_TOKENS.lineSoft, borderRadius: 12 }}>
-          <div style={{ ...HP_TEXT.small, color: HP_TOKENS.sage, fontWeight: 700 }}>PROMPT HARI INI</div>
-          <div style={{ ...HP_TEXT.h, fontSize: 15, marginTop: 4 }}>
-            "Apa satu hal kecil yang bikin kamu bangga hari ini?"
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ ...HP_TEXT.small, color: HP_TOKENS.sage, fontWeight: 700 }}>PROMPT HARI INI</div>
+            <button 
+              onClick={refreshPrompt} 
+              className="hp-tap"
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex' }}
+            >
+              <HPGlyph name="refresh" size={12} color={HP_TOKENS.sage} style={{ opacity: refreshing ? 0.5 : 1 }}/>
+            </button>
+          </div>
+          <div style={{ ...HP_TEXT.h, fontSize: 15, marginTop: 4, fontStyle: refreshing ? 'italic' : 'normal', opacity: refreshing ? 0.6 : 1 }}>
+            {refreshing ? "Mencari inspirasi..." : (wellbeing.dailyPrompt || "Tulis apa saja yang ada di pikiranmu.")}
           </div>
           <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, marginTop: 6, fontStyle: 'italic' }}>
             🔒 Private — tidak bisa diakses siapapun, termasuk HR.
           </div>
         </div>
       </HPCard>
+    </div>
+  );
+}
+
     </div>
   );
 }

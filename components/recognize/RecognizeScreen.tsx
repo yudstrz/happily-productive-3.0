@@ -17,8 +17,19 @@ interface RecognizeScreenProps {
 
 export default function RecognizeScreen({ openModal }: RecognizeScreenProps) {
   const { state } = useHP();
+  const [filter, setFilter] = React.useState('All');
 
   if (!state) return null;
+
+  const filters = ['All', 'Collaboration', 'Innovation', 'Respect', 'Ownership', 'Growth'];
+  const nextFilter = () => {
+    const idx = filters.indexOf(filter);
+    setFilter(filters[(idx + 1) % filters.length]);
+  };
+
+  const filteredFeed = filter === 'All' 
+    ? state.feed 
+    : state.feed.filter((f: any) => f.value === filter);
 
   return (
     <div style={{ padding: '0 16px 120px', fontFamily: HP_FONT }}>
@@ -60,12 +71,19 @@ export default function RecognizeScreen({ openModal }: RecognizeScreenProps) {
       <SectionHeader 
         icon="people" 
         label="Feed tim" 
-        action="Filter"
-        onAction={() => openModal('filter_feed')}
+        action={filter === 'All' ? 'Filter' : `Filter: ${filter}`}
+        onAction={nextFilter}
       />
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        {state.feed.map((f: any) => <AppreciationCard key={f.id} f={f}/>)}
+        {filteredFeed.map((f: any) => <AppreciationCard key={f.id} f={f}/>)}
+        {filteredFeed.length === 0 && (
+          <div style={{ textAlign: 'center', padding: '40px 20px', color: HP_TOKENS.inkMute }}>
+            <div style={{ fontSize: 32, marginBottom: 12 }}>🔍</div>
+            <div style={{ ...HP_TEXT.h, fontSize: 14 }}>Belum ada apresiasi untuk kategori ini.</div>
+          </div>
+        )}
       </div>
+
 
       <SectionHeader 
         icon="trophy" 

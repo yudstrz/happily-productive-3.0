@@ -11,11 +11,13 @@ interface LearningCardProps {
   meta: string;
   tag: string;
   tone: 'sage' | 'blue' | 'yellow' | 'coral' | 'lavender' | 'neutral';
+  onClick?: () => void;
 }
 
-export default function LearningCard({ title, meta, tag, tone }: LearningCardProps) {
+export default function LearningCard({ title, meta, tag, tone, onClick }: LearningCardProps) {
   return (
-    <HPCard padding={12} onClick={() => {}} className="hp-tap">
+    <HPCard padding={12} onClick={onClick} className="hp-tap">
+
       <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
         <HPPlaceholder label="" h={64} tone={tone as any}/>
         <div style={{ flex: 1, minWidth: 0 }}>

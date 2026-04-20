@@ -12,6 +12,7 @@ import ScreenHeader from "@/components/ui/ScreenHeader";
 import SectionHeader from "@/components/home/SectionHeader";
 import ReadinessRing from "@/components/growth/ReadinessRing";
 import LearningCard from "@/components/growth/LearningCard";
+import { generateCoachingTopic } from "@/lib/aiService";
 
 interface GrowthScreenProps {
   openModal: (name: string) => void;
@@ -24,9 +25,20 @@ const primaryBtn: React.CSSProperties = {
 };
 
 export default function GrowthScreen({ openModal }: GrowthScreenProps) {
-  const { state } = useHP();
+  const { state, updateState } = useHP();
+  const [refreshing, setRefreshing] = React.useState(false);
 
   if (!state) return null;
+
+  const refreshTopic = async () => {
+    setRefreshing(true);
+    const topic = await generateCoachingTopic(state.goals, state.skills);
+    updateState((s: any) => ({
+      ...s,
+      coaching: { ...s.coaching, aiTopic: topic }
+    }));
+    setRefreshing(false);
+  };
 
   return (
     <div style={{ padding: '0 16px 120px', fontFamily: HP_FONT }}>
@@ -55,11 +67,11 @@ export default function GrowthScreen({ openModal }: GrowthScreenProps) {
       <SectionHeader 
         icon="tree" 
         label="Skill progression" 
-        action="Lihat detail"
-        onAction={() => openModal('skill_details')}
+        action="Kelola"
+        onAction={() => openModal('manage_skills')}
       />
       <HPCard padding={14}>
-        {HP_SKILLS.map((s, i) => (
+        {(state.skills || []).map((s: any, i: number) => (
           <div key={s.name} style={{ padding: '10px 0', borderTop: i === 0 ? 'none' : `1px solid ${HP_TOKENS.lineSoft}` }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
               <div style={{ ...HP_TEXT.h, fontSize: 13 }}>{s.name}</div>
@@ -84,27 +96,34 @@ export default function GrowthScreen({ openModal }: GrowthScreenProps) {
       <SectionHeader 
         icon="book" 
         label="Learning untuk kamu" 
-        action="Semua"
-        onAction={() => openModal('all_learning')}
+        action="Edit"
+        onAction={() => openModal('manage_learning')}
       />
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        <LearningCard title="Influence without Authority" meta="8 menit · Microlearning" tag="Leadership" tone="coral"/>
-        <LearningCard title="Design System Governance" meta="45 menit · Video" tag="Design Systems" tone="blue"/>
-        <LearningCard title="Storytelling for Designers" meta="22 menit · Article" tag="Storytelling" tone="yellow"/>
+        {(state.learning || []).map((l: any) => (
+          <LearningCard 
+            key={l.id} 
+            title={l.title} 
+            meta={l.meta} 
+            tag={l.tag} 
+            tone={l.tone} 
+            onClick={() => openModal('learning_detail')}
+          />
+        ))}
       </div>
 
       <SectionHeader 
         icon="chat" 
         label="1-on-1 Coaching" 
-        action="Jadwalkan"
+        action="Atur"
         onAction={() => openModal('schedule_coaching')}
       />
       <HPCard padding={14}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <HPAvatar name="Dewi Lestari" size={44} color={HP_TOKENS.blue}/>
+          <HPAvatar name={state.coaching?.coachName || "Dewi Lestari"} size={44} color={HP_TOKENS.blue}/>
           <div style={{ flex: 1 }}>
-            <div style={{ ...HP_TEXT.h, fontSize: 15 }}>Dewi Lestari</div>
-            <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, marginTop: 2 }}>Manager kamu · Rabu, 14:00</div>
+            <div style={{ ...HP_TEXT.h, fontSize: 15 }}>{state.coaching?.coachName}</div>
+            <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, marginTop: 2 }}>{state.coaching?.role} · {state.coaching?.time}</div>
           </div>
           <button style={{ ...primaryBtn, background: HP_TOKENS.blue }} className="hp-tap">Buka</button>
         </div>
@@ -118,10 +137,19 @@ export default function GrowthScreen({ openModal }: GrowthScreenProps) {
           alignItems: 'flex-start' 
         }}>
           <HPGlyph name="sparkle" size={16} color={HP_TOKENS.sage}/>
-          <div>
-            <div style={{ ...HP_TEXT.h, fontSize: 13, color: HP_TOKENS.sage }}>Saran topik dari AI</div>
-            <div style={{ ...HP_TEXT.body, fontSize: 13, marginTop: 4 }}>
-              "Kamu lapor hambatan di Goal DS Migration 2 minggu berturut — mungkin bahas ini dulu?"
+          <div style={{ flex: 1 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ ...HP_TEXT.h, fontSize: 13, color: HP_TOKENS.sage }}>Saran topik dari AI</div>
+              <button 
+                onClick={refreshTopic} 
+                className="hp-tap"
+                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex' }}
+              >
+                <HPGlyph name="refresh" size={12} color={HP_TOKENS.sage} style={{ opacity: refreshing ? 0.5 : 1 }}/>
+              </button>
+            </div>
+            <div style={{ ...HP_TEXT.body, fontSize: 13, marginTop: 4, fontStyle: refreshing ? 'italic' : 'normal', opacity: refreshing ? 0.6 : 1 }}>
+              {refreshing ? "Menganalisis goal kamu..." : (state.coaching?.aiTopic || "Pilih goal untuk mendapakan saran topik.")}
             </div>
           </div>
         </div>
@@ -129,4 +157,5 @@ export default function GrowthScreen({ openModal }: GrowthScreenProps) {
     </div>
   );
 }
+
 
