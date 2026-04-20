@@ -143,9 +143,9 @@ export default function GrowthScreen({ openModal }: GrowthScreenProps) {
               <button 
                 onClick={refreshTopic} 
                 className="hp-tap"
-                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex' }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex', opacity: refreshing ? 0.5 : 1 }}
               >
-                <HPGlyph name="refresh" size={12} color={HP_TOKENS.sage} style={{ opacity: refreshing ? 0.5 : 1 }}/>
+                <HPGlyph name="refresh" size={12} color={HP_TOKENS.sage}/>
               </button>
             </div>
             <div style={{ ...HP_TEXT.body, fontSize: 13, marginTop: 4, fontStyle: refreshing ? 'italic' : 'normal', opacity: refreshing ? 0.6 : 1 }}>

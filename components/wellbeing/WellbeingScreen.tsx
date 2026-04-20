@@ -144,9 +144,9 @@ export default function WellbeingScreen({ openModal }: WellbeingScreenProps) {
             <button 
               onClick={refreshPrompt} 
               className="hp-tap"
-              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex' }}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex', opacity: refreshing ? 0.5 : 1 }}
             >
-              <HPGlyph name="refresh" size={12} color={HP_TOKENS.sage} style={{ opacity: refreshing ? 0.5 : 1 }}/>
+              <HPGlyph name="refresh" size={12} color={HP_TOKENS.sage}/>
             </button>
           </div>
           <div style={{ ...HP_TEXT.h, fontSize: 15, marginTop: 4, fontStyle: refreshing ? 'italic' : 'normal', opacity: refreshing ? 0.6 : 1 }}>
