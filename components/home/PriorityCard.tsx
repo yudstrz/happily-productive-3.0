@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { HP_TOKENS, HP_FONT, HP_TEXT } from "@/lib/constants";
 import HPGlyph from "@/components/ui/HPGlyph";
 
@@ -10,6 +10,8 @@ interface PriorityCardProps {
 }
 
 export default function PriorityCard({ p, onToggle }: PriorityCardProps) {
+  const [showPoints, setShowPoints] = useState(false);
+
   const toneMap: Record<string, any> = {
     sage: { bg: HP_TOKENS.sageSoft, fg: HP_TOKENS.sage, wash: HP_TOKENS.sageWash },
     blue: { bg: HP_TOKENS.blueSoft, fg: HP_TOKENS.blue, wash: HP_TOKENS.blueWash },
@@ -19,9 +21,19 @@ export default function PriorityCard({ p, onToggle }: PriorityCardProps) {
   const t = toneMap[p.tone] || toneMap.sage;
   const energyMap: Record<string, string> = { low: '🌱', mid: '🌿', high: '🔥' };
   const eIcon = energyMap[p.energy as keyof typeof energyMap] || '🌱';
+
+  const handleToggle = () => {
+    if (!p.done) {
+      // Completing — show +50 animation
+      setShowPoints(true);
+      setTimeout(() => setShowPoints(false), 1200);
+    }
+    onToggle();
+  };
   
   return (
     <div style={{
+      position: 'relative',
       display: 'flex', 
       alignItems: 'flex-start', 
       gap: 12, 
@@ -31,8 +43,23 @@ export default function PriorityCard({ p, onToggle }: PriorityCardProps) {
       borderRadius: 18, 
       transition: 'all 300ms',
     }}>
+      {/* Floating +50 Poin animation */}
+      {showPoints && (
+        <div style={{
+          position: 'absolute', top: 6, right: 14,
+          background: HP_TOKENS.sage, color: '#fff',
+          fontSize: 12, fontWeight: 900, fontFamily: HP_FONT,
+          padding: '3px 10px', borderRadius: 99,
+          animation: 'hpFloatUp 1.2s ease-out forwards',
+          pointerEvents: 'none', zIndex: 10,
+          boxShadow: `0 4px 12px ${HP_TOKENS.sageSoft}`,
+        }}>
+          +50 Poin ⚡
+        </div>
+      )}
+
       <button 
-        onClick={onToggle} 
+        onClick={handleToggle} 
         className="hp-tap" 
         style={{
           width: 28, 
@@ -76,6 +103,15 @@ export default function PriorityCard({ p, onToggle }: PriorityCardProps) {
           <span style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, fontWeight: 800 }}>
             {eIcon} {p.est}
           </span>
+          {p.done && (
+            <span style={{
+              fontFamily: HP_FONT, fontWeight: 800, fontSize: 11,
+              padding: '3px 9px', background: HP_TOKENS.yellowWash,
+              color: '#8A6814', borderRadius: 99,
+            }}>
+              +50 Poin ✓
+            </span>
+          )}
         </div>
       </div>
     </div>
