@@ -60,7 +60,7 @@ export default function ReflectModal({ onClose }: ReflectModalProps) {
               key={m.key}
               onClick={() => setMood(m.key)}
               style={{
-                flex: 1, padding: '12px 4px', borderRadius: 12, border: 'none',
+                flex: 1, padding: '12px 4px', borderRadius: 12,
                 background: mood === m.key ? HP_TOKENS.sageWash : 'transparent',
                 border: `1.5px solid ${mood === m.key ? HP_TOKENS.sage : 'transparent'}`,
                 cursor: 'pointer', transition: '0.2s', textAlign: 'center'
