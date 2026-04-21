@@ -1,259 +1,200 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useHP } from "@/lib/HPContext";
 import { HP_TOKENS, HP_FONT, HP_TEXT } from "@/lib/constants";
 import Modal from "@/components/ui/Modal";
-import DiceBearAvatar, { DiceBearConfig, DEFAULT_DICEBEAR_CONFIG } from "@/components/ui/DiceBearAvatar";
+import HPAvatar from "@/components/ui/HPAvatar";
+import HumanFullBody from "@/components/ui/HumanFullBody";
 
-// ── Skin tones (hex without #) ──────────────────────────────────────────────
-const SKIN_TONES = [
-  { label: 'Fair',      hex: 'f2d3b1' },
-  { label: 'Light',     hex: 'ecad80' },
-  { label: 'Medium',    hex: 'd08b5b' },
-  { label: 'Tan',       hex: 'ae5d29' },
-  { label: 'Brown',     hex: '694d3d' },
-  { label: 'Dark',      hex: '3c2415' },
-];
-
-// ── Hair styles ──────────────────────────────────────────────────────────────
-const HAIR_STYLES = [
-  { label: 'Short 1',  val: 'short01' },
-  { label: 'Short 2',  val: 'short02' },
-  { label: 'Short 3',  val: 'short08' },
-  { label: 'Short 4',  val: 'short12' },
-  { label: 'Long 1',   val: 'long01' },
-  { label: 'Long 2',   val: 'long05' },
-  { label: 'Long 3',   val: 'long12' },
-  { label: 'Long 4',   val: 'long21' },
-  { label: 'Bun',      val: 'long25' },
-  { label: 'Curly',    val: 'long20' },
-];
-
-// ── Hair colors ──────────────────────────────────────────────────────────────
-const HAIR_COLORS = [
-  { label: 'Black',    hex: '0e0e0e' },
-  { label: 'Brown',    hex: '4a312c' },
-  { label: 'Chestnut', hex: '8c4e3d' },
-  { label: 'Auburn',   hex: 'a55728' },
-  { label: 'Blonde',   hex: 'cb9e46' },
-  { label: 'Platinum', hex: 'd4c8b8' },
-  { label: 'White',    hex: 'ecdcbf' },
-  { label: 'Red',      hex: 'b54620' },
-  { label: 'Blue',     hex: '5b7ab7' },
-  { label: 'Purple',   hex: '7c4fa0' },
-];
-
-// ── Eye variants ─────────────────────────────────────────────────────────────
-const EYE_VARIANTS = [
-  'variant01','variant04','variant07','variant11',
-  'variant14','variant16','variant20','variant26',
-];
-
-// ── Eyebrow variants ─────────────────────────────────────────────────────────
-const EYEBROW_VARIANTS = ['variant01','variant02','variant05','variant08','variant11','variant14'];
-
-// ── Background colors ────────────────────────────────────────────────────────
-const BG_COLORS = [
-  { label: 'Sky',      hex: 'b6e3f4' },
-  { label: 'Peach',    hex: 'ffd5dc' },
-  { label: 'Mint',     hex: 'c0e9c5' },
-  { label: 'Lavender', hex: 'c4b5f4' },
-  { label: 'Yellow',   hex: 'fff1b8' },
-  { label: 'Sand',     hex: 'f5d6b0' },
-  { label: 'White',    hex: 'ffffff' },
-  { label: 'Dark',     hex: '2c2a5e' },
-];
-
-// ── Features ─────────────────────────────────────────────────────────────────
-const FEATURES = [
-  { label: 'Tidak ada', val: '' },
-  { label: 'Freckles',  val: 'freckles' },
-  { label: 'Blush',     val: 'blush' },
-  { label: 'Birthmark', val: 'birthmark' },
-  { label: 'Mustache',  val: 'mustache' },
-];
+const SKIN_TONES = ['#FFDBAC', '#F1C27D', '#E0AC69', '#8D5524', '#C68642'];
+const HAIR_COLORS = ['#090806', '#2C1608', '#4E3115', '#B89778', '#A5A2A0', '#D6C4C2'];
+const HAIR_STYLES = ['short', 'spiky', 'long', 'bob'];
+const CLOTHING_COLORS = [HP_TOKENS.sage, HP_TOKENS.blue, HP_TOKENS.coral, HP_TOKENS.lavender, HP_TOKENS.ink, HP_TOKENS.yellow];
 
 interface AvatarEditorModalProps {
   onClose: () => void;
 }
 
 export default function AvatarEditorModal({ onClose }: AvatarEditorModalProps) {
-  const { user, updateUser } = useHP();
+  const { user, updateUser, state } = useHP();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
-  const existing = user?.avatarConfig;
-  const [config, setConfig] = useState<DiceBearConfig>(
-    existing && 'seed' in existing
-      ? (existing as DiceBearConfig)
-      : { ...DEFAULT_DICEBEAR_CONFIG, seed: user?.name || 'user' }
-  );
+  // Local state for full-body config
+  const [config, setConfig] = useState<any>(user?.avatarConfig || {
+    skinColor: SKIN_TONES[1],
+    hairStyle: 'short',
+    hairColor: HAIR_COLORS[0],
+    clothingColor: HP_TOKENS.blue,
+  });
 
-  const set = (patch: Partial<DiceBearConfig>) => setConfig(c => ({ ...c, ...patch }));
+  const [photo, setPhoto] = useState<string | undefined>(user?.profilePhoto);
 
-  const saveAvatar = () => {
-    updateUser({ avatarConfig: config });
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPhoto(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const saveAll = () => {
+    updateUser({ 
+      avatarConfig: config,
+      profilePhoto: photo 
+    });
     onClose();
   };
 
-  const label = (text: string) => (
-    <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, marginBottom: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.8 }}>
-      {text}
-    </div>
-  );
-
-  const ColorDot = ({ hex, selected, onClick, size = 32, radius = 16 }: any) => (
-    <button
-      onClick={onClick}
-      style={{
-        width: size, height: size, borderRadius: radius,
-        background: `#${hex}`,
-        border: selected ? `3px solid ${HP_TOKENS.sage}` : `2px solid ${HP_TOKENS.line}`,
-        cursor: 'pointer', flexShrink: 0,
-        boxShadow: selected ? `0 0 0 2px white, 0 0 0 4px ${HP_TOKENS.sage}` : 'none',
-        transition: '0.15s',
-      }}
-    />
-  );
-
-  const ChipButton = ({ label, selected, onClick }: any) => (
-    <button
-      onClick={onClick}
-      style={{
-        padding: '7px 13px', borderRadius: 10,
-        background: selected ? HP_TOKENS.sage : HP_TOKENS.lineSoft,
-        color: selected ? '#fff' : HP_TOKENS.ink,
-        border: 'none', fontFamily: HP_FONT, fontWeight: 700, fontSize: 11,
-        cursor: 'pointer', transition: '0.15s', whiteSpace: 'nowrap',
-      }}
-    >
-      {label}
-    </button>
-  );
-
-  const EyeChip = ({ val, selected, onClick }: any) => (
-    <button
-      onClick={onClick}
-      style={{
-        width: 40, height: 32, borderRadius: 8,
-        background: selected ? HP_TOKENS.sage : HP_TOKENS.lineSoft,
-        color: selected ? '#fff' : HP_TOKENS.ink,
-        border: 'none', fontFamily: HP_FONT, fontWeight: 700, fontSize: 9,
-        cursor: 'pointer', transition: '0.15s',
-      }}
-    >
-      {val.replace('variant', '')}
-    </button>
-  );
-
   return (
-    <Modal onClose={onClose} title="Customize Your Avatar 🎨">
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 0, marginTop: 10 }}>
+    <Modal onClose={onClose} title="User Profile & Persona 🎨">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 32, marginTop: 10 }}>
         
-        {/* ── Preview ───────────────────────────────────── */}
-        <div style={{ 
-          display: 'flex', justifyContent: 'center', alignItems: 'center',
-          padding: '20px 0 24px',
-          background: `#${config.backgroundColor}40`,
-          borderRadius: 20,
-          border: `1.5px solid ${HP_TOKENS.line}`,
-          position: 'relative', overflow: 'hidden', marginBottom: 24,
-        }}>
-          <div style={{
-            position: 'absolute', width: 160, height: 160, borderRadius: 80,
-            background: `#${config.backgroundColor}80`,
-            filter: 'blur(30px)',
-          }} />
-          <div style={{ position: 'relative', zIndex: 1 }}>
-            <DiceBearAvatar config={config} size={160} mood={null} />
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-
-          {/* ── Skin ─────────────────────────────────────── */}
-          <div>
-            {label('Warna Kulit')}
-            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-              {SKIN_TONES.map(t => (
-                <ColorDot key={t.hex} hex={t.hex} selected={config.skinColor === `#${t.hex}`} onClick={() => set({ skinColor: `#${t.hex}` })} />
-              ))}
+        {/* Profile Photo Section */}
+        <section>
+          <div style={{ ...HP_TEXT.h, fontSize: 16, marginBottom: 16 }}>Profile Photo</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+            <HPAvatar name={user?.name || "User"} size={80} rank={user?.rank} />
+            <div style={{ flex: 1 }}>
+               <button 
+                onClick={() => fileInputRef.current?.click()}
+                style={{
+                  padding: '10px 16px', 
+                  borderRadius: 12, 
+                  background: HP_TOKENS.lineSoft,
+                  border: 'none', 
+                  fontFamily: HP_FONT, 
+                  fontWeight: 700, 
+                  cursor: 'pointer'
+                }}
+              >
+                Upload New Photo
+              </button>
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                onChange={handleFileUpload} 
+                accept="image/*" 
+                style={{ display: 'none' }} 
+              />
+              <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, marginTop: 8 }}>
+                Recomended: Square JPG/PNG. Max 2MB.
+              </div>
             </div>
           </div>
+        </section>
 
-          {/* ── Hair Style ───────────────────────────────── */}
-          <div>
-            {label('Gaya Rambut')}
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              {HAIR_STYLES.map(h => (
-                <ChipButton key={h.val} label={h.label} selected={config.hair === h.val} onClick={() => set({ hair: h.val })} />
-              ))}
+        <hr style={{ border: 'none', borderTop: `1px solid ${HP_TOKENS.lineSoft}` }} />
+
+        {/* Full-Body Persona Section */}
+        <section>
+          <div style={{ ...HP_TEXT.h, fontSize: 16, marginBottom: 16 }}>Full-Body Persona</div>
+          
+          <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start' }}>
+            <div style={{ 
+              background: HP_TOKENS.lineSoft, 
+              borderRadius: 24, 
+              padding: 20, 
+              display: 'flex', 
+              justifyContent: 'center',
+              width: 140
+            }}>
+              <HumanFullBody 
+                {...config} 
+                size={120} 
+                mood={state?.mood} 
+              />
+            </div>
+
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {/* Skin */}
+              <div>
+                <div style={{ ...HP_TEXT.tiny, marginBottom: 6 }}>Skin Tone</div>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  {SKIN_TONES.map(color => (
+                    <button 
+                      key={color}
+                      onClick={() => setConfig({ ...config, skinColor: color })}
+                      style={{ 
+                        width: 24, height: 24, borderRadius: 12, background: color, border: config.skinColor === color ? `2px solid ${HP_TOKENS.sage}` : 'none', cursor: 'pointer'
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Hair Style */}
+              <div>
+                <div style={{ ...HP_TEXT.tiny, marginBottom: 6 }}>Hair Style</div>
+                <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                  {HAIR_STYLES.map(style => (
+                    <button 
+                      key={style}
+                      onClick={() => setConfig({ ...config, hairStyle: style })}
+                      style={{ 
+                        padding: '4px 10px', borderRadius: 8, 
+                        background: config.hairStyle === style ? HP_TOKENS.ink : '#fff',
+                        color: config.hairStyle === style ? '#fff' : HP_TOKENS.inkSoft,
+                        border: `1px solid ${HP_TOKENS.line}`,
+                        fontFamily: HP_FONT, fontWeight: 700, fontSize: 10, cursor: 'pointer',
+                        textTransform: 'capitalize'
+                      }}
+                    >
+                      {style}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Hair Color */}
+              <div>
+                <div style={{ ...HP_TEXT.tiny, marginBottom: 6 }}>Hair Color</div>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  {HAIR_COLORS.map(color => (
+                    <button 
+                      key={color}
+                      onClick={() => setConfig({ ...config, hairColor: color })}
+                      style={{ 
+                        width: 20, height: 20, borderRadius: 10, background: color, border: config.hairColor === color ? `2px solid ${HP_TOKENS.sage}` : '1px solid rgba(0,0,0,0.1)', cursor: 'pointer'
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Clothing */}
+              <div>
+                <div style={{ ...HP_TEXT.tiny, marginBottom: 6 }}>Clothing Color</div>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  {CLOTHING_COLORS.map(color => (
+                    <button 
+                      key={color}
+                      onClick={() => setConfig({ ...config, clothingColor: color })}
+                      style={{ 
+                        width: 24, height: 24, borderRadius: 6, background: color, border: config.clothingColor === color ? `2px solid #000` : 'none', cursor: 'pointer'
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
-
-          {/* ── Hair Color ───────────────────────────────── */}
-          <div>
-            {label('Warna Rambut')}
-            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-              {HAIR_COLORS.map(c => (
-                <ColorDot key={c.hex} hex={c.hex} selected={config.hairColor === `#${c.hex}`} onClick={() => set({ hairColor: `#${c.hex}` })} />
-              ))}
-            </div>
-          </div>
-
-          {/* ── Eyes ─────────────────────────────────────── */}
-          <div>
-            {label('Bentuk Mata')}
-            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-              {EYE_VARIANTS.map(v => (
-                <EyeChip key={v} val={v} selected={config.eyes === v} onClick={() => set({ eyes: v })} />
-              ))}
-            </div>
-          </div>
-
-          {/* ── Eyebrows ─────────────────────────────────── */}
-          <div>
-            {label('Alis')}
-            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-              {EYEBROW_VARIANTS.map(v => (
-                <EyeChip key={v} val={v} selected={config.eyebrows === v} onClick={() => set({ eyebrows: v })} />
-              ))}
-            </div>
-          </div>
-
-          {/* ── Features ─────────────────────────────────── */}
-          <div>
-            {label('Fitur Wajah')}
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-              {FEATURES.map(f => (
-                <ChipButton key={f.val} label={f.label} selected={(config.features || '') === f.val} onClick={() => set({ features: f.val })} />
-              ))}
-            </div>
-          </div>
-
-          {/* ── Background ───────────────────────────────── */}
-          <div>
-            {label('Background')}
-            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-              {BG_COLORS.map(b => (
-                <ColorDot key={b.hex} hex={b.hex} radius={10} selected={config.backgroundColor === b.hex} onClick={() => set({ backgroundColor: b.hex })} />
-              ))}
-            </div>
-          </div>
-
-        </div>
+        </section>
 
         <button 
-          onClick={saveAvatar}
+          onClick={saveAll}
           style={{
-            width: '100%', padding: '16px', borderRadius: 99, marginTop: 28,
-            background: `linear-gradient(135deg, ${HP_TOKENS.sage}, #3A6347)`,
-            color: '#fff', border: 'none',
+            width: '100%', padding: '16px', borderRadius: 99,
+            background: HP_TOKENS.sage, color: '#fff', border: 'none',
             fontFamily: HP_FONT, fontWeight: 800, fontSize: 15, cursor: 'pointer',
-            boxShadow: `0 8px 24px rgba(74,124,89,0.35)`,
+            boxShadow: `0 8px 24px ${HP_TOKENS.sageSoft}`,
           }}
           className="hp-tap"
         >
-          Simpan Karakter 🌱
+          Save Profile 🌱
         </button>
       </div>
     </Modal>

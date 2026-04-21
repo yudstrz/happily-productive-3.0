@@ -6,7 +6,6 @@ import { HP_TOKENS, HP_FONT, HP_TEXT } from "@/lib/constants";
 import HPGlyph from "@/components/ui/HPGlyph";
 import HPCard from "@/components/ui/HPCard";
 import HPAvatar from "@/components/ui/HPAvatar";
-import DiceBearAvatar from "@/components/ui/DiceBearAvatar";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import SectionHeader from "@/components/home/SectionHeader";
 import ReadinessRing from "@/components/growth/ReadinessRing";
@@ -43,8 +42,7 @@ export default function WellbeingScreen({ openModal }: WellbeingScreenProps) {
     setRefreshing(false);
   };
 
-  const user = ctxUser || { name: "User", avatarConfig: null };
-  const config = user.avatarConfig && 'seed' in user.avatarConfig ? user.avatarConfig : null;
+  const user = ctxUser || { name: "User", rank: "E" };
 
   return (
     <div style={{ padding: '0 16px 120px', fontFamily: HP_FONT }}>
@@ -57,23 +55,17 @@ export default function WellbeingScreen({ openModal }: WellbeingScreenProps) {
         background: `radial-gradient(circle at center, ${HP_TOKENS.sageWash} 0%, transparent 70%)`
       }}>
         <div style={{ position: 'relative' }}>
-          <div style={{ 
-            width: 140, height: 140, borderRadius: 70, 
-            background: '#fff', border: `2px solid ${HP_TOKENS.sageSoft}`,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 12px 32px rgba(74,124,89,0.1)'
-          }}>
-            {config ? (
-              <DiceBearAvatar config={config as any} size={160} mood={state.mood ?? null} />
-            ) : (
-              <HPAvatar name={user.name} size={60} />
-            )}
-          </div>
+          <HPAvatar 
+            name={user.name} 
+            size={120} 
+            rank={user.rank}
+          />
           <div style={{
-            position: 'absolute', bottom: 10, right: -10,
+            position: 'absolute', bottom: -10, right: -10,
             padding: '6px 14px', borderRadius: 20, background: '#fff',
             border: `1.5px solid ${HP_TOKENS.line}`, fontSize: 13, fontWeight: 800,
-            color: HP_TOKENS.sage, boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
+            color: HP_TOKENS.sage, boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+            zIndex: 11
           }}>
             Feeling {state.mood || 'Calm'}
           </div>

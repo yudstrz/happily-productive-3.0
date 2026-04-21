@@ -33,17 +33,12 @@ interface HPUser {
   points: number;
   level: number;
   rank: string;
+  profilePhoto?: string; // base64 data URL of uploaded photo
   avatarConfig?: {
-    seed: string;
     skinColor: string;
-    hair: string;
+    hairStyle: string;
     hairColor: string;
-    eyes: string;
-    eyebrows: string;
-    mouth: string;
-    backgroundColor: string;
-    features?: string;
-    glasses?: string;
+    clothingColor: string;
   };
 }
 
