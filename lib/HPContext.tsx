@@ -34,12 +34,16 @@ interface HPUser {
   level: number;
   rank: string;
   avatarConfig?: {
-    skin: string;
-    hairStyle: string;
+    seed: string;
+    skinColor: string;
+    hair: string;
     hairColor: string;
-    clothing: string;
-    clothingColor: string;
-    expression: string;
+    eyes: string;
+    eyebrows: string;
+    mouth: string;
+    backgroundColor: string;
+    features?: string;
+    glasses?: string;
   };
 }
 

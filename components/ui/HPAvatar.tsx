@@ -1,7 +1,7 @@
 "use client";
 
 import { HP_TOKENS, HP_FONT } from "@/lib/constants";
-import HumanAvatar, { getExpressionFromMood } from "@/components/ui/HumanAvatar";
+import DiceBearAvatar from "@/components/ui/DiceBearAvatar";
 import { useHP } from "@/lib/HPContext";
 
 interface HPAvatarProps {
@@ -67,7 +67,7 @@ export default function HPAvatar({
         width: size, 
         height: size, 
         borderRadius: size / 2,
-        background: bg, 
+        background: config ? 'transparent' : bg, 
         color: '#fff',
         display: 'flex', 
         alignItems: 'center', 
@@ -79,14 +79,13 @@ export default function HPAvatar({
         letterSpacing: 0.2,
         position: 'relative',
         zIndex: 1,
+        overflow: 'hidden',
       }}>
         {config ? (
-          <HumanAvatar 
-            size={size * 1.5} 
-            config={{ 
-              ...config, 
-              expression: getExpressionFromMood(currentMood) 
-            }} 
+          <DiceBearAvatar 
+            size={size * 1.2} 
+            config={config}
+            mood={currentMood}
           />
         ) : (
           initials
