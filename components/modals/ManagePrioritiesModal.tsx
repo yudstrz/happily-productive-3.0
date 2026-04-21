@@ -107,7 +107,7 @@ export default function ManagePrioritiesModal({ onClose }: ManagePrioritiesModal
                 key={t}
                 onClick={() => setType(t)}
                 style={{
-                  flex: 1, padding: '8px', borderRadius: 8, border: 'none',
+                  flex: 1, padding: '8px', borderRadius: 8, 
                   background: type === t ? HP_TOKENS.sage : '#fff',
                   color: type === t ? '#fff' : HP_TOKENS.ink,
                   fontFamily: HP_FONT, fontWeight: 700, fontSize: 11, cursor: 'pointer',
@@ -126,7 +126,7 @@ export default function ManagePrioritiesModal({ onClose }: ManagePrioritiesModal
                 key={e}
                 onClick={() => setEnergy(e)}
                 style={{
-                  flex: 1, padding: '10px', borderRadius: 10, border: 'none',
+                  flex: 1, padding: '10px', borderRadius: 10,
                   background: energy === e ? HP_TOKENS.ink : '#fff',
                   color: energy === e ? '#fff' : HP_TOKENS.ink,
                   fontFamily: HP_FONT, fontWeight: 700, fontSize: 13, cursor: 'pointer',
