@@ -178,7 +178,26 @@ export default function HomeScreen({ openModal }: any) {
           <div style={{ position: 'relative', zIndex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                <HPAvatar name={user.name} size={52} color={HP_TOKENS.sage} levelProgress={levelProgress} rank={user.rank}/>
+                <div style={{ position: 'relative' }}>
+                  <HPAvatar 
+                    name={user.name} 
+                    size={52} 
+                    rank={user.rank}
+                    levelProgress={((user.points % 100) / 100)} 
+                  />
+                  <button 
+                    onClick={() => openModal('avatar_editor')}
+                    style={{
+                      position: 'absolute', bottom: -4, right: -4, width: 26, height: 26,
+                      borderRadius: 13, border: '2px solid #fff', background: HP_TOKENS.ink,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      cursor: 'pointer', zIndex: 10, boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
+                    }}
+                    className="hp-tap"
+                  >
+                    <HPGlyph name="refresh" size={12} color="#fff"/>
+                  </button>
+                </div>
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <div style={{ ...HP_TEXT.h, fontSize: 20 }}>{user.name.split(' ')[0]}</div>

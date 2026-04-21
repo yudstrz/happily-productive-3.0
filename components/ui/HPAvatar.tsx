@@ -1,7 +1,8 @@
 "use client";
 
-import React from "react";
 import { HP_TOKENS, HP_FONT } from "@/lib/constants";
+import HumanAvatar, { getExpressionFromMood } from "@/components/ui/HumanAvatar";
+import { useHP } from "@/lib/HPContext";
 
 interface HPAvatarProps {
   name: string;
@@ -18,6 +19,10 @@ export default function HPAvatar({
   levelProgress = 0,
   rank
 }: HPAvatarProps) {
+  const { user, state } = useHP();
+  const config = user?.avatarConfig;
+  const currentMood = state?.mood;
+  
   const initials = name.split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase();
   const palette = [HP_TOKENS.sage, HP_TOKENS.blue, HP_TOKENS.coral, HP_TOKENS.lavender, '#B5884A'];
   const bg = color || palette[name.charCodeAt(0) % palette.length];
@@ -75,7 +80,17 @@ export default function HPAvatar({
         position: 'relative',
         zIndex: 1,
       }}>
-        {initials}
+        {config ? (
+          <HumanAvatar 
+            size={size * 1.5} 
+            config={{ 
+              ...config, 
+              expression: getExpressionFromMood(currentMood) 
+            }} 
+          />
+        ) : (
+          initials
+        )}
       </div>
       {rank && (
         <div style={{

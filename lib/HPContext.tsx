@@ -33,6 +33,14 @@ interface HPUser {
   points: number;
   level: number;
   rank: string;
+  avatarConfig?: {
+    skin: string;
+    hairStyle: string;
+    hairColor: string;
+    clothing: string;
+    clothingColor: string;
+    expression: string;
+  };
 }
 
 interface HPContextType {

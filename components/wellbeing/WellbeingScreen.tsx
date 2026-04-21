@@ -5,6 +5,8 @@ import { useHP } from "@/lib/HPContext";
 import { HP_TOKENS, HP_FONT, HP_TEXT } from "@/lib/constants";
 import HPGlyph from "@/components/ui/HPGlyph";
 import HPCard from "@/components/ui/HPCard";
+import HPAvatar from "@/components/ui/HPAvatar";
+import HumanAvatar, { getExpressionFromMood } from "@/components/ui/HumanAvatar";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import SectionHeader from "@/components/home/SectionHeader";
 import ReadinessRing from "@/components/growth/ReadinessRing";
@@ -41,9 +43,42 @@ export default function WellbeingScreen({ openModal }: WellbeingScreenProps) {
     setRefreshing(false);
   };
 
+  const user = state.user || { name: "User", avatarConfig: null };
+  const config = user.avatarConfig;
+
   return (
     <div style={{ padding: '0 16px 120px', fontFamily: HP_FONT }}>
-      <ScreenHeader title="Wellbeing" subtitle="Holistik: mental, fisik, finansial, sosial"/>
+      <ScreenHeader title="Wellbeing" subtitle="Keseimbangan & energi kamu hari ini"/>
+
+      {/* Wellness Avatar Hero */}
+      <div style={{ 
+        display: 'flex', flexDirection: 'column', alignItems: 'center', 
+        padding: '24px 0', marginBottom: 12,
+        background: `radial-gradient(circle at center, ${HP_TOKENS.sageWash} 0%, transparent 70%)`
+      }}>
+        <div style={{ position: 'relative' }}>
+          <div style={{ 
+            width: 140, height: 140, borderRadius: 70, 
+            background: '#fff', border: `2px solid ${HP_TOKENS.sageSoft}`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 12px 32px rgba(74,124,89,0.1)'
+          }}>
+            {config ? (
+              <HumanAvatar config={{ ...config, expression: getExpressionFromMood(state.mood) }} size={160} />
+            ) : (
+              <HPAvatar name={user.name} size={60} />
+            )}
+          </div>
+          <div style={{
+            position: 'absolute', bottom: 10, right: -10,
+            padding: '6px 14px', borderRadius: 20, background: '#fff',
+            border: `1.5px solid ${HP_TOKENS.line}`, fontSize: 13, fontWeight: 800,
+            color: HP_TOKENS.sage, boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
+          }}>
+            Feeling {state.mood || 'Calm'}
+          </div>
+        </div>
+      </div>
 
       <HPCard style={{ background: `linear-gradient(135deg, ${HP_TOKENS.sageWash}, ${HP_TOKENS.blueWash})`, border: 'none' }} padding={18}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>

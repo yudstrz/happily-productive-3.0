@@ -34,9 +34,8 @@ import LearningDetailModal from "@/components/modals/LearningDetailModal";
 import ManageProgramsModal from "@/components/modals/ManageProgramsModal";
 import AllRewardsModal from "@/components/modals/AllRewardsModal";
 import CoachingSessionModal from "@/components/modals/CoachingSessionModal";
-import JournalHistoryModal from "@/components/modals/JournalHistoryModal";
-import LogbookModal from "@/components/modals/LogbookModal";
 import SystemGuideModal from "@/components/modals/SystemGuideModal";
+import AvatarEditorModal from "@/components/modals/AvatarEditorModal";
 
 function AppContent() {
   const { state, loading, resetData } = useHP();
@@ -114,6 +113,7 @@ function AppContent() {
       {modal?.name === 'journal_history' && <JournalHistoryModal onClose={closeModal}/>}
       {modal?.name === 'logbook' && <LogbookModal onClose={closeModal}/>}
       {modal?.name === 'system_guide' && <SystemGuideModal onClose={closeModal}/>}
+      {modal?.name === 'avatar_editor' && <AvatarEditorModal onClose={closeModal}/>}
     </div>
 
 

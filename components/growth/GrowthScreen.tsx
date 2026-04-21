@@ -12,6 +12,7 @@ import ScreenHeader from "@/components/ui/ScreenHeader";
 import SectionHeader from "@/components/home/SectionHeader";
 import ReadinessRing from "@/components/growth/ReadinessRing";
 import LearningCard from "@/components/growth/LearningCard";
+import HumanAvatar, { getExpressionFromMood } from "@/components/ui/HumanAvatar";
 import { generateCoachingTopic } from "@/lib/aiService";
 
 interface GrowthScreenProps {
@@ -30,6 +31,10 @@ export default function GrowthScreen({ openModal }: GrowthScreenProps) {
 
   if (!state) return null;
 
+  const user = state.user || { name: "User", level: 1, rank: "Novice", role: "Designer", points: 0, avatarConfig: null };
+  const levelProgress = (user.points % 100) / 100;
+  const config = user.avatarConfig;
+
   const refreshTopic = async () => {
     setRefreshing(true);
     const topic = await generateCoachingTopic(state.goals, state.skills);
@@ -44,23 +49,36 @@ export default function GrowthScreen({ openModal }: GrowthScreenProps) {
     <div style={{ padding: '0 16px 120px', fontFamily: HP_FONT }}>
       <ScreenHeader title="Growth" subtitle="Pengembangan & karir kamu"/>
 
-      <HPCard padding={16}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div>
-            <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute }}>Future role readiness</div>
-            <div style={{ ...HP_TEXT.title, fontSize: 22, marginTop: 4 }}>Senior Designer</div>
+      {/* Hunter Profile Hero */}
+      <HPCard padding={20} style={{ 
+        background: `linear-gradient(135deg, ${HP_TOKENS.paper}, #fff)`,
+        border: `2px solid ${HP_TOKENS.sageSoft}`,
+        marginBottom: 24
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+          <div style={{ 
+            width: 100, height: 100, borderRadius: 50, 
+            background: HP_TOKENS.sageWash, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            position: 'relative', border: `1.5px solid ${HP_TOKENS.line}`
+          }}>
+            {config ? (
+              <HumanAvatar config={{ ...config, expression: getExpressionFromMood(state.mood) }} size={120} />
+            ) : (
+              <HPAvatar name={user.name} size={60} levelProgress={levelProgress} rank={user.rank}/>
+            )}
+            <div style={{
+              position: 'absolute', top: -5, right: -5, padding: '4px 10px', borderRadius: 12,
+              background: HP_TOKENS.yellow, color: '#8A6814', fontWeight: 900, fontSize: 11,
+              boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
+            }}>
+              LV.{user.level}
+            </div>
           </div>
-          <ReadinessRing value={72}/>
-        </div>
-        <div style={{ 
-          ...HP_TEXT.body, 
-          fontSize: 13, 
-          marginTop: 10, 
-          padding: 12, 
-          background: HP_TOKENS.sageWash, 
-          borderRadius: 12 
-        }}>
-          <span style={{ fontWeight: 700, color: HP_TOKENS.sage }}>Fokus berikutnya:</span> Leadership & Storytelling — dua skill yang paling berdampak ke role target kamu.
+          <div>
+            <div style={{ ...HP_TEXT.small, color: HP_TOKENS.sage, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 1 }}>HUNTER STATUS</div>
+            <div style={{ ...HP_TEXT.title, fontSize: 24, marginTop: 2 }}>{user.name}</div>
+            <div style={{ ...HP_TEXT.small, marginTop: 4 }}>Rank {user.rank} · {user.role}</div>
+          </div>
         </div>
       </HPCard>
 
