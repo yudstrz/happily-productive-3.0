@@ -28,6 +28,7 @@ export default function ReflectModal({ onClose }: ReflectModalProps) {
     const now = new Date();
     const newEntry = {
       id: Date.now(),
+      type: 'daily_reflection',
       date: now.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
       day: now.toLocaleDateString('id-ID', { weekday: 'long' }),
       time: now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),

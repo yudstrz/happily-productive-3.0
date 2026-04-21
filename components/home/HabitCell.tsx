@@ -1,6 +1,4 @@
-"use client";
-
-import React from "react";
+import React, { useState } from "react";
 import { HP_TOKENS, HP_TEXT } from "@/lib/constants";
 import HPGlyph from "@/components/ui/HPGlyph";
 
@@ -10,10 +8,17 @@ interface HabitCellProps {
 }
 
 export default function HabitCell({ h, onToggle }: HabitCellProps) {
-  // We assume h.history is an array of 7 booleans, 
-  // where the last index is 'Today'.
+  const [showPoints, setShowPoints] = useState(false);
   const history = h.history || [false, false, false, false, false, false, h.done];
   const lastIndex = history.length - 1;
+
+  const handleToggle = () => {
+    if (!h.done) {
+      setShowPoints(true);
+      setTimeout(() => setShowPoints(false), 1000);
+    }
+    onToggle?.();
+  };
 
   return (
     <div 
@@ -25,8 +30,27 @@ export default function HabitCell({ h, onToggle }: HabitCellProps) {
         display: 'flex',
         flexDirection: 'column',
         gap: 12,
+        position: 'relative',
       }}
     >
+      {showPoints && (
+        <div style={{
+          position: 'absolute',
+          top: -20,
+          right: 20,
+          background: HP_TOKENS.sage,
+          color: '#fff',
+          padding: '4px 10px',
+          borderRadius: 12,
+          fontSize: 12,
+          fontWeight: 900,
+          animation: 'hpPop 0.8s ease-out forwards',
+          zIndex: 10,
+          boxShadow: `0 4px 12px ${HP_TOKENS.sageSoft}`,
+        }}>
+          +20 Poin
+        </div>
+      )}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{ fontSize: 24 }}>{h.emoji}</span>
@@ -48,7 +72,7 @@ export default function HabitCell({ h, onToggle }: HabitCellProps) {
           return (
             <div 
               key={i}
-              onClick={isToday ? onToggle : undefined}
+              onClick={isToday ? handleToggle : undefined}
               className={isToday ? "hp-tap" : ""}
               style={{
                 flex: 1,

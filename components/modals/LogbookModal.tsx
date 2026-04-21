@@ -30,6 +30,29 @@ export default function LogbookModal({ onClose }: LogbookModalProps) {
           </div>
         ) : (
           logbook.map((entry: any) => {
+            if (entry.type === 'habit_completion') {
+              return (
+                <div key={entry.id} style={{
+                  padding: 16, borderRadius: 20, background: HP_TOKENS.sageWash,
+                  border: `1.5px solid ${HP_TOKENS.sageSoft}`, display: 'flex', alignItems: 'center', gap: 14
+                }}>
+                  <div style={{ fontSize: 28 }}>{entry.emoji}</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ ...HP_TEXT.h, fontSize: 13 }}>{entry.habitName} Selesai!</div>
+                    <div style={{ ...HP_TEXT.small, fontSize: 11, color: HP_TOKENS.inkMute }}>
+                      {entry.day}, {entry.date} · {entry.time}
+                    </div>
+                  </div>
+                  <div style={{ 
+                    padding: '6px 12px', borderRadius: 12, background: HP_TOKENS.sage, 
+                    color: '#fff', fontSize: 12, fontWeight: 900, boxShadow: `0 4px 10px ${HP_TOKENS.sageSoft}`
+                  }}>
+                    +{entry.points} Poin
+                  </div>
+                </div>
+              );
+            }
+
             const moodObj = HP_MOODS.find(m => m.key === entry.mood);
             return (
               <div key={entry.id} style={{
@@ -65,6 +88,9 @@ export default function LogbookModal({ onClose }: LogbookModalProps) {
                       {entry.notes || "Tidak ada catatan."}
                     </div>
                   </div>
+                </div>
+                <div style={{ position: 'absolute', top: 12, right: 12, opacity: 0.1 }}>
+                  <HPGlyph name="book" size={40} color={HP_TOKENS.ink}/>
                 </div>
               </div>
             );

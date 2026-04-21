@@ -79,18 +79,39 @@ export default function HomeScreen({ openModal }: any) {
   const toggleHabit = (name: string) => {
     updateState((s: any) => {
       const hIndex = s.habits.findIndex((h: any) => h.name === name);
-      const wasDone = s.habits[hIndex].done;
+      const habit = s.habits[hIndex];
+      const wasDone = habit.done;
+      
+      const newHabits = [...s.habits];
+      newHabits[hIndex] = { ...newHabits[hIndex], done: !wasDone };
+
       if (!wasDone) { 
         setConfetti(true); 
         setTimeout(() => setConfetti(false), 1200); 
+        
         // Award 20 points
         updateUser((u: any) => ({ ...u, points: u.points + 20 }));
+
+        // Create logbook entry
+        const now = new Date();
+        const newLog = {
+          id: Date.now(),
+          type: 'habit_completion',
+          habitName: name,
+          emoji: habit.emoji,
+          points: 20,
+          date: now.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
+          day: now.toLocaleDateString('id-ID', { weekday: 'long' }),
+          time: now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+        };
+
+        return { ...s, habits: newHabits, logbook: [newLog, ...(s.logbook || [])] };
       } else {
         updateUser((u: any) => ({ ...u, points: Math.max(0, u.points - 20) }));
+        // Optionally remove the log if toggled off, but usually logs are permanent historical records.
+        // For simplicity, we'll just return the updated habits.
+        return { ...s, habits: newHabits };
       }
-      const newHabits = [...s.habits];
-      newHabits[hIndex] = { ...newHabits[hIndex], done: !wasDone };
-      return { ...s, habits: newHabits };
     });
   };
 
