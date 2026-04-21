@@ -12,7 +12,6 @@ import ScreenHeader from "@/components/ui/ScreenHeader";
 import SectionHeader from "@/components/home/SectionHeader";
 import ReadinessRing from "@/components/growth/ReadinessRing";
 import LearningCard from "@/components/growth/LearningCard";
-import LearningCard from "@/components/growth/LearningCard";
 import { generateCoachingTopic } from "@/lib/aiService";
 
 interface GrowthScreenProps {
