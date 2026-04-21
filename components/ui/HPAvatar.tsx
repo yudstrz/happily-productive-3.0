@@ -21,7 +21,7 @@ export default function HPAvatar({
 }: HPAvatarProps) {
   const { user, state } = useHP();
   const config = user?.avatarConfig;
-  const currentMood = state?.mood;
+  const currentMood = state?.mood ?? null;
   
   const initials = name.split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase();
   const palette = [HP_TOKENS.sage, HP_TOKENS.blue, HP_TOKENS.coral, HP_TOKENS.lavender, '#B5884A'];

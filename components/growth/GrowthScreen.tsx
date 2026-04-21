@@ -26,12 +26,12 @@ const primaryBtn: React.CSSProperties = {
 };
 
 export default function GrowthScreen({ openModal }: GrowthScreenProps) {
-  const { state, updateState } = useHP();
+  const { state, user: ctxUser, updateState } = useHP();
   const [refreshing, setRefreshing] = React.useState(false);
 
   if (!state) return null;
 
-  const user = state.user || { name: "User", level: 1, rank: "Novice", role: "Designer", points: 0, avatarConfig: null };
+  const user = ctxUser || { name: "User", level: 1, rank: "Novice", role: "Designer", points: 0, avatarConfig: undefined };
   const levelProgress = (user.points % 100) / 100;
   const config = user.avatarConfig;
 

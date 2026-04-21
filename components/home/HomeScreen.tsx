@@ -35,7 +35,7 @@ const iconBtnStyle: React.CSSProperties = {
 };
 
 export default function HomeScreen({ openModal }: any) {
-  const { state, updateState, updateUser, user } = useHP();
+  const { state, updateState, updateUser, user, syncSkillProgress } = useHP();
   const [greeting, setGreeting] = useState('');
   const [confetti, setConfetti] = useState(false);
 

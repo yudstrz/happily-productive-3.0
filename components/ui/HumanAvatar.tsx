@@ -110,7 +110,7 @@ function renderHair(style: string, color: string) {
     case 'bob':
       return <path d="M25 45V55C25 58 28 60 50 60C72 60 75 58 75 55V45C75 28 65 20 50 20C35 20 25 28 25 45Z" fill={color} />;
     case 'buzz':
-      return <path d="M30 45C30 32 38 25 50 25C62 25 70 32 70 45H30V45Z" fill={color} opacity="0.8" fillStyle={{ mixBlendMode: 'multiply' }} />;
+      return <path d="M30 45C30 32 38 25 50 25C62 25 70 32 70 45H30V45Z" fill={color} opacity="0.8" style={{ mixBlendMode: 'multiply' }} />;
     case 'short':
     default:
       return <path d="M28 45C28 28 35 22 50 22C65 22 72 28 72 45H28Z" fill={color} />;

@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useHP } from "@/lib/HPContext";
 import { 
   HP_TOKENS, 
   HP_FONT, 
@@ -18,7 +19,7 @@ export default function LearningDetailModal({ onClose }: LearningDetailModalProp
 
   const handleFinish = () => {
     // Award Points
-    updateUser(u => ({ ...u, points: u.points + 100 }));
+    updateUser((u: any) => ({ ...u, points: u.points + 100 }));
     // Sync Skill (Simulating AI analysis of the 'Leadership' tag)
     syncSkillProgress("Leadership", 10);
     onClose();

@@ -25,7 +25,7 @@ const softBtn: React.CSSProperties = {
 };
 
 export default function WellbeingScreen({ openModal }: WellbeingScreenProps) {
-  const { state, updateState } = useHP();
+  const { state, user: ctxUser, updateState } = useHP();
   const [refreshing, setRefreshing] = React.useState(false);
   
   if (!state) return null;
@@ -43,7 +43,7 @@ export default function WellbeingScreen({ openModal }: WellbeingScreenProps) {
     setRefreshing(false);
   };
 
-  const user = state.user || { name: "User", avatarConfig: null };
+  const user = ctxUser || { name: "User", avatarConfig: null };
   const config = user.avatarConfig;
 
   return (
