@@ -1,9 +1,8 @@
 "use client";
 
-import React from "react";
 import { HP_TOKENS, HP_FONT } from "@/lib/constants";
+import DiceBearAvatar from "@/components/ui/DiceBearAvatar";
 import { useHP } from "@/lib/HPContext";
-import RankFrame from "@/components/ui/RankFrame";
 
 interface HPAvatarProps {
   name: string;
@@ -11,76 +10,98 @@ interface HPAvatarProps {
   color?: string;
   levelProgress?: number; // 0 to 1
   rank?: string;
-  src?: string; // Prop specifically for the photo URL
 }
 
-/**
- * Updated HPAvatar: Square frame + Rank Skin.
- */
 export default function HPAvatar({ 
   name, 
-  size = 48, 
+  size = 36, 
   color,
   levelProgress = 0,
-  rank: propRank,
-  src: propSrc
+  rank
 }: HPAvatarProps) {
-  const { user } = useHP();
-  
-  // Use passed props, or fallback to current user if it's "YOU"
-  const rank = propRank || (name === user?.name ? user?.rank : 'E') || 'E';
-  const profilePhoto = propSrc || (name === user?.name ? user?.profilePhoto : undefined);
+  const { user, state } = useHP();
+  const config = user?.avatarConfig;
+  const currentMood = state?.mood ?? null;
   
   const initials = name.split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase();
   const palette = [HP_TOKENS.sage, HP_TOKENS.blue, HP_TOKENS.coral, HP_TOKENS.lavender, '#B5884A'];
   const bg = color || palette[name.charCodeAt(0) % palette.length];
+  
+  const ringSize = size + 8;
+  const stroke = 3;
+  const radius = (ringSize - stroke) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (levelProgress * circumference);
 
   return (
-    <RankFrame rank={rank} size={size}>
+    <div style={{ position: 'relative', width: ringSize, height: ringSize, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+      {levelProgress > 0 && (
+        <svg 
+          width={ringSize} 
+          height={ringSize} 
+          style={{ position: 'absolute', transform: 'rotate(-90deg)' }}
+        >
+          <circle
+            cx={ringSize/2}
+            cy={ringSize/2}
+            r={radius}
+            fill="transparent"
+            stroke={HP_TOKENS.line}
+            strokeWidth={stroke}
+          />
+          <circle
+            cx={ringSize/2}
+            cy={ringSize/2}
+            r={radius}
+            fill="transparent"
+            stroke={HP_TOKENS.yellow}
+            strokeWidth={stroke}
+            strokeDasharray={circumference}
+            strokeDashoffset={offset}
+            strokeLinecap="round"
+            style={{ transition: 'stroke-dashoffset 0.5s ease' }}
+          />
+        </svg>
+      )}
       <div style={{
-        width: size,
-        height: size,
-        background: profilePhoto ? 'none' : bg,
+        width: size, 
+        height: size, 
+        borderRadius: size / 2,
+        background: config ? 'transparent' : bg, 
         color: '#fff',
-        display: 'flex',
-        alignItems: 'center',
+        display: 'flex', 
+        alignItems: 'center', 
         justifyContent: 'center',
-        fontFamily: HP_FONT,
-        fontWeight: 800,
+        fontFamily: HP_FONT, 
+        fontWeight: 800, 
         fontSize: size * 0.38,
-        borderRadius: 8,
-        overflow: 'hidden',
+        flexShrink: 0, 
+        letterSpacing: 0.2,
         position: 'relative',
+        zIndex: 1,
+        overflow: 'hidden',
       }}>
-        {profilePhoto ? (
-          <img 
-            src={profilePhoto} 
-            alt={name} 
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+        {config ? (
+          <DiceBearAvatar 
+            size={size * 1.2} 
+            config={config}
+            mood={currentMood}
           />
         ) : (
           initials
         )}
-
-        {/* Level Progress Overlay (Subtle) */}
-        {levelProgress > 0 && (
-          <div style={{
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            width: '100%',
-            height: 4,
-            background: 'rgba(0,0,0,0.1)',
-          }}>
-            <div style={{
-              width: `${levelProgress * 100}%`,
-              height: '100%',
-              background: HP_TOKENS.yellow,
-              transition: '0.5s ease',
-            }} />
-          </div>
-        )}
       </div>
-    </RankFrame>
+      {rank && (
+        <div style={{
+          position: 'absolute', bottom: 4, right: 4, width: 22, height: 22, borderRadius: 11,
+          background: HP_TOKENS.yellow, color: '#8A6814', fontSize: 11, fontWeight: 900,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #fff',
+          zIndex: 2, boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+          animation: 'hpPop 0.3s ease-out'
+        }}>
+          {rank}
+        </div>
+      )}
+    </div>
   );
 }

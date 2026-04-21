@@ -15,7 +15,6 @@ import {
 } from "@/lib/mockData";
 import HPGlyph from "@/components/ui/HPGlyph";
 import HPAvatar from "@/components/ui/HPAvatar";
-import HumanFullBody from "@/components/ui/HumanFullBody";
 import BlobBackground from "@/components/home/BlobBackground";
 import Confetti from "@/components/home/Confetti";
 import EmotionalHero from "@/components/home/EmotionalHero";
@@ -215,36 +214,17 @@ export default function HomeScreen({ openModal }: any) {
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-end' }}>
-                  <button onClick={() => openModal('system_guide')} className="hp-tap" style={{
-                    background: HP_TOKENS.lineSoft, border: 'none', borderRadius: 20, width: 32, height: 32,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer'
-                  }}>
-                    <HPGlyph name="sparkle" size={16} color={HP_TOKENS.sage}/>
-                  </button>
-                  <div className="hp-tap" style={{
-                    display: 'flex', alignItems: 'center', gap: 6, padding: '4px 10px', borderRadius: 99,
-                    background: HP_TOKENS.yellowSoft, fontFamily: HP_FONT, fontWeight: 900, fontSize: 13, color: '#8A6814',
-                  }}>
-                    🔥 <span>{user.streak}</span>
-                  </div>
-                </div>
-
-                {/* Persona Character Full-Body */}
-                <div style={{ 
-                  marginRight: -10, 
-                  marginTop: -20,
-                  filter: 'drop-shadow(0 10px 20px rgba(0,0,0,0.1))',
-                  cursor: 'pointer'
-                }} onClick={() => openModal('avatar_editor')}>
-                  <HumanFullBody 
-                    skinColor={user.avatarConfig?.skinColor || "#FFDBAC"}
-                    clothingColor={user.avatarConfig?.clothingColor || HP_TOKENS.blue}
-                    hairColor={user.avatarConfig?.hairColor || "#000"}
-                    hairStyle={user.avatarConfig?.hairStyle || "short"}
-                    size={100} 
-                    mood={state.mood}
-                  />
+                <button onClick={() => openModal('system_guide')} className="hp-tap" style={{
+                  background: HP_TOKENS.lineSoft, border: 'none', borderRadius: 20, width: 32, height: 32,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer'
+                }}>
+                  <HPGlyph name="sparkle" size={16} color={HP_TOKENS.sage}/>
+                </button>
+                <div className="hp-tap" style={{
+                  display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 99,
+                  background: HP_TOKENS.yellowSoft, fontFamily: HP_FONT, fontWeight: 900, fontSize: 14, color: '#8A6814',
+                }}>
+                  🔥 <span>{user.streak}</span>
                 </div>
               </div>
             </div>

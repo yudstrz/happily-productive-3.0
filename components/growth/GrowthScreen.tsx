@@ -12,6 +12,7 @@ import ScreenHeader from "@/components/ui/ScreenHeader";
 import SectionHeader from "@/components/home/SectionHeader";
 import ReadinessRing from "@/components/growth/ReadinessRing";
 import LearningCard from "@/components/growth/LearningCard";
+import DiceBearAvatar from "@/components/ui/DiceBearAvatar";
 import { generateCoachingTopic } from "@/lib/aiService";
 
 interface GrowthScreenProps {
@@ -30,8 +31,9 @@ export default function GrowthScreen({ openModal }: GrowthScreenProps) {
 
   if (!state) return null;
 
-  const user = ctxUser || { name: "User", level: 1, rank: "E", role: "Designer", points: 0 };
+  const user = ctxUser || { name: "User", level: 1, rank: "Novice", role: "Designer", points: 0, avatarConfig: undefined };
   const levelProgress = (user.points % 100) / 100;
+  const config = user.avatarConfig && 'seed' in user.avatarConfig ? user.avatarConfig : null;
 
   const refreshTopic = async () => {
     setRefreshing(true);
@@ -55,14 +57,22 @@ export default function GrowthScreen({ openModal }: GrowthScreenProps) {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
           <div style={{ 
-            position: 'relative',
+            width: 100, height: 100, borderRadius: 50, 
+            background: HP_TOKENS.sageWash, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            position: 'relative', border: `1.5px solid ${HP_TOKENS.line}`
           }}>
-            <HPAvatar 
-              name={user.name} 
-              size={80} 
-              levelProgress={levelProgress} 
-              rank={user.rank}
-            />
+            {config ? (
+              <DiceBearAvatar config={config as any} size={120} mood={state.mood ?? null} />
+            ) : (
+              <HPAvatar name={user.name} size={60} levelProgress={levelProgress} rank={user.rank}/>
+            )}
+            <div style={{
+              position: 'absolute', top: -5, right: -5, padding: '4px 10px', borderRadius: 12,
+              background: HP_TOKENS.yellow, color: '#8A6814', fontWeight: 900, fontSize: 11,
+              boxShadow: '0 4px 10px rgba(0,0,0,0.1)'
+            }}>
+              LV.{user.level}
+            </div>
           </div>
           <div>
             <div style={{ ...HP_TEXT.small, color: HP_TOKENS.sage, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 1 }}>HUNTER STATUS</div>
