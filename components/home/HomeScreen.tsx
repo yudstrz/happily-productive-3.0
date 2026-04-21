@@ -78,7 +78,13 @@ export default function HomeScreen({ openModal }: any) {
       }
       const newPriorities = [...s.priorities];
       newPriorities[pIndex] = { ...newPriorities[pIndex], done: !wasDone };
-      return { ...s, priorities: newPriorities };
+      
+      const update: any = { priorities: newPriorities };
+      if (!wasDone) {
+        update.lastActivityDate = new Date().toISOString();
+        update.penaltyActive = false; // Completing a quest clears penalty banner for the current view
+      }
+      return { ...s, ...update };
     });
   };
 
@@ -111,11 +117,9 @@ export default function HomeScreen({ openModal }: any) {
           time: now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
         };
 
-        return { ...s, habits: newHabits, logbook: [newLog, ...(s.logbook || [])] };
+        return { ...s, habits: newHabits, logbook: [newLog, ...(s.logbook || [])], lastActivityDate: now.toISOString(), penaltyActive: false };
       } else {
         updateUser((u: any) => ({ ...u, points: Math.max(0, u.points - 20) }));
-        // Optionally remove the log if toggled off, but usually logs are permanent historical records.
-        // For simplicity, we'll just return the updated habits.
         return { ...s, habits: newHabits };
       }
     });
@@ -134,62 +138,98 @@ export default function HomeScreen({ openModal }: any) {
 
       <div style={{ position: 'relative', zIndex: 1, padding: '0 16px' }} className="hp-stagger">
         {/* Top bar - Status Window Style */}
+        {state.penaltyActive && (
+          <div style={{
+            background: `linear-gradient(135deg, ${HP_TOKENS.coral}, #B25A4D)`,
+            borderRadius: 20, padding: '16px 20px', marginBottom: 16, marginTop: 8,
+            color: '#fff', boxShadow: '0 8px 20px rgba(232,139,125,0.4)',
+            display: 'flex', alignItems: 'center', gap: 15,
+            animation: 'hpPulse 2s infinite'
+          }}>
+            <div style={{ fontSize: 32 }}>⚠️</div>
+            <div>
+              <div style={{ ...HP_TEXT.h, color: '#fff', fontSize: 15 }}>PENALTY QUEST RECEIVED</div>
+              <div style={{ ...HP_TEXT.small, color: 'rgba(255,255,255,0.85)', fontSize: 12, marginTop: 2 }}>
+                Kamu melewatkan Daily Quest kemarin. -50 Poin & Streak Reset.
+              </div>
+            </div>
+          </div>
+        )}
+
         <div style={{ 
           background: `linear-gradient(135deg, ${HP_TOKENS.paper}, #fff)`,
           borderRadius: 24,
-          padding: '16px 12px 20px',
+          padding: '24px 20px',
           marginTop: 8,
           border: `1.5px solid ${HP_TOKENS.line}`,
-          boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
+          boxShadow: '0 10px 30px rgba(0,0,0,0.04)',
+          position: 'relative',
+          overflow: 'hidden'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 4px 16px', borderBottom: `1px solid ${HP_TOKENS.lineSoft}`, marginBottom: 16 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-              <div style={{ position: 'relative' }}>
-                <HPAvatar name={user.name} size={44} color={HP_TOKENS.sage} levelProgress={levelProgress} rank={user.rank}/>
-              </div>
-              <div>
-                <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, fontWeight: 700, fontSize: 11, letterSpacing: 1, textTransform: 'uppercase' }}>Status: Online</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <div style={{ ...HP_TEXT.h, fontSize: 18 }}>{user.name.split(' ')[0]}</div>
-                  <div style={{ 
-                    background: HP_TOKENS.sage, color: '#fff', fontSize: 10, fontWeight: 900, 
-                    padding: '2px 8px', borderRadius: 6, letterSpacing: 0.5 
-                  }}>
-                    RANK {user.rank}
+          {/* Background Decorative Lv */}
+          <div style={{ 
+            position: 'absolute', top: -20, right: -10, fontSize: 120, 
+            fontWeight: 900, color: HP_TOKENS.lineSoft, zIndex: 0, opacity: 0.5 
+          }}>
+            {user.level}
+          </div>
+
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                <HPAvatar name={user.name} size={52} color={HP_TOKENS.sage} levelProgress={levelProgress} rank={user.rank}/>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{ ...HP_TEXT.h, fontSize: 20 }}>{user.name.split(' ')[0]}</div>
+                    <div style={{ 
+                      background: HP_TOKENS.yellow, color: '#8A6814', fontSize: 10, fontWeight: 900, 
+                      padding: '2px 8px', borderRadius: 6, letterSpacing: 0.5 
+                    }}>
+                      RANK {user.rank}
+                    </div>
+                  </div>
+                  <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, fontWeight: 700, fontSize: 12, marginTop: 2 }}>
+                    Status: <span style={{ color: HP_TOKENS.sage }}>Ready for Quests</span>
                   </div>
                 </div>
               </div>
-            </div>
-            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-              <div className="hp-tap" style={{
-                display: 'flex', alignItems: 'center', gap: 5, padding: '7px 12px', borderRadius: 99,
-                background: HP_TOKENS.yellowSoft, fontFamily: HP_FONT, fontWeight: 900, fontSize: 13, color: '#8A6814',
-              }}>
-                🔥 <span>{user.streak}</span>
+              <div style={{ display: 'flex', gap: 10 }}>
+                <div className="hp-tap" style={{
+                  display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 99,
+                  background: HP_TOKENS.yellowSoft, fontFamily: HP_FONT, fontWeight: 900, fontSize: 14, color: '#8A6814',
+                }}>
+                  🔥 <span>{user.streak}</span>
+                </div>
               </div>
-              <button onClick={() => openModal('notifications')} className="hp-tap" style={iconBtnStyle}>
-                <HPGlyph name="bell" size={20} color={HP_TOKENS.inkSoft}/>
-                {(state.notifications ?? 0) > 0 && (
-                  <div style={{ position: 'absolute', top: 8, right: 8, width: 8, height: 8, borderRadius: 4, background: HP_TOKENS.coral }}/>
-                )}
-              </button>
             </div>
-          </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, padding: '0 4px' }}>
-            <div>
-              <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute }}>Current Level</div>
-              <div style={{ ...HP_TEXT.h, fontSize: 20, color: HP_TOKENS.sage }}>Lv. {user.level}</div>
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 20, marginBottom: 12 }}>
+              <div style={{ flex: 1 }}>
+                <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, marginBottom: 4 }}>Current Level</div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+                  <span style={{ ...HP_TEXT.small, color: HP_TOKENS.sage, fontWeight: 900, fontSize: 16 }}>Lv.</span>
+                  <span style={{ ...HP_TEXT.display, fontSize: 48, lineHeight: 0.8 }}>{user.level}</span>
+                </div>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, marginBottom: 4 }}>Combat Power (Points)</div>
+                <div style={{ ...HP_TEXT.h, fontSize: 24 }}>{user.points.toLocaleString()} <span style={{ fontSize: 12, color: HP_TOKENS.inkFade }}>PTS</span></div>
+              </div>
             </div>
-            <div>
-              <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute }}>Total Points</div>
-              <div style={{ ...HP_TEXT.h, fontSize: 20 }}>{user.points.toLocaleString()} <span style={{ fontSize: 10, color: HP_TOKENS.inkFade }}>PTS</span></div>
-            </div>
-          </div>
-          
-          <div style={{ marginTop: 12, padding: '0 4px' }}>
-            <div style={{ width: '100%', height: 4, background: HP_TOKENS.lineSoft, borderRadius: 2, overflow: 'hidden' }}>
-              <div style={{ width: `${levelProgress * 100}%`, height: '100%', background: HP_TOKENS.sage, transition: '0.5s' }} />
+            
+            <div style={{ marginTop: 16 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                <span style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute }}>Level Progress</span>
+                <span style={{ ...HP_TEXT.tiny, color: HP_TOKENS.sage, fontWeight: 800 }}>{Math.round(levelProgress * 100)}%</span>
+              </div>
+              <div style={{ width: '100%', height: 8, background: HP_TOKENS.lineSoft, borderRadius: 4, overflow: 'hidden' }}>
+                <div style={{ 
+                  width: `${levelProgress * 100}%`, height: '100%', 
+                  background: `linear-gradient(90deg, ${HP_TOKENS.sageLight}, ${HP_TOKENS.sage})`, 
+                  transition: '1s cubic-bezier(0.2, 0.8, 0.2, 1)',
+                  boxShadow: `0 0 10px ${HP_TOKENS.sageSoft}`
+                }} />
+              </div>
             </div>
           </div>
         </div>

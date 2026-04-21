@@ -21,6 +21,8 @@ interface HPState {
   rewards: any[];
   rewardHistory: any[];
   logbook: any[];
+  lastActivityDate: string | null;
+  penaltyActive: boolean;
 }
 
 interface HPUser {
@@ -54,7 +56,37 @@ export function HPProvider({ children }: { children: React.ReactNode }) {
       const res = await fetch("/api/storage");
       const data = await res.json();
       if (data.state) setState(data.state);
-      if (data.user) setUser(data.user);
+      if (data.user) {
+        let finalUser = data.user;
+        let finalState = data.state || {};
+        
+        // Penalty Check Logic
+        if (data.state?.lastActivityDate) {
+          const last = new Date(data.state.lastActivityDate);
+          const now = new Date();
+          // Reset time to midnight for day comparison
+          last.setHours(0,0,0,0);
+          now.setHours(0,0,0,0);
+          
+          const diffDays = Math.floor((now.getTime() - last.getTime()) / (1000 * 60 * 60 * 24));
+          
+          if (diffDays > 1) {
+            // Penalty!
+            finalUser = {
+              ...data.user,
+              points: Math.max(0, data.user.points - 50),
+              streak: 0
+            };
+            finalState = {
+              ...finalState,
+              penaltyActive: true
+            };
+          }
+        }
+        
+        setUser(finalUser);
+        if (data.state) setState(finalState);
+      }
     } catch (error) {
       console.error("Failed to fetch state:", error);
     } finally {

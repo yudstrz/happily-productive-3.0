@@ -118,13 +118,17 @@
     "points": 1340,
     "notifications": 3,
     "rewards": [],
-    "rewardHistory": []
+    "rewardHistory": [],
+    "lastActivityDate": "2026-04-21T00:00:00.000Z",
+    "penaltyActive": false
 
   },
   "user": {
     "name": "Sari Wijaya",
     "role": "Product Designer",
     "streak": 12,
-    "points": 1340
+    "points": 1340,
+    "level": 11,
+    "rank": "D"
   }
 }
