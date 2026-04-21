@@ -43,6 +43,7 @@ interface HPContextType {
   loading: boolean;
   refresh: () => Promise<void>;
   resetData: () => Promise<void>;
+  syncSkillProgress: (source: string, amount: number) => void;
 }
 
 const HPContext = createContext<HPContextType | undefined>(undefined);
@@ -150,6 +151,44 @@ export function HPProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
+  const syncSkillProgress = (source: string, amount: number) => {
+    setState((prev) => {
+      if (!prev) return null;
+      
+      // AI Mapping logic (Heuristic) - analyzing the source text to find the best skill match
+      let targetSkill = "";
+      const s = source.toLowerCase();
+      
+      if (s.includes("design system") || s.includes("component") || s.includes("token")) targetSkill = "Design Systems";
+      else if (s.includes("user") || s.includes("research") || s.includes("insight") || s.includes("interview")) targetSkill = "User Research";
+      else if (s.includes("interaction") || s.includes("prototype") || s.includes("flow") || s.includes("wireframe") || s.includes("hi-fi")) targetSkill = "Interaction Design";
+      else if (s.includes("lead") || s.includes("mentor") || s.includes("manager") || s.includes("strategic")) targetSkill = "Leadership";
+      else if (s.includes("story") || s.includes("present") || s.includes("pitch") || s.includes("narrative")) targetSkill = "Storytelling";
+      else if (s.trim().length > 0) {
+        // Find if a skill with same name exists, otherwise use first word as potential skill
+        const words = s.split(' ');
+        targetSkill = words[0].charAt(0).toUpperCase() + words[0].slice(1);
+      } else {
+        targetSkill = "General";
+      }
+      
+      const newSkills = [...(prev.skills || [])];
+      const skillIndex = newSkills.findIndex(sk => sk.name.toLowerCase() === targetSkill.toLowerCase());
+      
+      if (skillIndex > -1) {
+        newSkills[skillIndex] = { 
+          ...newSkills[skillIndex], 
+          current: Math.min(100, newSkills[skillIndex].current + amount) 
+        };
+      } else {
+        // Dynamic addition of new skill discovered by AI analysis
+        newSkills.push({ name: targetSkill, current: amount, target: 100 });
+      }
+      
+      return { ...prev, skills: newSkills };
+    });
+  };
+
   const resetData = async () => {
     setLoading(true);
     // In a real app we'd have a reset endpoint, 
@@ -159,7 +198,7 @@ export function HPProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <HPContext.Provider value={{ state, user, updateState, updateUser, loading, refresh: fetchData, resetData }}>
+    <HPContext.Provider value={{ state, user, updateState, updateUser, loading, refresh: fetchData, resetData, syncSkillProgress }}>
       {children}
     </HPContext.Provider>
   );

@@ -14,6 +14,16 @@ interface LearningDetailModalProps {
 }
 
 export default function LearningDetailModal({ onClose }: LearningDetailModalProps) {
+  const { updateUser, syncSkillProgress } = useHP();
+
+  const handleFinish = () => {
+    // Award Points
+    updateUser(u => ({ ...u, points: u.points + 100 }));
+    // Sync Skill (Simulating AI analysis of the 'Leadership' tag)
+    syncSkillProgress("Leadership", 10);
+    onClose();
+  };
+
   return (
     <Modal onClose={onClose} title="Learning Detail">
       <div style={{ marginTop: 4 }}>
@@ -26,7 +36,7 @@ export default function LearningDetailModal({ onClose }: LearningDetailModalProp
         </div>
 
         <button 
-          onClick={onClose} 
+          onClick={handleFinish} 
           style={{
             width: '100%', marginTop: 32, padding: '16px', borderRadius: 99,
             background: HP_TOKENS.sage, color: '#fff', border: 'none',

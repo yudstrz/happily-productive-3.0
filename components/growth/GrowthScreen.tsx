@@ -67,8 +67,6 @@ export default function GrowthScreen({ openModal }: GrowthScreenProps) {
       <SectionHeader 
         icon="tree" 
         label="Skill progression" 
-        action="Kelola"
-        onAction={() => openModal('manage_skills')}
       />
       <HPCard padding={14}>
         {(state.skills || []).map((s: any, i: number) => (

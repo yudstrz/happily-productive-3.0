@@ -83,6 +83,7 @@ export default function HomeScreen({ openModal }: any) {
       if (!wasDone) {
         update.lastActivityDate = new Date().toISOString();
         update.penaltyActive = false; // Completing a quest clears penalty banner for the current view
+        syncSkillProgress(newPriorities[pIndex].title + " " + newPriorities[pIndex].goal, 2);
       }
       return { ...s, ...update };
     });
@@ -193,7 +194,13 @@ export default function HomeScreen({ openModal }: any) {
                   </div>
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: 10 }}>
+              <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                <button onClick={() => openModal('system_guide')} className="hp-tap" style={{
+                  background: HP_TOKENS.lineSoft, border: 'none', borderRadius: 20, width: 32, height: 32,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer'
+                }}>
+                  <HPGlyph name="sparkle" size={16} color={HP_TOKENS.sage}/>
+                </button>
                 <div className="hp-tap" style={{
                   display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 99,
                   background: HP_TOKENS.yellowSoft, fontFamily: HP_FONT, fontWeight: 900, fontSize: 14, color: '#8A6814',

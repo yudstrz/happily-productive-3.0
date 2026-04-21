@@ -28,7 +28,6 @@ import GoalModal from "@/components/modals/GoalModal";
 import ManagePrioritiesModal from "@/components/modals/ManagePrioritiesModal";
 import ManageHabitsModal from "@/components/modals/ManageHabitsModal";
 import ManageWeeklyModal from "@/components/modals/ManageWeeklyModal";
-import ManageSkillsModal from "@/components/modals/ManageSkillsModal";
 import ManageLearningModal from "@/components/modals/ManageLearningModal";
 import ScheduleCoachingModal from "@/components/modals/ScheduleCoachingModal";
 import LearningDetailModal from "@/components/modals/LearningDetailModal";
@@ -37,6 +36,7 @@ import AllRewardsModal from "@/components/modals/AllRewardsModal";
 import CoachingSessionModal from "@/components/modals/CoachingSessionModal";
 import JournalHistoryModal from "@/components/modals/JournalHistoryModal";
 import LogbookModal from "@/components/modals/LogbookModal";
+import SystemGuideModal from "@/components/modals/SystemGuideModal";
 
 function AppContent() {
   const { state, loading, resetData } = useHP();
@@ -105,7 +105,6 @@ function AppContent() {
       {modal?.name === 'manage_priorities' && <ManagePrioritiesModal onClose={closeModal}/>}
       {modal?.name === 'manage_habits' && <ManageHabitsModal onClose={closeModal}/>}
       {modal?.name === 'manage_weekly' && <ManageWeeklyModal onClose={closeModal}/>}
-      {modal?.name === 'manage_skills' && <ManageSkillsModal onClose={closeModal}/>}
       {modal?.name === 'manage_learning' && <ManageLearningModal onClose={closeModal}/>}
       {modal?.name === 'schedule_coaching' && <ScheduleCoachingModal onClose={closeModal}/>}
       {modal?.name === 'learning_detail' && <LearningDetailModal onClose={closeModal}/>}
@@ -114,6 +113,7 @@ function AppContent() {
       {modal?.name === 'coaching_session' && <CoachingSessionModal onClose={closeModal}/>}
       {modal?.name === 'journal_history' && <JournalHistoryModal onClose={closeModal}/>}
       {modal?.name === 'logbook' && <LogbookModal onClose={closeModal}/>}
+      {modal?.name === 'system_guide' && <SystemGuideModal onClose={closeModal}/>}
     </div>
 
 
