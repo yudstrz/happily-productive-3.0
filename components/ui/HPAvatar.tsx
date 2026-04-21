@@ -8,13 +8,15 @@ interface HPAvatarProps {
   size?: number;
   color?: string;
   levelProgress?: number; // 0 to 1
+  rank?: string;
 }
 
 export default function HPAvatar({ 
   name, 
   size = 36, 
   color,
-  levelProgress = 0
+  levelProgress = 0,
+  rank
 }: HPAvatarProps) {
   const initials = name.split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase();
   const palette = [HP_TOKENS.sage, HP_TOKENS.blue, HP_TOKENS.coral, HP_TOKENS.lavender, '#B5884A'];
@@ -75,6 +77,17 @@ export default function HPAvatar({
       }}>
         {initials}
       </div>
+      {rank && (
+        <div style={{
+          position: 'absolute', bottom: 4, right: 4, width: 22, height: 22, borderRadius: 11,
+          background: HP_TOKENS.yellow, color: '#8A6814', fontSize: 11, fontWeight: 900,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #fff',
+          zIndex: 2, boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+          animation: 'hpPop 0.3s ease-out'
+        }}>
+          {rank}
+        </div>
+      )}
     </div>
   );
 }

@@ -29,6 +29,7 @@ interface HPUser {
   streak: number;
   points: number;
   level: number;
+  rank: string;
 }
 
 interface HPContextType {
@@ -84,11 +85,34 @@ export function HPProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
+  const calculateLevel = (points: number) => {
+    if (points < 1000) return Math.floor(points / 100) + 1; // Lv 1-10 (100 pts/ea)
+    if (points < 4000) return 10 + Math.floor((points - 1000) / 300) + 1; // Lv 11-20 (300 pts/ea)
+    return 20 + Math.floor((points - 4000) / 1000) + 1; // Lv 21+ (1000 pts/ea)
+  };
+
+  const calculateRank = (level: number) => {
+    if (level <= 10) return 'E';
+    if (level <= 20) return 'D';
+    if (level <= 35) return 'C';
+    if (level <= 50) return 'B';
+    if (level <= 70) return 'A';
+    return 'S';
+  };
+
   const updateUser = (update: Partial<HPUser> | ((prev: HPUser) => HPUser)) => {
     setUser((prev) => {
       if (!prev) return null;
-      if (typeof update === "function") return update(prev);
-      return { ...prev, ...update };
+      let next = typeof update === "function" ? update(prev) : { ...prev, ...update };
+      
+      // Auto-calculate Level and Rank if points changed
+      if (next.points !== prev.points) {
+        const newLevel = calculateLevel(next.points);
+        const newRank = calculateRank(newLevel);
+        next = { ...next, level: newLevel, rank: newRank };
+      }
+      
+      return next;
     });
   };
 

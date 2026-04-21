@@ -4,7 +4,8 @@ export const HP_USER = {
   team: 'Digital Experience',
   streak: 12,
   points: 1340,
-  level: 2,
+  level: 11,
+  rank: 'D',
   wellbeing: 78,
   avatar: '#4A7C59',
 };

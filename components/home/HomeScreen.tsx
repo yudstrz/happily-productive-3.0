@@ -35,7 +35,7 @@ const iconBtnStyle: React.CSSProperties = {
 };
 
 export default function HomeScreen({ openModal }: any) {
-  const { state, updateState, user } = useHP();
+  const { state, updateState, updateUser, user } = useHP();
   const [greeting, setGreeting] = useState('');
   const [confetti, setConfetti] = useState(false);
 
@@ -50,7 +50,13 @@ export default function HomeScreen({ openModal }: any) {
   if (!state || !user) return null;
 
   const { mood, energy, priorities } = state;
-  const levelProgress = (user.points % 1000) / 1000;
+  const calculateLevelProgress = (points: number) => {
+    if (points < 1000) return (points % 100) / 100;
+    if (points < 4000) return ((points - 1000) % 300) / 300;
+    return ((points - 4000) % 1000) / 1000;
+  };
+
+  const levelProgress = calculateLevelProgress(user.points);
 
   const moodObj = HP_MOODS.find(m => m.key === mood);
   const energyObj = HP_ENERGY.find(e => e.key === energy);
@@ -127,48 +133,69 @@ export default function HomeScreen({ openModal }: any) {
       <Confetti show={confetti}/>
 
       <div style={{ position: 'relative', zIndex: 1, padding: '0 16px' }} className="hp-stagger">
-        {/* Top bar */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 4px 12px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-            <div style={{ position: 'relative' }}>
-              <HPAvatar name={user.name} size={40} color={HP_TOKENS.sage} levelProgress={levelProgress}/>
-              <div style={{
-                position: 'absolute', bottom: -2, right: -2, width: 20, height: 20, borderRadius: 10,
-                background: HP_TOKENS.yellow, color: '#8A6814', fontSize: 10, fontWeight: 900,
-                display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #fff',
-                zIndex: 2,
-              }}>
-                {user.level}
+        {/* Top bar - Status Window Style */}
+        <div style={{ 
+          background: `linear-gradient(135deg, ${HP_TOKENS.paper}, #fff)`,
+          borderRadius: 24,
+          padding: '16px 12px 20px',
+          marginTop: 8,
+          border: `1.5px solid ${HP_TOKENS.line}`,
+          boxShadow: '0 4px 12px rgba(0,0,0,0.03)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 4px 16px', borderBottom: `1px solid ${HP_TOKENS.lineSoft}`, marginBottom: 16 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+              <div style={{ position: 'relative' }}>
+                <HPAvatar name={user.name} size={44} color={HP_TOKENS.sage} levelProgress={levelProgress} rank={user.rank}/>
               </div>
-            </div>
-            <div>
-              <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, fontWeight: 700 }}>{greeting} 👋</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <div style={{ ...HP_TEXT.h, fontSize: 16 }}>{user.name.split(' ')[0]}</div>
-                <div style={{ ...HP_TEXT.small, fontSize: 11, background: HP_TOKENS.yellowWash, padding: '2px 6px', borderRadius: 6, color: '#8A6814', fontWeight: 800 }}>
-                  {user.points} Poin
+              <div>
+                <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, fontWeight: 700, fontSize: 11, letterSpacing: 1, textTransform: 'uppercase' }}>Status: Online</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{ ...HP_TEXT.h, fontSize: 18 }}>{user.name.split(' ')[0]}</div>
+                  <div style={{ 
+                    background: HP_TOKENS.sage, color: '#fff', fontSize: 10, fontWeight: 900, 
+                    padding: '2px 8px', borderRadius: 6, letterSpacing: 0.5 
+                  }}>
+                    RANK {user.rank}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            <div className="hp-tap" style={{
-              display: 'flex', alignItems: 'center', gap: 5, padding: '7px 12px', borderRadius: 99,
-              background: HP_TOKENS.yellowSoft, fontFamily: HP_FONT, fontWeight: 900, fontSize: 13, color: '#8A6814',
-            }}>
-              🔥 <span>{user.streak}</span>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <div className="hp-tap" style={{
+                display: 'flex', alignItems: 'center', gap: 5, padding: '7px 12px', borderRadius: 99,
+                background: HP_TOKENS.yellowSoft, fontFamily: HP_FONT, fontWeight: 900, fontSize: 13, color: '#8A6814',
+              }}>
+                🔥 <span>{user.streak}</span>
+              </div>
+              <button onClick={() => openModal('notifications')} className="hp-tap" style={iconBtnStyle}>
+                <HPGlyph name="bell" size={20} color={HP_TOKENS.inkSoft}/>
+                {(state.notifications ?? 0) > 0 && (
+                  <div style={{ position: 'absolute', top: 8, right: 8, width: 8, height: 8, borderRadius: 4, background: HP_TOKENS.coral }}/>
+                )}
+              </button>
             </div>
-            <button onClick={() => openModal('notifications')} className="hp-tap" style={iconBtnStyle}>
-              <HPGlyph name="bell" size={20} color={HP_TOKENS.inkSoft}/>
-              {(state.notifications ?? 0) > 0 && (
-                <div style={{ position: 'absolute', top: 8, right: 8, width: 8, height: 8, borderRadius: 4, background: HP_TOKENS.coral }}/>
-              )}
-            </button>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, padding: '0 4px' }}>
+            <div>
+              <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute }}>Current Level</div>
+              <div style={{ ...HP_TEXT.h, fontSize: 20, color: HP_TOKENS.sage }}>Lv. {user.level}</div>
+            </div>
+            <div>
+              <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute }}>Total Points</div>
+              <div style={{ ...HP_TEXT.h, fontSize: 20 }}>{user.points.toLocaleString()} <span style={{ fontSize: 10, color: HP_TOKENS.inkFade }}>PTS</span></div>
+            </div>
+          </div>
+          
+          <div style={{ marginTop: 12, padding: '0 4px' }}>
+            <div style={{ width: '100%', height: 4, background: HP_TOKENS.lineSoft, borderRadius: 2, overflow: 'hidden' }}>
+              <div style={{ width: `${levelProgress * 100}%`, height: '100%', background: HP_TOKENS.sage, transition: '0.5s' }} />
+            </div>
           </div>
         </div>
 
-        {/* HERO — Emotional check-in with mascot */}
-        <div style={{ marginTop: 8 }}>
+        {/* HERO — Emotional check-in */}
+        <div style={{ marginTop: 16 }}>
           <EmotionalHero 
             state={state} 
             moodObj={moodObj} 
@@ -182,11 +209,11 @@ export default function HomeScreen({ openModal }: any) {
           <IntentionCard state={state} setState={updateState}/>
         </div>
 
-        {/* LAYER 2 — Priorities */}
-        <div style={{ marginTop: 8 }}>
+        {/* LAYER 2 — Priorities as Daily Quests */}
+        <div style={{ marginTop: 16 }}>
           <SectionHeader 
             icon="target" 
-            label="Prioritas hari ini" 
+            label="Daily Quests" 
             count={`${done}/${total}`} 
             action="Kelola"
             onAction={() => openModal('manage_priorities')}
@@ -204,7 +231,7 @@ export default function HomeScreen({ openModal }: any) {
               marginTop: 4,
             }}>
               <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)', transform: 'translateX(-100%)', animation: 'hpShine 3s ease-in-out infinite' }}/>
-              <span style={{ fontSize: 20 }}>🔥</span> Mulai Focus Mode
+              <HPGlyph name="sparkle" size={20} color="#fff"/> Enter Focus Mode
             </button>
           </div>
         </div>
@@ -217,17 +244,17 @@ export default function HomeScreen({ openModal }: any) {
             border: `1.5px solid ${HP_TOKENS.blueSoft}`,
             display: 'flex', gap: 12, alignItems: 'flex-start', position: 'relative', overflow: 'hidden',
           }}>
-            <div style={{ fontSize: 32, animation: 'hpWiggle 3s ease-in-out infinite' }}>✨</div>
+            <div style={{ fontSize: 32, animation: 'hpWiggle 3s ease-in-out infinite' }}>📜</div>
             <div style={{ flex: 1 }}>
-              <div style={{ ...HP_TEXT.h, fontSize: 14, color: HP_TOKENS.blue }}>Saran dari Hap</div>
+              <div style={{ ...HP_TEXT.h, fontSize: 14, color: HP_TOKENS.blue }}>System Advice</div>
               <div style={{ ...HP_TEXT.body, fontSize: 13, marginTop: 3 }}>{energyHint(energy)}</div>
             </div>
           </div>
         )}
 
         {/* LAYER 3 — Insights */}
-        <div style={{ marginTop: 8 }}>
-          <SectionHeader icon="heart" label="Untuk kamu" action="Lihat semua" onAction={() => openModal('coach')}/>
+        <div style={{ marginTop: 16 }}>
+          <SectionHeader icon="heart" label="Professional Growth" action="Lihat semua" onAction={() => openModal('coach')}/>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {HP_AI_INSIGHTS.map((ins, i) => (
               <InsightCard key={i} ins={ins} idx={i}/>
@@ -235,11 +262,11 @@ export default function HomeScreen({ openModal }: any) {
           </div>
         </div>
 
-        {/* Habits */}
-        <div style={{ marginTop: 8 }}>
+        {/* Habits as Training Quests */}
+        <div style={{ marginTop: 16 }}>
           <SectionHeader 
             icon="leaf" 
-            label="Kebiasaan kecil" 
+            label="Training Quests" 
             action="Atur"
             onAction={() => openModal('manage_habits')}
           />
