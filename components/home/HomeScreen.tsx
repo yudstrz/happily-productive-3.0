@@ -50,6 +50,7 @@ export default function HomeScreen({ openModal }: any) {
   if (!state || !user) return null;
 
   const { mood, energy, priorities } = state;
+  const levelProgress = (user.points % 1000) / 1000;
 
   const moodObj = HP_MOODS.find(m => m.key === mood);
   const energyObj = HP_ENERGY.find(e => e.key === energy);
@@ -63,6 +64,11 @@ export default function HomeScreen({ openModal }: any) {
       if (!wasDone) { 
         setConfetti(true); 
         setTimeout(() => setConfetti(false), 1200); 
+        // Award 50 points
+        updateUser((u: any) => ({ ...u, points: u.points + 50 }));
+      } else {
+        // Deduct 50 points if toggled off
+        updateUser((u: any) => ({ ...u, points: Math.max(0, u.points - 50) }));
       }
       const newPriorities = [...s.priorities];
       newPriorities[pIndex] = { ...newPriorities[pIndex], done: !wasDone };
@@ -77,6 +83,10 @@ export default function HomeScreen({ openModal }: any) {
       if (!wasDone) { 
         setConfetti(true); 
         setTimeout(() => setConfetti(false), 1200); 
+        // Award 20 points
+        updateUser((u: any) => ({ ...u, points: u.points + 20 }));
+      } else {
+        updateUser((u: any) => ({ ...u, points: Math.max(0, u.points - 20) }));
       }
       const newHabits = [...s.habits];
       newHabits[hIndex] = { ...newHabits[hIndex], done: !wasDone };
@@ -98,11 +108,26 @@ export default function HomeScreen({ openModal }: any) {
       <div style={{ position: 'relative', zIndex: 1, padding: '0 16px' }} className="hp-stagger">
         {/* Top bar */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 4px 12px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <HPAvatar name={user.name} size={40} color={HP_TOKENS.sage}/>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div style={{ position: 'relative' }}>
+              <HPAvatar name={user.name} size={40} color={HP_TOKENS.sage} levelProgress={levelProgress}/>
+              <div style={{
+                position: 'absolute', bottom: -2, right: -2, width: 20, height: 20, borderRadius: 10,
+                background: HP_TOKENS.yellow, color: '#8A6814', fontSize: 10, fontWeight: 900,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #fff',
+                zIndex: 2,
+              }}>
+                {user.level}
+              </div>
+            </div>
             <div>
               <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, fontWeight: 700 }}>{greeting} 👋</div>
-              <div style={{ ...HP_TEXT.h, fontSize: 16 }}>{user.name.split(' ')[0]}</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div style={{ ...HP_TEXT.h, fontSize: 16 }}>{user.name.split(' ')[0]}</div>
+                <div style={{ ...HP_TEXT.small, fontSize: 11, background: HP_TOKENS.yellowWash, padding: '2px 6px', borderRadius: 6, color: '#8A6814', fontWeight: 800 }}>
+                  {user.points} Poin
+                </div>
+              </div>
             </div>
           </div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
@@ -114,7 +139,7 @@ export default function HomeScreen({ openModal }: any) {
             </div>
             <button onClick={() => openModal('notifications')} className="hp-tap" style={iconBtnStyle}>
               <HPGlyph name="bell" size={20} color={HP_TOKENS.inkSoft}/>
-              {state.notifications > 0 && (
+              {(state.notifications ?? 0) > 0 && (
                 <div style={{ position: 'absolute', top: 8, right: 8, width: 8, height: 8, borderRadius: 4, background: HP_TOKENS.coral }}/>
               )}
             </button>
@@ -206,23 +231,34 @@ export default function HomeScreen({ openModal }: any) {
 
 
         {/* Closing ritual */}
-        <button onClick={() => openModal('reflect')} className="hp-tap" style={{
-          marginTop: 24, width: '100%', padding: '16px', borderRadius: 22,
-          background: `linear-gradient(135deg, #2C2A5E, #4A4080)`, color: '#fff',
-          border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 14,
-          fontFamily: HP_FONT, textAlign: 'left', boxShadow: '0 8px 22px rgba(44,42,94,0.25)',
-          position: 'relative', overflow: 'hidden',
-        }}>
-          <div style={{ position: 'absolute', top: -20, right: 20, fontSize: 80, opacity: 0.15 }}>🌙</div>
-          <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>🌙</div>
-          <div style={{ flex: 1, position: 'relative' }}>
-            <div style={{ ...HP_TEXT.h, fontSize: 15, color: '#fff' }}>Tutup hari dengan refleksi</div>
-            <div style={{ ...HP_TEXT.small, fontWeight: 700, color: 'rgba(255,255,255,0.75)', marginTop: 2 }}>
-              3 pertanyaan · opsional · privat
+        <div style={{ marginTop: 24, display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <button onClick={() => openModal('reflect')} className="hp-tap" style={{
+            width: '100%', padding: '16px', borderRadius: 22,
+            background: `linear-gradient(135deg, #2C2A5E, #4A4080)`, color: '#fff',
+            border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 14,
+            fontFamily: HP_FONT, textAlign: 'left', boxShadow: '0 8px 22px rgba(44,42,94,0.25)',
+            position: 'relative', overflow: 'hidden',
+          }}>
+            <div style={{ position: 'absolute', top: -20, right: 20, fontSize: 80, opacity: 0.15 }}>🌙</div>
+            <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>🌙</div>
+            <div style={{ flex: 1, position: 'relative' }}>
+              <div style={{ ...HP_TEXT.h, fontSize: 15, color: '#fff' }}>Tutup hari dengan refleksi</div>
+              <div style={{ ...HP_TEXT.small, fontWeight: 700, color: 'rgba(255,255,255,0.75)', marginTop: 2 }}>
+                Laporan mood & task selesai
+              </div>
             </div>
-          </div>
-          <HPGlyph name="arrow" size={18} color="#fff"/>
-        </button>
+            <HPGlyph name="arrow" size={18} color="#fff"/>
+          </button>
+
+          <button onClick={() => openModal('logbook')} className="hp-tap" style={{
+            width: '100%', padding: '14px', borderRadius: 20,
+            background: HP_TOKENS.paper, color: HP_TOKENS.ink,
+            border: `1.5px solid ${HP_TOKENS.line}`, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+            fontFamily: HP_FONT, fontWeight: 700, fontSize: 14,
+          }}>
+            <HPGlyph name="book" size={18} color={HP_TOKENS.inkSoft}/> Lihat Riwayat Logbook
+          </button>
+        </div>
       </div>
     </div>
   );

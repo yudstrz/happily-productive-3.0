@@ -18,6 +18,7 @@ export default function ManagePrioritiesModal({ onClose }: ManagePrioritiesModal
   const { state, updateState } = useHP();
   const [newTitle, setNewTitle] = useState("");
   const [energy, setEnergy] = useState("mid");
+  const [type, setType] = useState("Daily Task");
 
   if (!state) return null;
 
@@ -28,6 +29,7 @@ export default function ManagePrioritiesModal({ onClose }: ManagePrioritiesModal
       title: newTitle,
       goal: state.goals?.[0]?.title || "General",
       energy: energy,
+      type: type,
       est: "30m",
       done: false,
       tone: energy === 'high' ? 'yellow' : energy === 'mid' ? 'sage' : 'blue',
@@ -46,12 +48,10 @@ export default function ManagePrioritiesModal({ onClose }: ManagePrioritiesModal
     }));
   };
 
-
-
   return (
-    <Modal onClose={onClose} title="Kelola Prioritas">
+    <Modal onClose={onClose} title="Kelola Quest">
       <div style={{ marginTop: 4 }}>
-        <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, fontWeight: 700, marginBottom: 12 }}>DAFTAR PRIORITAS</div>
+        <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, fontWeight: 700, marginBottom: 12 }}>QUEST AKTIF (+50 Point tiap selesai)</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
           {state.priorities.map((p: any) => (
             <div 
@@ -69,8 +69,13 @@ export default function ManagePrioritiesModal({ onClose }: ManagePrioritiesModal
               }}>
                 {p.done && <HPGlyph name="check" size={12} color="#fff"/>}
               </div>
-              <div style={{ flex: 1, ...HP_TEXT.body, fontSize: 14, fontWeight: 600, color: p.done ? HP_TOKENS.inkFade : HP_TOKENS.ink }}>
-                {p.title}
+              <div style={{ flex: 1 }}>
+                <div style={{ ...HP_TEXT.body, fontSize: 14, fontWeight: 600, color: p.done ? HP_TOKENS.inkFade : HP_TOKENS.ink }}>
+                  {p.title}
+                </div>
+                <div style={{ ...HP_TEXT.small, fontSize: 11, color: HP_TOKENS.inkMute, marginTop: 2 }}>
+                  {p.type} · {p.energy.toUpperCase()} Priority
+                </div>
               </div>
               <button 
                 onClick={() => deletePriority(p.id)}
@@ -82,7 +87,7 @@ export default function ManagePrioritiesModal({ onClose }: ManagePrioritiesModal
           ))}
         </div>
 
-        <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, fontWeight: 700, marginBottom: 12 }}>TAMBAH BARU</div>
+        <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, fontWeight: 700, marginBottom: 12 }}>TAMBAH QUEST BARU</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: 16, borderRadius: 20, background: HP_TOKENS.sageWash }}>
           <input 
             type="text" 
@@ -94,6 +99,27 @@ export default function ManagePrioritiesModal({ onClose }: ManagePrioritiesModal
               fontFamily: HP_FONT, fontSize: 14, background: '#fff', outline: 'none'
             }}
           />
+          
+          <div style={{ ...HP_TEXT.small, fontSize: 11, fontWeight: 700, color: HP_TOKENS.inkMute }}>Tipe Quest</div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            {['Daily Task', 'Manager Task', 'Division Goal'].map(t => (
+              <button
+                key={t}
+                onClick={() => setType(t)}
+                style={{
+                  flex: 1, padding: '8px', borderRadius: 8, border: 'none',
+                  background: type === t ? HP_TOKENS.sage : '#fff',
+                  color: type === t ? '#fff' : HP_TOKENS.ink,
+                  fontFamily: HP_FONT, fontWeight: 700, fontSize: 11, cursor: 'pointer',
+                  transition: '0.2s', border: `1px solid ${type === t ? HP_TOKENS.sage : HP_TOKENS.line}`
+                }}
+              >
+                {t}
+              </button>
+            ))}
+          </div>
+
+          <div style={{ ...HP_TEXT.small, fontSize: 11, fontWeight: 700, color: HP_TOKENS.inkMute }}>Prioritas / Energi</div>
           <div style={{ display: 'flex', gap: 8 }}>
             {['low', 'mid', 'high'].map(e => (
               <button
@@ -104,13 +130,14 @@ export default function ManagePrioritiesModal({ onClose }: ManagePrioritiesModal
                   background: energy === e ? HP_TOKENS.ink : '#fff',
                   color: energy === e ? '#fff' : HP_TOKENS.ink,
                   fontFamily: HP_FONT, fontWeight: 700, fontSize: 13, cursor: 'pointer',
-                  transition: '0.2s'
+                  transition: '0.2s', border: `1px solid ${energy === e ? HP_TOKENS.ink : HP_TOKENS.line}`
                 }}
               >
                 {e.toUpperCase()}
               </button>
             ))}
           </div>
+
           <button 
             onClick={addPriority}
             disabled={!newTitle}
@@ -121,7 +148,7 @@ export default function ManagePrioritiesModal({ onClose }: ManagePrioritiesModal
               opacity: !newTitle ? 0.5 : 1
             }}
           >
-            Tambah Ke Prioritas
+            Tambah Ke Quest
           </button>
         </div>
       </div>

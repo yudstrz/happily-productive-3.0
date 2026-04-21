@@ -4,6 +4,7 @@ export const HP_USER = {
   team: 'Digital Experience',
   streak: 12,
   points: 1340,
+  level: 2,
   wellbeing: 78,
   avatar: '#4A7C59',
 };
@@ -37,15 +38,29 @@ export const HP_ENERGY = [
 export const HP_QUICK_TAGS = ['Semangat', 'Fokus', 'Lelah', 'Cemas', 'Bersyukur', 'Overwhelmed'];
 
 export const HP_PRIORITIES = [
-  { id: 1, title: 'Review wireframe onboarding v3', goal: 'Launch Apps Redesign', energy: 'high', est: '45m', done: false, tone: 'sage' },
-  { id: 2, title: 'Kirim handoff ke tim engineering', goal: 'Launch Apps Redesign', energy: 'mid', est: '20m', done: false, tone: 'sage' },
-  { id: 3, title: 'Sinkronisasi ikon design system', goal: 'DS Migration Q2', energy: 'low', est: '30m', done: true, tone: 'blue' },
+  { id: 1, title: 'Review wireframe onboarding v3', goal: 'Launch Apps Redesign', energy: 'high', est: '45m', done: false, tone: 'sage', type: 'Daily Task' },
+  { id: 2, title: 'Kirim handoff ke tim engineering', goal: 'Launch Apps Redesign', energy: 'mid', est: '20m', done: false, tone: 'sage', type: 'Manager Task' },
+  { id: 3, title: 'Sinkronisasi ikon design system', goal: 'DS Migration Q2', energy: 'low', est: '30m', done: true, tone: 'blue', type: 'Division Goal' },
 ];
 
 export const HP_GOALS = [
-  { id: 1, title: 'Launch Apps Redesign', progress: 68, alignment: 92, owner: 'Sari', due: '30 Apr', tone: 'sage', metric: '8 / 12 milestones' },
-  { id: 2, title: 'DS Migration Q2', progress: 42, alignment: 85, owner: 'Team', due: '15 Jun', tone: 'blue', metric: '210 / 500 components' },
-  { id: 3, title: 'Mentoring 2 junior designer', progress: 55, alignment: 78, owner: 'Sari', due: 'Ongoing', tone: 'lavender', metric: '11 / 20 sessions' },
+  { 
+    id: 1, title: 'Launch Apps Redesign', progress: 68, alignment: 92, owner: 'Sari', due: '30 Apr', tone: 'sage', metric: '8 / 12 milestones', scope: 'personal',
+    subGoals: [
+      { id: 101, title: 'Finalize Hi-Fi Design', done: true },
+      { id: 102, title: 'Usability Testing', done: false },
+      { id: 103, title: 'Handoff to Dev', done: false },
+    ]
+  },
+  { 
+    id: 2, title: 'DS Migration Q2', progress: 42, alignment: 85, owner: 'Team', due: '15 Jun', tone: 'blue', metric: '210 / 500 components', scope: 'team',
+    subGoals: [
+      { id: 201, title: 'Audit current components', done: true },
+      { id: 202, title: 'Define design tokens', done: true },
+      { id: 203, title: 'Build React components', done: false },
+    ]
+  },
+  { id: 3, title: 'Mentoring 2 junior designer', progress: 55, alignment: 78, owner: 'Sari', due: 'Ongoing', tone: 'lavender', metric: '11 / 20 sessions', scope: 'personal' },
 ];
 
 export const HP_FEED = [
@@ -80,16 +95,21 @@ export const HP_WELLBEING_DIMS = [
 ];
 
 export const HP_HABITS = [
-  { name: 'Tidur 7+ jam', streak: 8, target: 7, done: true, emoji: '🌙' },
-  { name: 'Jalan kaki 15 menit', streak: 3, target: 7, done: false, emoji: '🚶' },
-  { name: 'Meditasi pagi', streak: 12, target: 7, done: true, emoji: '🧘' },
-  { name: 'Jurnal syukur', streak: 5, target: 7, done: false, emoji: '📓' },
+  { name: 'Tidur 7+ jam', streak: 8, target: 7, done: true, emoji: '🌙', history: [true, true, false, true, true, true, true] },
+  { name: 'Jalan kaki 15 menit', streak: 3, target: 7, done: false, emoji: '🚶', history: [false, true, true, false, false, true, false] },
+  { name: 'Meditasi pagi', streak: 12, target: 7, done: true, emoji: '🧘', history: [true, true, true, true, true, true, true] },
+  { name: 'Jurnal syukur', streak: 5, target: 7, done: false, emoji: '📓', history: [true, false, true, true, false, true, false] },
 ];
 
 export const HP_AI_INSIGHTS = [
   { tone: 'sage', title: 'Kamu paling produktif Selasa pagi', body: 'Berdasarkan 4 minggu terakhir, deep work di Selasa 09:00–11:00 punya completion rate 40% lebih tinggi.' },
   { tone: 'blue', title: 'Energi sedikit drop 2 hari ini', body: 'Mau coba 5-menit reset atau jalan sebentar? Tidak wajib, hanya kalau butuh.' },
   { tone: 'yellow', title: 'Streak check-in 12 hari 🎉', body: 'Kamu rutin menyapa diri sendiri — ini kebiasaan kecil yang dampaknya besar.' },
+];
+
+export const HP_LOGBOOK = [
+  { id: 1, date: '2026-04-20', mood: 'calm', blockers: 'Meeting kepanjangan di sore hari.', notes: 'Handoff redesign selesai tepat waktu.', taskCount: 4 },
+  { id: 2, date: '2026-04-19', mood: 'joy', blockers: 'Tidak ada.', notes: 'Ide baru untuk design tokens sangat menjanjikan.', taskCount: 6 },
 ];
 
 export const HP_COACH_MESSAGES = [

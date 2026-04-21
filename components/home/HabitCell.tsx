@@ -10,40 +10,64 @@ interface HabitCellProps {
 }
 
 export default function HabitCell({ h, onToggle }: HabitCellProps) {
+  // We assume h.history is an array of 7 booleans, 
+  // where the last index is 'Today'.
+  const history = h.history || [false, false, false, false, false, false, h.done];
+  const lastIndex = history.length - 1;
+
   return (
     <div 
-      className="hp-tap" 
-      onClick={onToggle}
       style={{
         padding: 14, 
-        borderRadius: 18,
-        background: h.done ? `linear-gradient(135deg, ${HP_TOKENS.sageSoft}, ${HP_TOKENS.sageWash})` : HP_TOKENS.card,
-        border: `1.5px solid ${h.done ? HP_TOKENS.sage : HP_TOKENS.line}`,
-        cursor: 'pointer',
+        borderRadius: 22,
+        background: HP_TOKENS.card,
+        border: `1.5px solid ${HP_TOKENS.line}`,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 12,
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span style={{ fontSize: 26, animation: h.done ? 'hpPop 400ms' : 'none' }}>{h.emoji}</span>
-        {h.done && (
-          <div style={{ 
-            width: 22, 
-            height: 22, 
-            borderRadius: 11, 
-            background: HP_TOKENS.sage, 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center' 
-          }}>
-            <HPGlyph name="check" size={12} color="#fff" stroke={3}/>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ fontSize: 24 }}>{h.emoji}</span>
+          <div>
+            <div style={{ ...HP_TEXT.h, fontSize: 13 }}>{h.name}</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
+              <span style={{ fontSize: 10 }}>🔥</span>
+              <span style={{ ...HP_TEXT.small, color: HP_TOKENS.sage, fontWeight: 900, fontSize: 11 }}>
+                {h.streak} streak
+              </span>
+            </div>
           </div>
-        )}
+        </div>
       </div>
-      <div style={{ ...HP_TEXT.h, fontSize: 13, marginTop: 10 }}>{h.name}</div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
-        <span style={{ fontSize: 12 }}>🔥</span>
-        <span style={{ ...HP_TEXT.small, color: h.done ? HP_TOKENS.sage : HP_TOKENS.inkMute, fontWeight: 900 }}>
-          {h.streak} hari
-        </span>
+
+      <div style={{ display: 'flex', gap: 5 }}>
+        {history.map((done: boolean, i: number) => {
+          const isToday = i === lastIndex;
+          return (
+            <div 
+              key={i}
+              onClick={isToday ? onToggle : undefined}
+              className={isToday ? "hp-tap" : ""}
+              style={{
+                flex: 1,
+                aspectRatio: '1',
+                borderRadius: 6,
+                background: done ? HP_TOKENS.sage : (isToday ? HP_TOKENS.sageWash : HP_TOKENS.lineSoft),
+                border: isToday ? `1.5px solid ${HP_TOKENS.sage}` : 'none',
+                cursor: isToday ? 'pointer' : 'default',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: '0.2s',
+              }}
+            >
+              {isToday && done && <HPGlyph name="check" size={10} color="#fff" stroke={4}/>}
+              {!isToday && done && <div style={{ width: 4, height: 4, borderRadius: 2, background: '#fff' }}/>}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

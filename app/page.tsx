@@ -36,6 +36,7 @@ import ManageProgramsModal from "@/components/modals/ManageProgramsModal";
 import AllRewardsModal from "@/components/modals/AllRewardsModal";
 import CoachingSessionModal from "@/components/modals/CoachingSessionModal";
 import JournalHistoryModal from "@/components/modals/JournalHistoryModal";
+import LogbookModal from "@/components/modals/LogbookModal";
 
 function AppContent() {
   const { state, loading, resetData } = useHP();
@@ -112,6 +113,7 @@ function AppContent() {
       {modal?.name === 'all_rewards' && <AllRewardsModal onClose={closeModal}/>}
       {modal?.name === 'coaching_session' && <CoachingSessionModal onClose={closeModal}/>}
       {modal?.name === 'journal_history' && <JournalHistoryModal onClose={closeModal}/>}
+      {modal?.name === 'logbook' && <LogbookModal onClose={closeModal}/>}
     </div>
 
 

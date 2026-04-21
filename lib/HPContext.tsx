@@ -20,6 +20,7 @@ interface HPState {
   notifications: number;
   rewards: any[];
   rewardHistory: any[];
+  logbook: any[];
 }
 
 interface HPUser {
@@ -27,6 +28,7 @@ interface HPUser {
   role: string;
   streak: number;
   points: number;
+  level: number;
 }
 
 interface HPContextType {

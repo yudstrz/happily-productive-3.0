@@ -64,6 +64,38 @@ export default function GoalCard({ g }: GoalCardProps) {
           {g.progress}%
         </div>
       </div>
+
+      {g.subGoals && g.subGoals.length > 0 && (
+        <div style={{ 
+          marginTop: 14, 
+          paddingTop: 12, 
+          borderTop: `1px solid ${HP_TOKENS.lineSoft}`,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 6
+        }}>
+          {g.subGoals.map((sg: any) => (
+            <div key={sg.id} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ 
+                width: 12, height: 12, borderRadius: 3, 
+                background: sg.done ? tones[g.tone] : 'transparent',
+                border: `1.5px solid ${sg.done ? tones[g.tone] : HP_TOKENS.line}`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center'
+              }}>
+                {sg.done && <span style={{ color: '#fff', fontSize: 8 }}>✓</span>}
+              </div>
+              <div style={{ 
+                ...HP_TEXT.small, 
+                fontSize: 11, 
+                color: sg.done ? HP_TOKENS.inkFade : HP_TOKENS.ink,
+                textDecoration: sg.done ? 'line-through' : 'none'
+              }}>
+                {sg.title}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </HPCard>
   );
 }
