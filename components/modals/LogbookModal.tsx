@@ -16,9 +16,9 @@ export default function LogbookModal({ onClose }: LogbookModalProps) {
   const logbook = state?.logbook || [];
 
   return (
-    <Modal onClose={onClose} title="Logbook Team 📋">
+    <Modal onClose={onClose} title="Logbook Personal 📋">
       <div style={{ ...HP_TEXT.body, fontSize: 13, marginBottom: 20, color: HP_TOKENS.inkSoft }}>
-        Laporan harian yang dibagikan ke tim dan manager.
+        Riwayat aktivitas harian yang hanya bisa dilihat oleh kamu.
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
