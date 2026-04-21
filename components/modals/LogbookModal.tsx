@@ -40,8 +40,8 @@ export default function LogbookModal({ onClose }: LogbookModalProps) {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <div style={{ fontSize: 24 }}>{moodObj?.emoji || '😶'}</div>
                     <div>
-                      <div style={{ ...HP_TEXT.h, fontSize: 14 }}>{entry.date}</div>
-                      <div style={{ ...HP_TEXT.small, fontSize: 11, color: HP_TOKENS.inkMute }}>Mood: {moodObj?.label || 'Unknown'}</div>
+                      <div style={{ ...HP_TEXT.h, fontSize: 13 }}>{entry.day}, {entry.date}</div>
+                      <div style={{ ...HP_TEXT.small, fontSize: 11, color: HP_TOKENS.inkMute }}>Mood: {moodObj?.label || 'Unknown'} · {entry.time || '--:--'}</div>
                     </div>
                   </div>
                   <div style={{ 

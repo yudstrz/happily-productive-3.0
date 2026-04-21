@@ -25,9 +25,12 @@ export default function ReflectModal({ onClose }: ReflectModalProps) {
     updateUser((u: any) => ({ ...u, points: u.points + 100 }));
     
     // Create logbook entry
+    const now = new Date();
     const newEntry = {
       id: Date.now(),
-      date: new Date().toISOString().split('T')[0],
+      date: now.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
+      day: now.toLocaleDateString('id-ID', { weekday: 'long' }),
+      time: now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
       mood: mood,
       blockers: blockers,
       notes: notes,
