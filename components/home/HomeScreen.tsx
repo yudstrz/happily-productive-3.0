@@ -231,6 +231,32 @@ export default function HomeScreen({ openModal }: any) {
                 }} />
               </div>
             </div>
+
+            {/* Penalty Threshold Settings */}
+            <div style={{ marginTop: 18, paddingTop: 16, borderTop: `1px solid ${HP_TOKENS.lineSoft}` }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div>
+                  <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute }}>Penalty Quest aktif jika tidak ada aktivitas selama</div>
+                </div>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  {[1, 2, 3].map(d => (
+                    <button
+                      key={d}
+                      onClick={() => updateState((s: any) => ({ ...s, penaltyThresholdDays: d }))}
+                      style={{
+                        width: 36, height: 30, borderRadius: 8,
+                        background: (state.penaltyThresholdDays ?? 1) === d ? HP_TOKENS.sage : HP_TOKENS.lineSoft,
+                        color: (state.penaltyThresholdDays ?? 1) === d ? '#fff' : HP_TOKENS.inkSoft,
+                        fontFamily: HP_FONT, fontWeight: 800, fontSize: 12,
+                        border: 'none', cursor: 'pointer', transition: '0.2s',
+                      }}
+                    >
+                      {d}d
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 

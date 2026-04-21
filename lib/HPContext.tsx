@@ -23,6 +23,7 @@ interface HPState {
   logbook: any[];
   lastActivityDate: string | null;
   penaltyActive: boolean;
+  penaltyThresholdDays: number; // How many days of inactivity before penalty triggers
 }
 
 interface HPUser {
@@ -69,8 +70,9 @@ export function HPProvider({ children }: { children: React.ReactNode }) {
           now.setHours(0,0,0,0);
           
           const diffDays = Math.floor((now.getTime() - last.getTime()) / (1000 * 60 * 60 * 24));
+          const threshold = data.state?.penaltyThresholdDays ?? 1;
           
-          if (diffDays > 1) {
+          if (diffDays > threshold) {
             // Penalty!
             finalUser = {
               ...data.user,
