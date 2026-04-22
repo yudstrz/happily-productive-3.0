@@ -5,7 +5,6 @@ import { useHP } from "@/lib/HPContext";
 import { HP_TOKENS, HP_FONT, HP_TEXT } from "@/lib/constants";
 import Modal from "@/components/ui/Modal";
 import HPGlyph from "@/components/ui/HPGlyph";
-import HPAvatar from "@/components/ui/HPAvatar";
 
 interface Props {
   onClose: () => void;
@@ -13,15 +12,17 @@ interface Props {
   topic?: string;
 }
 
-type Step = 'goal' | 'reality' | 'options' | 'will' | 'done';
+type Step = 'summary' | 'goal' | 'reality' | 'options' | 'will' | 'done';
 
 export default function GROWCoachingModal({ onClose, roleContext = 'employee', topic }: Props) {
   const { state, updateState } = useHP();
-  const [step, setStep] = useState<Step>('goal');
+  const [step, setStep] = useState<Step>('summary');
   const [inputText, setInputText] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [chatHistory, setChatHistory] = useState<{role: 'ai' | 'user', content: string}[]>([]);
   
   const [answers, setAnswers] = useState({
+    summary: "",
     goal: "",
     reality: "",
     options: "",
@@ -30,40 +31,75 @@ export default function GROWCoachingModal({ onClose, roleContext = 'employee', t
 
   const chatEndRef = useRef<HTMLDivElement>(null);
 
+  const getAIPrompt = (currentStep: Step) => {
+    switch (currentStep) {
+      case 'summary':
+        return `Halo! Aku Flow AI. Silakan masukkan poin-poin utama atau rangkuman hasil diskusi 1-on-1 kamu bersama coach/manajer tadi. Aku akan membantumu membedahnya menggunakan kerangka GROW.`;
+      case 'goal':
+        return `Terima kasih atas rangkumannya! Berdasarkan diskusi tersebut, mari kita mulai framework GROW. Apa Goal (tujuan spesifik) yang ingin kamu capai? ${topic ? `(Topik saran: ${topic})` : ''}`;
+      case 'reality':
+        if (roleContext === 'hr') {
+          return `Baik, tujuan yang bagus! Sekarang Reality. Berdasarkan data feedback dan metrik organisasi kita saat ini, apa hambatan terbesar yang menghalangi pencapaian tujuan tersebut?`;
+        }
+        return `Menarik. Sekarang Reality. Bagaimana kondisi nyatanya saat ini? Hambatan apa yang sedang kamu hadapi untuk mencapai Goal tersebut?`;
+      case 'options':
+        return `Aku paham kondisinya. Sekarang Options. Menurutmu, apa saja 2-3 opsi tindakan yang bisa dilakukan untuk mengatasi hambatan tersebut?`;
+      case 'will':
+        return `Ide yang bagus! Terakhir, Will (Komitmen). Dari opsi-opsi tadi, apa 1 langkah konkret (action item) pertama yang AKAN kamu lakukan minggu ini?`;
+      case 'done':
+        return `Sesi selesai! Rangkuman dan komitmenmu sudah kucatat di Logbook (+25 Poin). Semangat mengeksekusi rencana tersebut! 🚀`;
+    }
+  };
+
+  useEffect(() => {
+    if (chatHistory.length === 0) {
+      setChatHistory([{ role: 'ai', content: getAIPrompt('summary') }]);
+    }
+  }, []);
+
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [step, isTyping]);
+  }, [chatHistory, isTyping]);
 
   if (!state) return null;
 
   const handleNext = () => {
     if (!inputText.trim()) return;
 
+    const newHistory: {role: 'ai' | 'user', content: string}[] = [...chatHistory, { role: 'user', content: inputText }];
+    setChatHistory(newHistory);
+    
     // Save answer
-    setAnswers(prev => ({ ...prev, [step]: inputText }));
+    const currentAnswers = { ...answers, [step]: inputText };
+    setAnswers(currentAnswers);
+    
     setInputText("");
     setIsTyping(true);
 
     setTimeout(() => {
       setIsTyping(false);
-      if (step === 'goal') setStep('reality');
-      else if (step === 'reality') setStep('options');
-      else if (step === 'options') setStep('will');
+      let nextStep: Step = step;
+      if (step === 'summary') nextStep = 'goal';
+      else if (step === 'goal') nextStep = 'reality';
+      else if (step === 'reality') nextStep = 'options';
+      else if (step === 'options') nextStep = 'will';
       else if (step === 'will') {
-        setStep('done');
-        // Save to logbook
-        saveToLogbook();
+        nextStep = 'done';
+        saveToLogbook(currentAnswers);
       }
+      
+      setStep(nextStep);
+      setChatHistory([...newHistory, { role: 'ai', content: getAIPrompt(nextStep) }]);
     }, 1500);
   };
 
-  const saveToLogbook = () => {
+  const saveToLogbook = (finalAnswers: any) => {
     const now = new Date();
     const newLog = {
       id: Date.now(),
       type: 'journal_entry',
       journalType: 'reflection',
-      content: `GROW Coaching Session:\nGoal: ${answers.goal || inputText}\nWill: ${inputText}`,
+      content: `GROW Coaching Session:\n\nCatatan 1-on-1: ${finalAnswers.summary}\n\nGoal: ${finalAnswers.goal}\nReality: ${finalAnswers.reality}\nOptions: ${finalAnswers.options}\nWill: ${finalAnswers.will}`,
       points: 25,
       date: now.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
       day: now.toLocaleDateString('id-ID', { weekday: 'long' }),
@@ -78,32 +114,14 @@ export default function GROWCoachingModal({ onClose, roleContext = 'employee', t
     }));
   };
 
-  const getAIPrompt = () => {
-    switch (step) {
-      case 'goal':
-        return `Halo! Aku Flow AI. Mari kita mulai sesi coaching GROW ini. Apa Goal (tujuan spesifik) yang ingin kamu capai dari sesi hari ini? ${topic ? `(Topik saran: ${topic})` : ''}`;
-      case 'reality':
-        if (roleContext === 'hr') {
-          return `Baik, tujuan yang bagus! Sekarang Reality. Berdasarkan data feedback dan metrik organisasi kita saat ini, apa hambatan terbesar yang menghalangi pencapaian tujuan tersebut?`;
-        }
-        return `Menarik. Sekarang Reality. Bagaimana kondisi nyatanya saat ini? Hambatan apa yang sedang kamu hadapi untuk mencapai Goal tersebut?`;
-      case 'options':
-        return `Aku paham kondisinya. Sekarang Options. Menurutmu, apa saja 2-3 opsi tindakan yang bisa dilakukan untuk mengatasi hambatan tersebut?`;
-      case 'will':
-        return `Ide yang bagus! Terakhir, Will (Komitmen). Dari opsi-opsi tadi, apa 1 langkah konkret (action item) pertama yang AKAN kamu lakukan minggu ini?`;
-      case 'done':
-        return `Sesi selesai! Komitmenmu sudah kucatat di Logbook (+25 Poin). Semangat mengeksekusi rencana tersebut! 🚀`;
-    }
-  };
-
   return (
     <Modal onClose={onClose} title="GROW Coaching Session">
       <div style={{ display: 'flex', flexDirection: 'column', height: '65vh' }}>
         
         {/* Progress Bar */}
         <div style={{ display: 'flex', gap: 4, marginBottom: 16 }}>
-          {['goal', 'reality', 'options', 'will'].map((s, i) => {
-            const steps = ['goal', 'reality', 'options', 'will', 'done'];
+          {['summary', 'goal', 'reality', 'options', 'will'].map((s, i) => {
+            const steps = ['summary', 'goal', 'reality', 'options', 'will', 'done'];
             const currentIndex = steps.indexOf(step);
             const isActive = i <= currentIndex;
             return (
@@ -119,56 +137,34 @@ export default function GROWCoachingModal({ onClose, roleContext = 'employee', t
         {/* Chat Area */}
         <div style={{ flex: 1, overflowY: 'auto', paddingRight: 8, display: 'flex', flexDirection: 'column', gap: 16 }}>
           
-          {/* AI Message */}
-          <div style={{ display: 'flex', gap: 12 }}>
-            <div style={{
-              width: 36, height: 36, borderRadius: 18, background: HP_TOKENS.blueWash,
-              display: 'flex', alignItems: 'center', justifyContent: 'center'
-            }}>
-              <HPGlyph name="sparkle" size={18} color={HP_TOKENS.blue}/>
-            </div>
-            <div style={{ 
-              background: HP_TOKENS.card, border: `1.5px solid ${HP_TOKENS.lineSoft}`, 
-              padding: '12px 16px', borderRadius: '0 16px 16px 16px', 
-              maxWidth: '85%', ...HP_TEXT.body, fontSize: 14, lineHeight: 1.5
-            }}>
-              {getAIPrompt()}
-            </div>
-          </div>
-
-          {/* User History Answers */}
-          {step !== 'goal' && answers.goal && (
-            <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
+          {chatHistory.map((msg, i) => (
+            <div key={i} style={{ display: 'flex', gap: 12, justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start' }}>
+              {msg.role === 'ai' && (
+                <div style={{
+                  width: 36, height: 36, borderRadius: 18, background: HP_TOKENS.blueWash,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
+                }}>
+                  <HPGlyph name="sparkle" size={18} color={HP_TOKENS.blue}/>
+                </div>
+              )}
               <div style={{ 
-                background: HP_TOKENS.blue, 
-                padding: '12px 16px', borderRadius: '16px 0 16px 16px', 
-                maxWidth: '85%', ...HP_TEXT.body, color: '#fff', fontSize: 14, lineHeight: 1.5
+                background: msg.role === 'user' ? HP_TOKENS.blue : HP_TOKENS.card, 
+                border: msg.role === 'user' ? 'none' : `1.5px solid ${HP_TOKENS.lineSoft}`, 
+                padding: '12px 16px', 
+                borderRadius: msg.role === 'user' ? '16px 0 16px 16px' : '0 16px 16px 16px', 
+                maxWidth: '85%', ...HP_TEXT.body, color: msg.role === 'user' ? '#fff' : HP_TOKENS.ink, fontSize: 14, lineHeight: 1.5,
+                whiteSpace: 'pre-wrap'
               }}>
-                {answers.goal}
+                {msg.content}
               </div>
             </div>
-          )}
-          {['options', 'will', 'done'].includes(step) && answers.reality && (
-            <>
-              <div style={{ display: 'flex', gap: 12 }}>
-                <div style={{ width: 36 }}/>
-                <div style={{ background: HP_TOKENS.card, border: `1.5px solid ${HP_TOKENS.lineSoft}`, padding: '12px 16px', borderRadius: '0 16px 16px 16px', maxWidth: '85%', ...HP_TEXT.body, fontSize: 14, lineHeight: 1.5 }}>
-                  {getAIPrompt().replace(step, 'reality')} {/* Mock historical prompt */}
-                </div>
-              </div>
-              <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
-                <div style={{ background: HP_TOKENS.blue, padding: '12px 16px', borderRadius: '16px 0 16px 16px', maxWidth: '85%', ...HP_TEXT.body, color: '#fff', fontSize: 14, lineHeight: 1.5 }}>
-                  {answers.reality}
-                </div>
-              </div>
-            </>
-          )}
+          ))}
 
           {isTyping && (
             <div style={{ display: 'flex', gap: 12 }}>
                <div style={{
                 width: 36, height: 36, borderRadius: 18, background: HP_TOKENS.blueWash,
-                display: 'flex', alignItems: 'center', justifyContent: 'center'
+                display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
               }}>
                 <HPGlyph name="sparkle" size={18} color={HP_TOKENS.blue}/>
               </div>
@@ -210,7 +206,7 @@ export default function GROWCoachingModal({ onClose, roleContext = 'employee', t
                 width: 60, height: 60, borderRadius: 16, border: 'none',
                 background: inputText.trim() && !isTyping ? HP_TOKENS.blue : HP_TOKENS.lineSoft,
                 color: '#fff', cursor: inputText.trim() && !isTyping ? 'pointer' : 'default',
-                display: 'flex', alignItems: 'center', justifyContent: 'center'
+                display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
               }}
             >
               <HPGlyph name="sparkle" size={24} color="#fff"/>
