@@ -67,14 +67,14 @@ export default function HomeScreen({ openModal }: any) {
     updateState((s: any) => {
       const pIndex = s.priorities.findIndex((p: any) => p.id === id);
       const wasDone = s.priorities[pIndex].done;
+      const pointsToAward = s.priorities[pIndex].points || 50;
+      
       if (!wasDone) { 
         setConfetti(true); 
         setTimeout(() => setConfetti(false), 1200); 
-        // Award 50 points
-        updateUser((u: any) => ({ ...u, points: u.points + 50 }));
+        updateUser((u: any) => ({ ...u, points: u.points + pointsToAward }));
       } else {
-        // Deduct 50 points if toggled off
-        updateUser((u: any) => ({ ...u, points: Math.max(0, u.points - 50) }));
+        updateUser((u: any) => ({ ...u, points: Math.max(0, u.points - pointsToAward) }));
       }
       const newPriorities = [...s.priorities];
       newPriorities[pIndex] = { ...newPriorities[pIndex], done: !wasDone };
@@ -91,7 +91,7 @@ export default function HomeScreen({ openModal }: any) {
           id: Date.now(),
           type: 'quest_completion',
           title: newPriorities[pIndex].title,
-          points: 50,
+          points: pointsToAward,
           date: now.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
           day: now.toLocaleDateString('id-ID', { weekday: 'long' }),
           time: now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),

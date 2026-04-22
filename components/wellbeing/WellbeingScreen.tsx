@@ -140,8 +140,6 @@ export default function WellbeingScreen({ openModal }: WellbeingScreenProps) {
       <SectionHeader 
         icon="calendar" 
         label="Program & tantangan" 
-        action="Kelola"
-        onAction={() => openModal('manage_programs')}
       />
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         {(wellbeing.programs || []).map((p: any) => (

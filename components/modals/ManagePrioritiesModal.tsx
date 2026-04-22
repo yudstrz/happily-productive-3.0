@@ -19,6 +19,7 @@ export default function ManagePrioritiesModal({ onClose }: ManagePrioritiesModal
   const [newTitle, setNewTitle] = useState("");
   const [energy, setEnergy] = useState("mid");
   const [type, setType] = useState("Daily Task");
+  const [points, setPoints] = useState<number>(50);
 
   if (!state) return null;
 
@@ -32,6 +33,7 @@ export default function ManagePrioritiesModal({ onClose }: ManagePrioritiesModal
       type: type,
       est: "30m",
       done: false,
+      points: Number(points) || 50,
       tone: energy === 'high' ? 'yellow' : energy === 'mid' ? 'sage' : 'blue',
     };
     updateState((s: any) => ({
@@ -39,6 +41,7 @@ export default function ManagePrioritiesModal({ onClose }: ManagePrioritiesModal
       priorities: [...s.priorities, newP]
     }));
     setNewTitle("");
+    setPoints(50);
   };
 
   const deletePriority = (id: number) => {
@@ -51,7 +54,7 @@ export default function ManagePrioritiesModal({ onClose }: ManagePrioritiesModal
   return (
     <Modal onClose={onClose} title="Kelola Quest">
       <div style={{ marginTop: 4 }}>
-        <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, fontWeight: 700, marginBottom: 12 }}>QUEST AKTIF (+50 Point tiap selesai)</div>
+        <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, fontWeight: 700, marginBottom: 12 }}>QUEST AKTIF</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
           {state.priorities.map((p: any) => (
             <div 
@@ -77,6 +80,12 @@ export default function ManagePrioritiesModal({ onClose }: ManagePrioritiesModal
                   {p.type} · {p.energy.toUpperCase()} Priority
                 </div>
               </div>
+              <div style={{ 
+                padding: '4px 10px', borderRadius: 8, background: HP_TOKENS.blueWash, 
+                color: HP_TOKENS.blue, fontSize: 10, fontWeight: 900 
+              }}>
+                +{p.points || 50} Poin
+              </div>
               <button 
                 onClick={() => deletePriority(p.id)}
                 style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}
@@ -100,6 +109,18 @@ export default function ManagePrioritiesModal({ onClose }: ManagePrioritiesModal
             }}
           />
           
+          <div style={{ ...HP_TEXT.small, fontSize: 11, fontWeight: 700, color: HP_TOKENS.inkMute }}>Poin / EXP (Reward)</div>
+          <input 
+            type="number" 
+            value={points}
+            onChange={(e) => setPoints(parseInt(e.target.value) || 0)}
+            placeholder="50"
+            style={{
+              padding: 14, borderRadius: 12, border: `1.5px solid ${HP_TOKENS.line}`,
+              fontFamily: HP_FONT, fontSize: 14, background: '#fff', outline: 'none'
+            }}
+          />
+
           <div style={{ ...HP_TEXT.small, fontSize: 11, fontWeight: 700, color: HP_TOKENS.inkMute }}>Tipe Quest</div>
           <div style={{ display: 'flex', gap: 8 }}>
             {['Daily Task', 'Manager Task', 'Division Goal'].map(t => (
