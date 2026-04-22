@@ -13,7 +13,7 @@ import RewardCard from "@/components/recognize/RewardCard";
 import { ORG_REWARDS_CATALOG } from "@/lib/mockData";
 
 interface RecognizeScreenProps {
-  openModal: (name: string) => void;
+  openModal: (name: string, props?: any) => void;
 }
 
 export default function RecognizeScreen({ openModal }: RecognizeScreenProps) {

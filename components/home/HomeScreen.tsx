@@ -25,8 +25,8 @@ import InsightCard from "@/components/home/InsightCard";
 import HabitCell from "@/components/home/HabitCell";
 
 interface HomeScreenProps {
-  openModal: (name: string) => void;
   tab: string;
+  openModal: (name: string, props?: any) => void;
 }
 
 const iconBtnStyle: React.CSSProperties = {

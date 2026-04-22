@@ -11,7 +11,7 @@ import SectionHeader from "@/components/home/SectionHeader";
 import GoalCard from "@/components/goals/GoalCard";
 
 interface GoalsScreenProps {
-  openModal: (name: string) => void;
+  openModal: (name: string, props?: any) => void;
 }
 
 export default function GoalsScreen({ openModal }: GoalsScreenProps) {

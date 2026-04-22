@@ -140,9 +140,9 @@ export default function GROWCoachingModal({ onClose, roleContext = 'employee', t
           {step !== 'goal' && answers.goal && (
             <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
               <div style={{ 
-                background: HP_TOKENS.blue, color: '#fff', 
+                background: HP_TOKENS.blue, 
                 padding: '12px 16px', borderRadius: '16px 0 16px 16px', 
-                maxWidth: '85%', ...HP_TEXT.body, fontSize: 14, lineHeight: 1.5
+                maxWidth: '85%', ...HP_TEXT.body, color: '#fff', fontSize: 14, lineHeight: 1.5
               }}>
                 {answers.goal}
               </div>
@@ -157,7 +157,7 @@ export default function GROWCoachingModal({ onClose, roleContext = 'employee', t
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
-                <div style={{ background: HP_TOKENS.blue, color: '#fff', padding: '12px 16px', borderRadius: '16px 0 16px 16px', maxWidth: '85%', ...HP_TEXT.body, fontSize: 14, lineHeight: 1.5 }}>
+                <div style={{ background: HP_TOKENS.blue, padding: '12px 16px', borderRadius: '16px 0 16px 16px', maxWidth: '85%', ...HP_TEXT.body, color: '#fff', fontSize: 14, lineHeight: 1.5 }}>
                   {answers.reality}
                 </div>
               </div>

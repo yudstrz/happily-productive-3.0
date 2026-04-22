@@ -16,7 +16,7 @@ import DiceBearAvatar from "@/components/ui/DiceBearAvatar";
 import { generateCoachingTopic } from "@/lib/aiService";
 
 interface GrowthScreenProps {
-  openModal: (name: string) => void;
+  openModal: (name: string, props?: any) => void;
 }
 
 const primaryBtn: React.CSSProperties = {

@@ -30,6 +30,14 @@ export const HP_REWARDS = [
   { id: 9, title: "Sesi wellness 1:1", points: 350, tone: "coral", emoji: "🧘", category: "Wellbeing", desc: "Konsultasi pribadi dengan wellness coach berpengalaman." },
 ];
 
+export const ORG_REWARDS_CATALOG = [
+  { id: 1, title: 'Extra Cuti 1 Hari', points: 500, stock: 12, tone: 'sage', desc: 'Gunakan poinmu untuk hari libur tambahan tanpa syarat.', category: 'Wellness' },
+  { id: 2, title: 'Workshop UX Intensif', points: 800, stock: 5, tone: 'blue', desc: 'Akses ke workshop desain eksklusif selama 1 hari penuh.', category: 'Growth' },
+  { id: 3, title: 'Voucher Makan Siang 100k', points: 250, stock: 50, tone: 'yellow', desc: 'Voucher GrabFood atau GoFood senilai Rp 100.000.', category: 'Lifestyle' },
+  { id: 4, title: 'Donasi Program Sosial', points: 100, stock: 999, tone: 'coral', desc: 'Donasikan poinmu untuk penanaman pohon di Kalimantan.', category: 'Social' },
+  { id: 5, title: 'Mentoring 1:1 dengan Head', points: 1200, stock: 2, tone: 'lavender', desc: 'Sesi coaching karir 60 menit dengan pimpinan divisi.', category: 'Growth' },
+];
+
 export const HP_PEOPLE = [
   { name: 'Budi Santoso', role: 'Product Manager' },
   { name: 'Anya Putri', role: 'Engineering Lead' },
