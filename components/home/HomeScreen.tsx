@@ -81,9 +81,22 @@ export default function HomeScreen({ openModal }: any) {
       
       const update: any = { priorities: newPriorities };
       if (!wasDone) {
-        update.lastActivityDate = new Date().toISOString();
+        const now = new Date();
+        update.lastActivityDate = now.toISOString();
         update.penaltyActive = false; // Completing a quest clears penalty banner for the current view
         syncSkillProgress(newPriorities[pIndex].title + " " + newPriorities[pIndex].goal, 2);
+
+        // Create logbook entry for quest
+        const newLog = {
+          id: Date.now(),
+          type: 'quest_completion',
+          title: newPriorities[pIndex].title,
+          points: 50,
+          date: now.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
+          day: now.toLocaleDateString('id-ID', { weekday: 'long' }),
+          time: now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+        };
+        update.logbook = [newLog, ...(s.logbook || [])];
       }
       return { ...s, ...update };
     });
@@ -134,7 +147,7 @@ export default function HomeScreen({ openModal }: any) {
 
   return (
     <div style={{ position: 'relative', minHeight: '100%', paddingBottom: 120, fontFamily: HP_FONT }}>
-      <BlobBackground colors={[HP_TOKENS.yellowSoft, HP_TOKENS.sageSoft, HP_TOKENS.blueSoft]}/>
+      <BlobBackground colors={[HP_TOKENS.yellowWash, HP_TOKENS.blueWash, HP_TOKENS.blueSoft]}/>
       <Confetti show={confetti}/>
 
       <div style={{ position: 'relative', zIndex: 1, padding: '0 16px' }} className="hp-stagger">

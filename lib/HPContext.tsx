@@ -26,6 +26,8 @@ interface HPState {
   penaltyThresholdDays: number; // How many days of inactivity before penalty triggers
 }
 
+export type UserRole = 'employee' | 'manager' | 'hr';
+
 interface HPUser {
   name: string;
   role: string;
@@ -33,6 +35,7 @@ interface HPUser {
   points: number;
   level: number;
   rank: string;
+  userRole?: UserRole | null;
   avatarConfig?: {
     seed: string;
     skinColor: string;
@@ -52,6 +55,7 @@ interface HPContextType {
   user: HPUser | null;
   updateState: (update: Partial<HPState> | ((prev: HPState) => HPState)) => void;
   updateUser: (update: Partial<HPUser> | ((prev: HPUser) => HPUser)) => void;
+  setUserRole: (role: UserRole) => void;
   loading: boolean;
   refresh: () => Promise<void>;
   resetData: () => Promise<void>;
@@ -163,6 +167,13 @@ export function HPProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
+  const setUserRole = (role: UserRole) => {
+    setUser((prev) => {
+      if (!prev) return null;
+      return { ...prev, userRole: role };
+    });
+  };
+
   const syncSkillProgress = (source: string, amount: number) => {
     setState((prev) => {
       if (!prev) return null;
@@ -210,7 +221,7 @@ export function HPProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <HPContext.Provider value={{ state, user, updateState, updateUser, loading, refresh: fetchData, resetData, syncSkillProgress }}>
+    <HPContext.Provider value={{ state, user, updateState, updateUser, setUserRole, loading, refresh: fetchData, resetData, syncSkillProgress }}>
       {children}
     </HPContext.Provider>
   );

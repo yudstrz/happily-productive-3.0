@@ -13,9 +13,9 @@ interface RewardCardProps {
 }
 
 const TONE_CONFIG: Record<string, any> = {
+  blue:   { bg: HP_TOKENS.blueWash,   accent: HP_TOKENS.blue,   text: '#003399', glow: 'rgba(0,82,204,0.12)' },
+  yellow: { bg: HP_TOKENS.yellowWash, accent: HP_TOKENS.yellow, text: '#8A6814', glow: 'rgba(255,215,0,0.15)' },
   sage:   { bg: HP_TOKENS.sageWash,   accent: HP_TOKENS.sage,   text: '#2D5A3D', glow: 'rgba(74,124,89,0.12)' },
-  yellow: { bg: HP_TOKENS.yellowWash, accent: HP_TOKENS.yellow, text: '#7A5F10', glow: 'rgba(245,200,66,0.15)' },
-  blue:   { bg: HP_TOKENS.blueWash,   accent: HP_TOKENS.blue,   text: '#234A72', glow: 'rgba(59,111,160,0.12)' },
   coral:  { bg: '#FEF0ED',            accent: HP_TOKENS.coral,  text: '#8B3A2F', glow: 'rgba(232,139,125,0.15)' },
   lavender: { bg: HP_TOKENS.lavenderSoft, accent: HP_TOKENS.lavender, text: '#4A3A6E', glow: 'rgba(123,104,238,0.12)' },
 };

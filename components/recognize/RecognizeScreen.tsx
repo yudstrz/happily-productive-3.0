@@ -10,6 +10,7 @@ import SectionHeader from "@/components/home/SectionHeader";
 import StatBlock from "@/components/recognize/StatBlock";
 import AppreciationCard from "@/components/recognize/AppreciationCard";
 import RewardCard from "@/components/recognize/RewardCard";
+import { ORG_REWARDS_CATALOG } from "@/lib/mockData";
 
 interface RecognizeScreenProps {
   openModal: (name: string) => void;
@@ -39,7 +40,7 @@ export default function RecognizeScreen({ openModal }: RecognizeScreenProps) {
         <div style={{ display: 'flex', gap: 20 }}>
           <StatBlock label="Poin kamu" value={state.points.toLocaleString()} icon="trophy" tone="yellow"/>
           <StatBlock label="Diberi" value="24" icon="heart" tone="coral"/>
-          <StatBlock label="Diterima" value="31" icon="sparkle" tone="sage"/>
+          <StatBlock label="Diterima" value="31" icon="sparkle" tone="blue"/>
         </div>
       </HPCard>
 
@@ -50,7 +51,7 @@ export default function RecognizeScreen({ openModal }: RecognizeScreenProps) {
           width: '100%', 
           padding: '14px 16px', 
           borderRadius: 20,
-          background: HP_TOKENS.sage, 
+          background: HP_TOKENS.blue, 
           color: '#fff', 
           border: 'none', 
           cursor: 'pointer',
@@ -61,7 +62,7 @@ export default function RecognizeScreen({ openModal }: RecognizeScreenProps) {
           fontFamily: HP_FONT, 
           fontWeight: 800, 
           fontSize: 15,
-          boxShadow: `0 4px 14px ${HP_TOKENS.sageSoft}`,
+          boxShadow: `0 4px 14px ${HP_TOKENS.blueSoft}`,
         }}
         className="hp-tap"
       >
@@ -92,10 +93,9 @@ export default function RecognizeScreen({ openModal }: RecognizeScreenProps) {
         onAction={() => openModal('all_rewards')}
       />
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-        <RewardCard title="Extra cuti 1 hari" points={500} tone="sage"/>
-        <RewardCard title="Voucher lunch 100k" points={250} tone="yellow"/>
-        <RewardCard title="Workshop UX intensif" points={800} tone="blue"/>
-        <RewardCard title="Donasi program sosial" points={100} tone="coral"/>
+        {ORG_REWARDS_CATALOG.slice(0, 4).map(r => (
+          <RewardCard key={r.id} title={r.title} points={r.points} tone={r.tone as any} />
+        ))}
       </div>
     </div>
   );

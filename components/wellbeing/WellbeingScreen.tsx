@@ -11,7 +11,7 @@ import ScreenHeader from "@/components/ui/ScreenHeader";
 import SectionHeader from "@/components/home/SectionHeader";
 import ReadinessRing from "@/components/growth/ReadinessRing";
 import DimensionCard from "@/components/wellbeing/DimensionCard";
-import ProgramCard from "@/components/wellbeing/ProgramCard";
+import ProgramCardInteractive from "@/components/wellbeing/ProgramCardInteractive";
 import { generateDailyPrompt } from "@/lib/aiService";
 
 interface WellbeingScreenProps {
@@ -143,17 +143,30 @@ export default function WellbeingScreen({ openModal }: WellbeingScreenProps) {
         action="Kelola"
         onAction={() => openModal('manage_programs')}
       />
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         {(wellbeing.programs || []).map((p: any) => (
-          <ProgramCard 
-            key={p.id} 
-            title={p.title} 
-            progress={p.progress} 
-            joined={p.joined} 
-            tone={p.tone} 
-            day={p.day}
+          <ProgramCardInteractive
+            key={p.id}
+            p={p}
+            onToggleJoin={(id: number) => {
+              updateState((s: any) => ({
+                ...s,
+                wellbeing: {
+                  ...s.wellbeing,
+                  programs: s.wellbeing.programs.map((prog: any) =>
+                    prog.id === id ? { ...prog, joinedByMe: !prog.joinedByMe } : prog
+                  ),
+                },
+              }));
+            }}
           />
         ))}
+        {(!wellbeing.programs || wellbeing.programs.length === 0) && (
+          <div style={{ textAlign: 'center', padding: '32px 20px', color: HP_TOKENS.inkMute }}>
+            <div style={{ fontSize: 32, marginBottom: 10 }}>🌱</div>
+            <div style={{ ...HP_TEXT.h, fontSize: 14 }}>Belum ada program dari manager.</div>
+          </div>
+        )}
       </div>
 
       <SectionHeader 
@@ -165,7 +178,7 @@ export default function WellbeingScreen({ openModal }: WellbeingScreenProps) {
       <HPCard padding={14}>
         <div style={{ display: 'flex', gap: 12 }}>
           <button onClick={() => openModal('journal', { type: 'reflection' })} style={{ ...softBtn, flex: 1 }} className="hp-tap">
-            <HPGlyph name="book" size={18} color={HP_TOKENS.sage}/>
+            <HPGlyph name="book" size={18} color={HP_TOKENS.blue}/>
             <div>Reflection journal</div>
           </button>
           <button onClick={() => openModal('journal', { type: 'gratitude' })} style={{ ...softBtn, flex: 1 }} className="hp-tap">
@@ -175,13 +188,13 @@ export default function WellbeingScreen({ openModal }: WellbeingScreenProps) {
         </div>
         <div style={{ marginTop: 12, padding: 12, background: HP_TOKENS.lineSoft, borderRadius: 12 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ ...HP_TEXT.small, color: HP_TOKENS.sage, fontWeight: 700 }}>PROMPT HARI INI</div>
+            <div style={{ ...HP_TEXT.small, color: HP_TOKENS.blue, fontWeight: 700 }}>PROMPT HARI INI</div>
             <button 
               onClick={refreshPrompt} 
               className="hp-tap"
               style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex', opacity: refreshing ? 0.5 : 1 }}
             >
-              <HPGlyph name="refresh" size={12} color={HP_TOKENS.sage}/>
+              <HPGlyph name="refresh" size={12} color={HP_TOKENS.blue}/>
             </button>
           </div>
           <div style={{ ...HP_TEXT.h, fontSize: 15, marginTop: 4, fontStyle: refreshing ? 'italic' : 'normal', opacity: refreshing ? 0.6 : 1 }}>

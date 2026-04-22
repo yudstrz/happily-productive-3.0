@@ -33,8 +33,8 @@ export default function LogbookModal({ onClose }: LogbookModalProps) {
             if (entry.type === 'habit_completion') {
               return (
                 <div key={entry.id} style={{
-                  padding: 16, borderRadius: 20, background: HP_TOKENS.sageWash,
-                  border: `1.5px solid ${HP_TOKENS.sageSoft}`, display: 'flex', alignItems: 'center', gap: 14
+                  padding: 16, borderRadius: 20, background: HP_TOKENS.blueWash,
+                  border: `1.5px solid ${HP_TOKENS.blueSoft}`, display: 'flex', alignItems: 'center', gap: 14
                 }}>
                   <div style={{ fontSize: 28 }}>{entry.emoji}</div>
                   <div style={{ flex: 1 }}>
@@ -44,10 +44,72 @@ export default function LogbookModal({ onClose }: LogbookModalProps) {
                     </div>
                   </div>
                   <div style={{ 
-                    padding: '6px 12px', borderRadius: 12, background: HP_TOKENS.sage, 
-                    color: '#fff', fontSize: 12, fontWeight: 900, boxShadow: `0 4px 10px ${HP_TOKENS.sageSoft}`
+                    padding: '6px 12px', borderRadius: 12, background: HP_TOKENS.blue, 
+                    color: '#fff', fontSize: 12, fontWeight: 900, boxShadow: `0 4px 10px ${HP_TOKENS.blueSoft}`
                   }}>
                     +{entry.points} Poin
+                  </div>
+                </div>
+              );
+            }
+
+            if (entry.type === 'quest_completion') {
+              return (
+                <div key={entry.id} style={{
+                  padding: 16, borderRadius: 20, background: HP_TOKENS.blueWash,
+                  border: `1.5px solid ${HP_TOKENS.blueSoft}`, display: 'flex', alignItems: 'center', gap: 14
+                }}>
+                  <div style={{ 
+                    width: 42, height: 42, borderRadius: 12, background: HP_TOKENS.blueSoft,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center'
+                  }}>
+                    <HPGlyph name="sparkle" size={20} color={HP_TOKENS.blue}/>
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ ...HP_TEXT.h, fontSize: 13 }}>Daily Quest: {entry.title}</div>
+                    <div style={{ ...HP_TEXT.small, fontSize: 11, color: HP_TOKENS.inkMute }}>
+                      {entry.day}, {entry.date} · {entry.time}
+                    </div>
+                  </div>
+                  <div style={{ 
+                    padding: '6px 12px', borderRadius: 12, background: HP_TOKENS.blue, 
+                    color: '#fff', fontSize: 12, fontWeight: 900, boxShadow: `0 4px 10px ${HP_TOKENS.blueSoft}`
+                  }}>
+                    +{entry.points} Poin
+                  </div>
+                </div>
+              );
+            }
+
+            if (entry.type === 'journal_entry') {
+              const isGratitude = entry.journalType === 'gratitude';
+              return (
+                <div key={entry.id} style={{
+                  padding: 18, borderRadius: 24, background: isGratitude ? HP_TOKENS.coralSoft : HP_TOKENS.blueWash,
+                  border: `1.5px solid ${isGratitude ? HP_TOKENS.coral + '30' : HP_TOKENS.blueSoft}`,
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <div style={{ fontSize: 24 }}>{isGratitude ? '💖' : '📓'}</div>
+                      <div>
+                        <div style={{ ...HP_TEXT.h, fontSize: 13 }}>{isGratitude ? 'Gratitude Log' : 'Reflection Journal'}</div>
+                        <div style={{ ...HP_TEXT.small, fontSize: 11, color: HP_TOKENS.inkMute }}>
+                          {entry.day}, {entry.date} · {entry.time}
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{ 
+                      padding: '4px 10px', borderRadius: 8, background: '#fff', 
+                      color: isGratitude ? HP_TOKENS.coral : HP_TOKENS.sage, fontSize: 10, fontWeight: 900, border: '1px solid currentColor'
+                    }}>
+                      +{entry.points} Poin
+                    </div>
+                  </div>
+                  <div style={{ 
+                    ...HP_TEXT.body, fontSize: 14, fontStyle: 'italic', color: HP_TOKENS.ink, 
+                    lineHeight: 1.5, background: 'rgba(255,255,255,0.5)', padding: 12, borderRadius: 12
+                  }}>
+                    "{entry.content}"
                   </div>
                 </div>
               );
@@ -68,8 +130,8 @@ export default function LogbookModal({ onClose }: LogbookModalProps) {
                     </div>
                   </div>
                   <div style={{ 
-                    padding: '6px 12px', borderRadius: 99, background: HP_TOKENS.sageWash, 
-                    color: HP_TOKENS.sage, fontSize: 11, fontWeight: 900 
+                    padding: '6px 12px', borderRadius: 99, background: HP_TOKENS.blueWash, 
+                    color: HP_TOKENS.blue, fontSize: 11, fontWeight: 900 
                   }}>
                     {entry.taskCount} Task Selesai
                   </div>
@@ -83,7 +145,7 @@ export default function LogbookModal({ onClose }: LogbookModalProps) {
                     </div>
                   </div>
                   <div>
-                    <div style={{ ...HP_TEXT.small, fontWeight: 800, color: HP_TOKENS.sage, textTransform: 'uppercase', fontSize: 10, letterSpacing: '0.05em' }}>Catatan</div>
+                    <div style={{ ...HP_TEXT.small, fontWeight: 800, color: HP_TOKENS.blue, textTransform: 'uppercase', fontSize: 10, letterSpacing: '0.05em' }}>Catatan</div>
                     <div style={{ ...HP_TEXT.body, fontSize: 13, marginTop: 2, color: entry.notes ? HP_TOKENS.ink : HP_TOKENS.inkFade }}>
                       {entry.notes || "Tidak ada catatan."}
                     </div>

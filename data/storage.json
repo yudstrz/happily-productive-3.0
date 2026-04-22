@@ -90,19 +90,19 @@
         { "key": "social", "label": "Sosial", "score": 88, "tone": "lavender", "trend": "+6" }
       ],
       "programs": [
-        { "id": 1, "title": "21 Hari Meditasi", "progress": 57, "joined": 142, "tone": "lavender", "day": "Hari 12 dari 21" },
-        { "id": 2, "title": "Step Challenge", "progress": 74, "joined": 89, "tone": "yellow", "day": "7,420 langkah hari ini" },
-        { "id": 3, "title": "Gratitude Week", "progress": 40, "joined": 210, "tone": "coral", "day": "Hari 2 dari 7" }
+        { "id": 1, "title": "21 Hari Meditasi", "desc": "Mulai hari dengan meditasi terpandu 10 menit setiap pagi.", "emoji": "🧘", "tone": "lavender", "duration": "21 hari", "enrolledTeam": 3, "totalTeam": 5, "joinedByMe": true, "source": "hr" },
+        { "id": 2, "title": "Step Challenge Bulanan", "desc": "Target 8.000 langkah per hari selama satu bulan.", "emoji": "🚶", "tone": "sage", "duration": "30 hari", "enrolledTeam": 4, "totalTeam": 5, "joinedByMe": true, "source": "hr" },
+        { "id": 4, "title": "Tim Challenge: No Meeting Friday", "desc": "Satu hari dalam seminggu tanpa meeting — deep work time.", "emoji": "🎯", "tone": "blue", "duration": "Weekly", "enrolledTeam": 5, "totalTeam": 5, "joinedByMe": false, "source": "manager" }
       ],
       "journals": [],
       "dailyPrompt": "Apa satu hal kecil yang bikin kamu bangga hari ini?"
     },
 
     "skills": [
-      { "name": "Design Systems", "current": 85, "target": 95 },
-      { "name": "User Research", "current": 45, "target": 70 },
-      { "name": "Interaction Design", "current": 72, "target": 85 },
-      { "name": "Leadership", "current": 30, "target": 60 }
+      { "name": "Design Systems", "current": 85, "target": 95, "bloomLevel": "C4", "bloomLabel": "Analyzing" },
+      { "name": "User Research", "current": 45, "target": 70, "bloomLevel": "C2", "bloomLabel": "Understanding" },
+      { "name": "Interaction Design", "current": 72, "target": 85, "bloomLevel": "C3", "bloomLabel": "Applying" },
+      { "name": "Leadership", "current": 30, "target": 60, "bloomLevel": "C1", "bloomLabel": "Remembering" }
     ],
     "learning": [
       { "id": 1, "title": "Influence without Authority", "meta": "8 menit · Microlearning", "tag": "Leadership", "tone": "coral", "status": "new" },
@@ -130,6 +130,7 @@
     "streak": 12,
     "points": 1340,
     "level": 11,
-    "rank": "D"
+    "rank": "D",
+    "userRole": null
   }
 }

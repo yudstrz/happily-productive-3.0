@@ -29,7 +29,7 @@ export default function EmotionalHero({
           borderRadius: 28, 
           padding: 18, 
           cursor: 'pointer',
-          background: `linear-gradient(135deg, ${HP_TOKENS.sageSoft} 0%, ${HP_TOKENS.yellowSoft} 100%)`,
+          background: `linear-gradient(135deg, ${HP_TOKENS.blueSoft} 0%, ${HP_TOKENS.yellowSoft} 100%)`,
           overflow: 'hidden',
         }}
       >
@@ -41,7 +41,7 @@ export default function EmotionalHero({
             <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkSoft, fontWeight: 800, letterSpacing: 0.3, textTransform: 'uppercase' }}>Perasaanmu sekarang</div>
             <div style={{ ...HP_TEXT.title, fontSize: 22, marginTop: 4 }}>{moodObj.label} <span style={{ fontSize: 24 }}>{moodObj.emoji}</span></div>
             <div style={{ display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
-              <HPChip tone="sage" size="sm">⚡ Energi {energyObj.label.toLowerCase()}</HPChip>
+              <HPChip tone="blue" size="sm">⚡ Energi {energyObj.label.toLowerCase()}</HPChip>
               {state.tag && <HPChip tone="yellow" size="sm">#{state.tag.toLowerCase()}</HPChip>}
             </div>
           </div>
@@ -59,7 +59,7 @@ export default function EmotionalHero({
         borderRadius: 28, 
         padding: '22px 18px', 
         cursor: 'pointer',
-        background: `linear-gradient(135deg, ${HP_TOKENS.sageSoft} 0%, ${HP_TOKENS.yellowSoft} 50%, ${HP_TOKENS.coralSoft} 100%)`,
+          background: `linear-gradient(135deg, ${HP_TOKENS.blueSoft} 0%, ${HP_TOKENS.yellowSoft} 50%, ${HP_TOKENS.coralSoft} 100%)`,
         overflow: 'hidden', 
         border: 'none',
       }}
@@ -72,7 +72,7 @@ export default function EmotionalHero({
       <div style={{ display: 'flex', alignItems: 'center', gap: 14, position: 'relative' }}>
         <Mascot mood="calm" size={96}/>
         <div style={{ flex: 1 }}>
-          <div style={{ ...HP_TEXT.small, color: HP_TOKENS.sage, fontWeight: 900, letterSpacing: 0.3, textTransform: 'uppercase' }}>Hai, aku Hap</div>
+          <div style={{ ...HP_TEXT.small, color: HP_TOKENS.blue, fontWeight: 900, letterSpacing: 0.3, textTransform: 'uppercase' }}>Hai, aku Flow</div>
           <div style={{ ...HP_TEXT.title, fontSize: 20, marginTop: 4, lineHeight: 1.2 }}>Gimana perasaanmu<br/>hari ini?</div>
           <div style={{
             display: 'inline-flex', 
@@ -85,10 +85,10 @@ export default function EmotionalHero({
             fontFamily: HP_FONT, 
             fontWeight: 800, 
             fontSize: 12, 
-            color: HP_TOKENS.sage,
+            color: HP_TOKENS.blue,
             boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
           }}>
-            Check-in 3 detik <HPGlyph name="arrow" size={14} color={HP_TOKENS.sage}/>
+            Check-in 3 detik <HPGlyph name="arrow" size={14} color={HP_TOKENS.blue}/>
           </div>
         </div>
       </div>

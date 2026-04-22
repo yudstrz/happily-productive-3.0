@@ -10,9 +10,9 @@ import {
 import Modal from "@/components/ui/Modal";
 
 const primaryBtn: React.CSSProperties = {
-  padding: '14px', borderRadius: 99, border: 'none', background: HP_TOKENS.sage,
+  padding: '14px', borderRadius: 99, border: 'none', background: HP_TOKENS.blue,
   color: '#fff', fontFamily: HP_FONT, fontWeight: 800, fontSize: 15, cursor: 'pointer',
-  boxShadow: `0 4px 14px ${HP_TOKENS.sageSoft}`,
+  boxShadow: `0 4px 14px ${HP_TOKENS.blueSoft}`,
 };
 
 interface JournalModalProps {
@@ -33,12 +33,25 @@ export default function JournalModal({ onClose, type = 'reflection' }: JournalMo
       date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long' })
     };
 
+    const now = new Date();
+    const logEntry = {
+      id: Date.now() + 1, // slight offset to ensure unique if saved at same ms
+      type: 'journal_entry',
+      journalType: type,
+      content: text,
+      points: 10,
+      date: now.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
+      day: now.toLocaleDateString('id-ID', { weekday: 'long' }),
+      time: now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+    };
+
     updateState((s: any) => ({
       ...s,
       wellbeing: {
         ...s.wellbeing,
         journals: [newEntry, ...(s.wellbeing.journals || [])]
       },
+      logbook: [logEntry, ...(s.logbook || [])],
       points: (s.points || 0) + 10,
       user: {
         ...s.user,
@@ -55,8 +68,8 @@ export default function JournalModal({ onClose, type = 'reflection' }: JournalMo
 
   return (
     <Modal onClose={onClose} title={title}>
-      <div style={{ padding: 14, background: type === 'reflection' ? HP_TOKENS.sageWash : HP_TOKENS.coralSoft, borderRadius: 14, marginBottom: 16 }}>
-        <div style={{ ...HP_TEXT.small, color: type === 'reflection' ? HP_TOKENS.sage : HP_TOKENS.coral, fontWeight: 800 }}>
+      <div style={{ padding: 14, background: type === 'reflection' ? HP_TOKENS.blueWash : HP_TOKENS.coralSoft, borderRadius: 14, marginBottom: 16 }}>
+        <div style={{ ...HP_TEXT.small, color: type === 'reflection' ? HP_TOKENS.blue : HP_TOKENS.coral, fontWeight: 800 }}>
           {type === 'reflection' ? 'PROMPT HARI INI' : 'LOG RASA SYUKUR'}
         </div>
         <div style={{ ...HP_TEXT.h, fontSize: 15, marginTop: 6 }}>

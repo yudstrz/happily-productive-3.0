@@ -16,7 +16,7 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Happily Productive 3.0",
+  title: "Flow Productivity",
   description: "Intelligent Happiness — Human-Centered Platform",
 };
 

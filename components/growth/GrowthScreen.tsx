@@ -20,9 +20,9 @@ interface GrowthScreenProps {
 }
 
 const primaryBtn: React.CSSProperties = {
-  padding: '9px 16px', borderRadius: 99, border: 'none', background: HP_TOKENS.sage,
+  padding: '9px 16px', borderRadius: 99, border: 'none', background: HP_TOKENS.blue,
   color: '#fff', fontFamily: HP_FONT, fontWeight: 800, fontSize: 13, cursor: 'pointer',
-  boxShadow: `0 4px 12px rgba(74,124,89,0.3)`,
+  boxShadow: `0 4px 12px ${HP_TOKENS.blueSoft}`,
 };
 
 export default function GrowthScreen({ openModal }: GrowthScreenProps) {
@@ -51,8 +51,8 @@ export default function GrowthScreen({ openModal }: GrowthScreenProps) {
 
       {/* Hunter Profile Hero */}
       <HPCard padding={20} style={{ 
-        background: `linear-gradient(135deg, ${HP_TOKENS.paper}, #fff)`,
-        border: `2px solid ${HP_TOKENS.sageSoft}`,
+        background: `linear-gradient(135deg, ${HP_TOKENS.blueWash}, #fff)`,
+        border: `2px solid ${HP_TOKENS.blueSoft}`,
         marginBottom: 24
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
@@ -75,7 +75,7 @@ export default function GrowthScreen({ openModal }: GrowthScreenProps) {
             </div>
           </div>
           <div>
-            <div style={{ ...HP_TEXT.small, color: HP_TOKENS.sage, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 1 }}>HUNTER STATUS</div>
+            <div style={{ ...HP_TEXT.small, color: HP_TOKENS.blue, fontWeight: 900, textTransform: 'uppercase', letterSpacing: 1 }}>HUNTER STATUS</div>
             <div style={{ ...HP_TEXT.title, fontSize: 24, marginTop: 2 }}>{user.name}</div>
             <div style={{ ...HP_TEXT.small, marginTop: 4 }}>Rank {user.rank} · {user.role}</div>
           </div>
@@ -83,18 +83,37 @@ export default function GrowthScreen({ openModal }: GrowthScreenProps) {
       </HPCard>
 
       <SectionHeader 
-        icon="tree" 
-        label="Skill progression" 
+        icon="sparkle" 
+        label="Skill Progression (Bloom's Taxonomy)" 
       />
       <HPCard padding={14}>
         {(state.skills || []).map((s: any, i: number) => (
-          <div key={s.name} style={{ padding: '10px 0', borderTop: i === 0 ? 'none' : `1px solid ${HP_TOKENS.lineSoft}` }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-              <div style={{ ...HP_TEXT.h, fontSize: 13 }}>{s.name}</div>
-              <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute }}>{s.current}/{s.target}</div>
+          <div key={s.name} style={{ padding: '12px 0', borderTop: i === 0 ? 'none' : `1px solid ${HP_TOKENS.lineSoft}` }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+              <div>
+                <div style={{ ...HP_TEXT.h, fontSize: 14 }}>{s.name}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
+                  <div style={{
+                    fontSize: 10, fontWeight: 900, padding: '2px 8px', borderRadius: 6,
+                    background: HP_TOKENS.blue, color: '#fff'
+                  }}>{s.bloomLevel}</div>
+                  <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.blue, fontSize: 11 }}>{s.bloomLabel}</div>
+                </div>
+              </div>
+              <button 
+                onClick={() => openModal('skill_assessment', { skill: s.name })}
+                className="hp-tap"
+                style={{
+                  padding: '6px 14px', borderRadius: 10, border: `1.5px solid ${HP_TOKENS.blueSoft}`,
+                  background: HP_TOKENS.blueWash, color: HP_TOKENS.blue,
+                  fontFamily: HP_FONT, fontWeight: 800, fontSize: 11, cursor: 'pointer'
+                }}
+              >
+                Ukur Level
+              </button>
             </div>
             <div style={{ position: 'relative' }}>
-              <HPBar value={s.current} tone="sage"/>
+              <HPBar value={s.current} tone="blue"/>
               <div style={{ 
                 position: 'absolute', 
                 top: -3, 
@@ -142,7 +161,7 @@ export default function GrowthScreen({ openModal }: GrowthScreenProps) {
             <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, marginTop: 2 }}>{state.coaching?.role} · {state.coaching?.time}</div>
           </div>
           <button 
-            onClick={() => openModal('coaching_session')} 
+            onClick={() => openModal('grow_coaching', { role: 'employee', topic: state.coaching?.aiTopic })} 
             style={{ ...primaryBtn, background: HP_TOKENS.blue }} 
             className="hp-tap"
           >
@@ -158,16 +177,16 @@ export default function GrowthScreen({ openModal }: GrowthScreenProps) {
           gap: 10, 
           alignItems: 'flex-start' 
         }}>
-          <HPGlyph name="sparkle" size={16} color={HP_TOKENS.sage}/>
+          <HPGlyph name="sparkle" size={16} color={HP_TOKENS.blue}/>
           <div style={{ flex: 1 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ ...HP_TEXT.h, fontSize: 13, color: HP_TOKENS.sage }}>Saran topik dari AI</div>
+              <div style={{ ...HP_TEXT.h, fontSize: 13, color: HP_TOKENS.blue }}>Saran topik dari AI</div>
               <button 
                 onClick={refreshTopic} 
                 className="hp-tap"
                 style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex', opacity: refreshing ? 0.5 : 1 }}
               >
-                <HPGlyph name="refresh" size={12} color={HP_TOKENS.sage}/>
+                <HPGlyph name="refresh" size={12} color={HP_TOKENS.blue}/>
               </button>
             </div>
             <div style={{ ...HP_TEXT.body, fontSize: 13, marginTop: 4, fontStyle: refreshing ? 'italic' : 'normal', opacity: refreshing ? 0.6 : 1 }}>

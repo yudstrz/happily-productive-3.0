@@ -1,0 +1,235 @@
+"use client";
+
+import React, { useState } from "react";
+import { useHP } from "@/lib/HPContext";
+import { HP_TOKENS, HP_FONT, HP_TEXT } from "@/lib/constants";
+import {
+  MANAGER_TEAM_MEMBERS,
+  MANAGER_APPROVAL_TASKS,
+  MANAGER_ONE_ON_ONES,
+} from "@/lib/mockData";
+import HPGlyph from "@/components/ui/HPGlyph";
+import HPCard from "@/components/ui/HPCard";
+import HPAvatar from "@/components/ui/HPAvatar";
+import SectionHeader from "@/components/home/SectionHeader";
+import BlobBackground from "@/components/home/BlobBackground";
+
+interface Props { openModal: (name: string, props?: any) => void; }
+
+const MOOD_COLOR: Record<string, string> = {
+  joy: HP_TOKENS.yellow,
+  calm: HP_TOKENS.sage,
+  tired: HP_TOKENS.coral,
+  stress: '#E85C7A',
+  neutral: HP_TOKENS.inkMute,
+};
+
+export default function ManagerHomeScreen({ openModal }: Props) {
+  const { user } = useHP();
+  const [approvals, setApprovals] = useState(MANAGER_APPROVAL_TASKS);
+
+  const teamAtRisk = MANAGER_TEAM_MEMBERS.filter(m => m.status === 'Needs check-in' || m.status === 'At risk');
+  const avgWellbeing = Math.round(MANAGER_TEAM_MEMBERS.reduce((a, b) => a + b.wellbeing, 0) / MANAGER_TEAM_MEMBERS.length);
+
+  const handleApprove = (id: number) => setApprovals(prev => prev.filter(a => a.id !== id));
+
+  if (!user) return null;
+
+  return (
+    <div style={{ position: 'relative', minHeight: '100%', paddingBottom: 120, fontFamily: HP_FONT }}>
+      <BlobBackground colors={[HP_TOKENS.blueWash, HP_TOKENS.yellowWash, HP_TOKENS.blueSoft]} />
+
+      <div style={{ position: 'relative', zIndex: 1, padding: '0 16px' }} className="hp-stagger">
+
+        {/* Header */}
+        <div style={{
+          background: `linear-gradient(135deg, ${HP_TOKENS.paper}, #fff)`,
+          borderRadius: 24, padding: '24px 20px', marginTop: 8,
+          border: `1.5px solid ${HP_TOKENS.line}`, boxShadow: '0 10px 30px rgba(0,0,0,0.04)',
+          position: 'relative', overflow: 'hidden'
+        }}>
+          <div style={{ position: 'absolute', top: -20, right: -10, fontSize: 100, fontWeight: 900, color: HP_TOKENS.lineSoft, zIndex: 0, opacity: 0.4 }}>
+            {user.level}
+          </div>
+          <div style={{ position: 'relative', zIndex: 1 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                <HPAvatar name={user.name} size={52} rank={user.rank} />
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{ ...HP_TEXT.h, fontSize: 20 }}>{user.name.split(' ')[0]}</div>
+                    <div style={{ background: HP_TOKENS.blue, color: '#fff', fontSize: 10, fontWeight: 900, padding: '2px 8px', borderRadius: 6 }}>
+                      MANAGER
+                    </div>
+                  </div>
+                  <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, marginTop: 2 }}>
+                    {user.role} · {MANAGER_TEAM_MEMBERS.length} anggota tim
+                  </div>
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <button onClick={() => openModal('system_guide')} className="hp-tap" style={{
+                  background: HP_TOKENS.lineSoft, border: 'none', borderRadius: 20, width: 36, height: 36,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer'
+                }}>
+                  <HPGlyph name="sparkle" size={16} color={HP_TOKENS.blue} />
+                </button>
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 99,
+                  background: HP_TOKENS.blueSoft, fontFamily: HP_FONT, fontWeight: 900, fontSize: 14, color: HP_TOKENS.blue,
+                }}>
+                  🔥 <span>{user.streak}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Team health bar */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
+              {[
+                { label: 'Wellbeing Tim', value: `${avgWellbeing}`, suffix: '/100', color: HP_TOKENS.sage, icon: '🌱' },
+                { label: 'Approval', value: `${approvals.length}`, suffix: ' pending', color: approvals.length > 0 ? HP_TOKENS.coral : HP_TOKENS.sage, icon: '⏳' },
+                { label: 'At Risk', value: `${teamAtRisk.length}`, suffix: ' org', color: teamAtRisk.length > 0 ? HP_TOKENS.coral : HP_TOKENS.sage, icon: '⚠️' },
+              ].map(s => (
+                <div key={s.label} style={{
+                  background: HP_TOKENS.lineSoft, borderRadius: 16, padding: '12px 10px', textAlign: 'center'
+                }}>
+                  <div style={{ fontSize: 18, marginBottom: 4 }}>{s.icon}</div>
+                  <div style={{ fontFamily: HP_FONT, fontWeight: 900, fontSize: 20, color: s.color }}>
+                    {s.value}<span style={{ fontSize: 10, color: HP_TOKENS.inkMute }}>{s.suffix}</span>
+                  </div>
+                  <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, marginTop: 2 }}>{s.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Team mood snapshot */}
+        <div style={{ marginTop: 16 }}>
+          <SectionHeader icon="people" label="Status Tim Hari Ini" count={`${MANAGER_TEAM_MEMBERS.length} orang`} action="Lihat semua" onAction={() => {}} />
+          <HPCard padding={14}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+              {MANAGER_TEAM_MEMBERS.map((m, i) => (
+                <div key={m.id} style={{
+                  display: 'flex', alignItems: 'center', gap: 12,
+                  padding: '10px 0',
+                  borderTop: i === 0 ? 'none' : `1px solid ${HP_TOKENS.lineSoft}`,
+                }}>
+                  <HPAvatar name={m.name} size={36} />
+                  <div style={{ flex: 1 }}>
+                    <div style={{ ...HP_TEXT.h, fontSize: 13 }}>{m.name}</div>
+                    <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, fontSize: 11 }}>{m.role}</div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    {/* task progress */}
+                    <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute }}>
+                      {m.tasks.done}/{m.tasks.total}
+                    </div>
+                    {/* mood */}
+                    <div style={{ fontSize: 18 }}>{m.moodEmoji}</div>
+                    {/* status badge */}
+                    <div style={{
+                      fontSize: 10, fontWeight: 800, padding: '3px 8px', borderRadius: 8, fontFamily: HP_FONT,
+                      background: m.statusTone === 'sage' ? HP_TOKENS.sageSoft : m.statusTone === 'yellow' ? HP_TOKENS.yellowSoft : HP_TOKENS.coralSoft,
+                      color: m.statusTone === 'sage' ? HP_TOKENS.sage : m.statusTone === 'yellow' ? '#8A6814' : HP_TOKENS.coral,
+                    }}>
+                      {m.status}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </HPCard>
+        </div>
+
+        {/* Approvals */}
+        {approvals.length > 0 && (
+          <div style={{ marginTop: 16 }}>
+            <SectionHeader icon="target" label="Perlu Approval" count={String(approvals.length)} />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {approvals.map(task => (
+                <HPCard key={task.id} padding={14} style={{ border: task.urgent ? `1.5px solid ${HP_TOKENS.coral}` : undefined }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                    <div style={{
+                      width: 36, height: 36, borderRadius: 12, flexShrink: 0,
+                      background: task.urgent ? HP_TOKENS.coralSoft : HP_TOKENS.blueSoft,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      <HPGlyph name={task.urgent ? 'leaf' : 'calendar'} size={18} color={task.urgent ? HP_TOKENS.coral : HP_TOKENS.blue} />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      {task.urgent && (
+                        <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.coral, marginBottom: 2 }}>URGENT</div>
+                      )}
+                      <div style={{ ...HP_TEXT.h, fontSize: 13 }}>{task.type} · {task.from}</div>
+                      <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkSoft, marginTop: 2 }}>{task.desc}</div>
+                    </div>
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <button onClick={() => handleApprove(task.id)} className="hp-tap" style={{
+                        padding: '6px 12px', borderRadius: 10, border: 'none', background: HP_TOKENS.sage,
+                        color: '#fff', fontFamily: HP_FONT, fontWeight: 800, fontSize: 12, cursor: 'pointer',
+                      }}>Setuju</button>
+                      <button className="hp-tap" style={{
+                        padding: '6px 10px', borderRadius: 10, border: `1px solid ${HP_TOKENS.line}`,
+                        background: 'transparent', fontFamily: HP_FONT, fontWeight: 700, fontSize: 12, cursor: 'pointer', color: HP_TOKENS.inkSoft
+                      }}>Tunda</button>
+                    </div>
+                  </div>
+                </HPCard>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 1-on-1 Schedule */}
+        <div style={{ marginTop: 16 }}>
+          <SectionHeader icon="chat" label="1-on-1 Mendatang" action="Atur" onAction={() => openModal('schedule_coaching')} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {MANAGER_ONE_ON_ONES.map(s => (
+              <HPCard key={s.id} padding={14} style={{ border: s.urgent ? `1.5px solid ${HP_TOKENS.coral}` : undefined }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <HPAvatar name={s.with} size={38} color={s.urgent ? HP_TOKENS.coral : HP_TOKENS.blue} />
+                  <div style={{ flex: 1 }}>
+                    {s.urgent && <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.coral, marginBottom: 1 }}>CHECK-IN WELLBEING</div>}
+                    <div style={{ ...HP_TEXT.h, fontSize: 14 }}>1-on-1 dengan {s.with}</div>
+                    <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, marginTop: 2 }}>{s.date} · {s.time}</div>
+                    <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.blue, marginTop: 3 }}>{s.topic}</div>
+                  </div>
+                  <button className="hp-tap" style={{
+                    padding: '8px 14px', borderRadius: 12, border: 'none',
+                    background: s.urgent ? HP_TOKENS.coral : HP_TOKENS.blue,
+                    color: '#fff', fontFamily: HP_FONT, fontWeight: 800, fontSize: 12, cursor: 'pointer',
+                  }}>
+                    Buka
+                  </button>
+                </div>
+              </HPCard>
+            ))}
+          </div>
+        </div>
+
+        {/* AI Coach for Manager */}
+        <button onClick={() => openModal('coach')} className="hp-tap" style={{
+          marginTop: 16, width: '100%', padding: '16px', borderRadius: 22,
+          background: `linear-gradient(135deg, ${HP_TOKENS.blue}, #2B5286)`, color: '#fff',
+          border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 14,
+          fontFamily: HP_FONT, textAlign: 'left', boxShadow: '0 8px 22px rgba(59,111,160,0.3)',
+          position: 'relative', overflow: 'hidden',
+        }}>
+          <div style={{ position: 'absolute', top: -20, right: 20, fontSize: 80, opacity: 0.12 }}>🤖</div>
+          <div style={{
+            width: 44, height: 44, borderRadius: 14, background: 'rgba(255,255,255,0.15)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22
+          }}>🤖</div>
+          <div style={{ flex: 1, position: 'relative' }}>
+            <div style={{ ...HP_TEXT.h, fontSize: 15, color: '#fff' }}>AI Manager Coach</div>
+            <div style={{ ...HP_TEXT.small, fontWeight: 700, color: 'rgba(255,255,255,0.75)', marginTop: 2 }}>
+              Tips 1-on-1, feedback, pengelolaan tim
+            </div>
+          </div>
+          <HPGlyph name="arrow" size={18} color="#fff" />
+        </button>
+      </div>
+    </div>
+  );
+}

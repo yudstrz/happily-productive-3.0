@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import { useHP } from "@/lib/HPContext";
 import { 
   HP_TOKENS, 
   HP_FONT, 
@@ -18,6 +19,7 @@ interface CoachModalProps {
 }
 
 export default function CoachModal({ onClose }: CoachModalProps) {
+  const { state } = useHP();
   const [messages, setMessages] = useState(HP_COACH_MESSAGES);
   const [input, setInput] = useState('');
   const [typing, setTyping] = useState(false);
@@ -37,6 +39,20 @@ export default function CoachModal({ onClose }: CoachModalProps) {
     setTyping(true);
 
     try {
+      // Get recent coaching logs
+      const coachingLogs = (state?.logbook || [])
+        .filter((l: any) => l.content && l.content.includes('GROW Coaching Session'))
+        .slice(0, 3)
+        .map((l: any) => `- ${l.date}: ${l.content.replace(/\n/g, ' ')}`)
+        .join('\n');
+
+      const sysPrompt = `You are Flow, a friendly, empathetic AI coach for "Flow Productivity". Users are employees. Your tone is humanist, supportive, and clear. Help users achieve their state of flow. Avoid corporate jargon.
+      
+Here are the user's recent coaching commitments from their logbook:
+${coachingLogs || 'No recent coaching commitments.'}
+
+Please refer to these commitments if the user asks for updates or needs accountability.`;
+
       // Map history for OpenAI format
       const history = messages.map(m => ({
         role: m.from === 'ai' ? 'assistant' : 'user',
@@ -46,7 +62,7 @@ export default function CoachModal({ onClose }: CoachModalProps) {
       const res = await fetch('/api/ai', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: msg, history })
+        body: JSON.stringify({ prompt: msg, systemPrompt: sysPrompt, history })
       });
       
       const data = await res.json();
@@ -85,7 +101,7 @@ export default function CoachModal({ onClose }: CoachModalProps) {
             <HPGlyph name="sparkle" size={22} color="#fff"/>
           </div>
           <div>
-            <div style={{ ...HP_TEXT.h, fontSize: 16 }}>Hap, AI coach kamu</div>
+            <div style={{ ...HP_TEXT.h, fontSize: 16 }}>Flow, AI coach kamu</div>
             <div style={{ ...HP_TEXT.small, color: HP_TOKENS.sage, fontWeight: 700 }}>🟢 Online · memahami konteks kamu</div>
           </div>
         </div>

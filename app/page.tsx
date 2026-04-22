@@ -1,19 +1,36 @@
 "use client";
 
 import React, { useState } from "react";
-import { HPProvider, useHP } from "@/lib/HPContext";
-import { HP_TOKENS } from "@/lib/constants";
+import { HPProvider, useHP, UserRole } from "@/lib/HPContext";
+import { HP_TOKENS, HP_FONT } from "@/lib/constants";
 
-// Components
+// Auth
+import RoleSelectScreen from "@/components/auth/RoleSelectScreen";
+
+// UI
 import HPGlyph from "@/components/ui/HPGlyph";
 import TabNav from "@/components/layout/TabNav";
 
-// Screens
+// ── Employee Screens ──
 import HomeScreen from "@/components/home/HomeScreen";
 import GoalsScreen from "@/components/goals/GoalsScreen";
 import RecognizeScreen from "@/components/recognize/RecognizeScreen";
 import GrowthScreen from "@/components/growth/GrowthScreen";
 import WellbeingScreen from "@/components/wellbeing/WellbeingScreen";
+
+// ── Manager Screens ──
+import ManagerHomeScreen from "@/components/home/ManagerHomeScreen";
+import ManagerGoalsScreen from "@/components/goals/ManagerGoalsScreen";
+import ManagerRecognizeScreen from "@/components/recognize/ManagerRecognizeScreen";
+import ManagerGrowthScreen from "@/components/growth/ManagerGrowthScreen";
+import ManagerWellbeingScreen from "@/components/wellbeing/ManagerWellbeingScreen";
+
+// ── HR Screens ──
+import HRHomeScreen from "@/components/home/HRHomeScreen";
+import HRPeopleScreen from "@/components/goals/HRPeopleScreen";
+import HRRecognizeScreen from "@/components/recognize/HRRecognizeScreen";
+import HRAnalyticsScreen from "@/components/growth/HRAnalyticsScreen";
+import HRWellbeingScreen from "@/components/wellbeing/HRWellbeingScreen";
 
 // Modals
 import CheckInModal from "@/components/modals/CheckInModal";
@@ -30,100 +47,173 @@ import ManageHabitsModal from "@/components/modals/ManageHabitsModal";
 import ManageWeeklyModal from "@/components/modals/ManageWeeklyModal";
 import ManageLearningModal from "@/components/modals/ManageLearningModal";
 import ScheduleCoachingModal from "@/components/modals/ScheduleCoachingModal";
+import GROWCoachingModal from "@/components/modals/GROWCoachingModal";
 import LearningDetailModal from "@/components/modals/LearningDetailModal";
 import ManageProgramsModal from "@/components/modals/ManageProgramsModal";
 import AllRewardsModal from "@/components/modals/AllRewardsModal";
-import CoachingSessionModal from "@/components/modals/CoachingSessionModal";
 import JournalHistoryModal from "@/components/modals/JournalHistoryModal";
 import LogbookModal from "@/components/modals/LogbookModal";
 import SystemGuideModal from "@/components/modals/SystemGuideModal";
+import SkillAssessmentModal from "@/components/modals/SkillAssessmentModal";
 import AvatarEditorModal from "@/components/modals/AvatarEditorModal";
 
+// ─── Role pill badge colors ──────────────────────────────────────────────────
+const ROLE_META: Record<UserRole, { label: string; color: string; bg: string; emoji: string }> = {
+  employee: { label: 'Employee', color: HP_TOKENS.yellow, bg: HP_TOKENS.yellowSoft, emoji: '🎯' },
+  manager:  { label: 'Manager',  color: HP_TOKENS.blue, bg: HP_TOKENS.blueSoft,  emoji: '👥' },
+  hr:       { label: 'HR',       color: '#7B6BB5',       bg: '#EDE8F5',           emoji: '🏢' },
+};
+
 function AppContent() {
-  const { state, loading, resetData } = useHP();
+  const { state, loading, user, setUserRole } = useHP();
   const [tab, setTab] = useState('home');
-  const [modal, setModal] = useState<{name: string, props?: any} | null>(null);
+  const [modal, setModal] = useState<{ name: string; props?: any } | null>(null);
+  const [switchingRole, setSwitchingRole] = useState(false);
 
-  if (loading || !state) return <div style={{ background: HP_TOKENS.paper, height: '100vh' }} />;
-
-  const openModal = (name: string, props?: any) => setModal({ name, props });
+  const openModal  = (name: string, props?: any) => setModal({ name, props });
   const closeModal = () => setModal(null);
 
+  // ── Loading splash ─────────────────────────────────────────────────────────
+  if (loading || !state) return <div style={{ background: HP_TOKENS.paper, height: '100vh' }} />;
+
+  // ── Role selection ─────────────────────────────────────────────────────────
+  const currentRole = user?.userRole as UserRole | null | undefined;
+
+  if (!currentRole || switchingRole) {
+    return (
+      <RoleSelectScreen
+        onSelect={(role: UserRole) => {
+          setUserRole(role);
+          setSwitchingRole(false);
+          setTab('home');
+        }}
+      />
+    );
+  }
+
+  // ── Render screen by role + tab ─────────────────────────────────────────────
+  const pad = { paddingTop: 58 };
 
   const renderScreen = () => {
-    const pad = { paddingTop: 58 };
-    if (tab === 'home') return <div style={pad}><HomeScreen tab={tab} openModal={openModal}/></div>;
-    if (tab === 'goals') return <div style={pad}><GoalsScreen openModal={openModal}/></div>;
-    if (tab === 'recognize') return <div style={pad}><RecognizeScreen openModal={openModal}/></div>;
-    if (tab === 'growth') return <div style={pad}><GrowthScreen openModal={openModal}/></div>;
-    if (tab === 'wellbeing') return <div style={pad}><WellbeingScreen openModal={openModal}/></div>;
+    // Employee
+    if (currentRole === 'employee') {
+      if (tab === 'home')      return <div style={pad}><HomeScreen tab={tab} openModal={openModal} /></div>;
+      if (tab === 'goals')     return <div style={pad}><GoalsScreen openModal={openModal} /></div>;
+      if (tab === 'recognize') return <div style={pad}><RecognizeScreen openModal={openModal} /></div>;
+      if (tab === 'growth')    return <div style={pad}><GrowthScreen openModal={openModal} /></div>;
+      if (tab === 'wellbeing') return <div style={pad}><WellbeingScreen openModal={openModal} /></div>;
+    }
+    // Manager
+    if (currentRole === 'manager') {
+      if (tab === 'home')      return <div style={pad}><ManagerHomeScreen openModal={openModal} /></div>;
+      if (tab === 'goals')     return <div style={pad}><ManagerGoalsScreen openModal={openModal} /></div>;
+      if (tab === 'recognize') return <div style={pad}><ManagerRecognizeScreen openModal={openModal} /></div>;
+      if (tab === 'growth')    return <div style={pad}><ManagerGrowthScreen openModal={openModal} /></div>;
+      if (tab === 'wellbeing') return <div style={pad}><ManagerWellbeingScreen openModal={openModal} /></div>;
+    }
+    // HR
+    if (currentRole === 'hr') {
+      if (tab === 'home')      return <div style={pad}><HRHomeScreen openModal={openModal} /></div>;
+      if (tab === 'goals')     return <div style={pad}><HRPeopleScreen openModal={openModal} /></div>;
+      if (tab === 'recognize') return <div style={pad}><HRRecognizeScreen openModal={openModal} /></div>;
+      if (tab === 'growth')    return <div style={pad}><HRAnalyticsScreen openModal={openModal} /></div>;
+      if (tab === 'wellbeing') return <div style={pad}><HRWellbeingScreen openModal={openModal} /></div>;
+    }
     return null;
   };
 
+  const meta = ROLE_META[currentRole];
+
   return (
     <div style={{ position: 'relative', height: '100%', background: HP_TOKENS.paper, overflow: 'hidden' }}>
+      {/* Role pill — top right */}
+      <div style={{
+        position: 'absolute', top: 10, right: 14, zIndex: 40,
+        display: 'flex', alignItems: 'center', gap: 6,
+      }}>
+        <button
+          onClick={() => setSwitchingRole(true)}
+          className="hp-tap"
+          style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            padding: '6px 12px', borderRadius: 99,
+            background: meta.bg,
+            border: `1.5px solid ${meta.color}30`,
+            cursor: 'pointer', fontFamily: HP_FONT, fontWeight: 800, fontSize: 11,
+            color: meta.color,
+            boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+          }}
+          title="Ganti peran"
+        >
+          <span>{meta.emoji}</span>
+          <span>{meta.label}</span>
+          <HPGlyph name="refresh" size={11} color={meta.color} />
+        </button>
+      </div>
+
+      {/* Main content */}
       <div style={{ position: 'absolute', inset: 0, overflowY: 'auto' }}>
         {renderScreen()}
       </div>
 
-      {/* Floating AI Coach Button */}
-      <button 
-        onClick={() => openModal('coach')} 
+      {/* Floating AI Coach button */}
+      <button
+        onClick={() => openModal('coach')}
         style={{
-          position: 'absolute', 
-          right: 18, 
-          bottom: 106, 
-          zIndex: 30,
-          width: 56, 
-          height: 56, 
-          borderRadius: 28, 
-          border: 'none',
-          background: `linear-gradient(135deg, ${HP_TOKENS.sage}, ${HP_TOKENS.blue})`,
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center',
-          cursor: 'pointer', 
-          boxShadow: '0 8px 24px rgba(74,124,89,0.35)',
+          position: 'absolute', right: 18, bottom: 106, zIndex: 30,
+          width: 56, height: 56, borderRadius: 28, border: 'none',
+          background: `linear-gradient(135deg, ${
+            currentRole === 'manager' ? HP_TOKENS.blue :
+            currentRole === 'hr' ? '#7B6BB5' :
+            HP_TOKENS.sage
+          }, ${
+            currentRole === 'manager' ? '#2B5286' :
+            currentRole === 'hr' ? '#5A4E9A' :
+            HP_TOKENS.blue
+          })`,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          cursor: 'pointer',
+          boxShadow: `0 8px 24px ${
+            currentRole === 'manager' ? 'rgba(59,111,160,0.35)' :
+            currentRole === 'hr' ? 'rgba(123,107,181,0.35)' :
+            'rgba(74,124,89,0.35)'
+          }`,
           animation: 'hpPulse 3.2s ease-in-out infinite',
         }}
         className="hp-tap"
       >
-        <HPGlyph name="sparkle" size={26} color="#fff"/>
+        <HPGlyph name="sparkle" size={26} color="#fff" />
       </button>
 
-      <TabNav tab={tab} setTab={setTab}/>
+      <TabNav tab={tab} setTab={setTab} userRole={currentRole} />
 
       {/* Modal Renderer */}
-      {modal?.name === 'checkin' && <CheckInModal onClose={closeModal}/>}
-      {modal?.name === 'focus' && <FocusModal onClose={closeModal}/>}
-      {modal?.name === 'appreciate' && <AppreciateModal onClose={closeModal}/>}
-      {modal?.name === 'pause' && <PauseModal onClose={closeModal}/>}
-      {modal?.name === 'reflect' && <ReflectModal onClose={closeModal}/>}
-      {modal?.name === 'coach' && <CoachModal onClose={closeModal}/>}
-      {modal?.name === 'notifications' && <NotificationsModal onClose={closeModal}/>}
-      {modal?.name === 'journal' && <JournalModal onClose={closeModal} {...modal.props}/>}
-      {modal?.name === 'new_goal' && <GoalModal onClose={closeModal}/>}
-      {modal?.name === 'manage_priorities' && <ManagePrioritiesModal onClose={closeModal}/>}
-      {modal?.name === 'manage_habits' && <ManageHabitsModal onClose={closeModal}/>}
-      {modal?.name === 'manage_weekly' && <ManageWeeklyModal onClose={closeModal}/>}
-      {modal?.name === 'manage_learning' && <ManageLearningModal onClose={closeModal}/>}
-      {modal?.name === 'schedule_coaching' && <ScheduleCoachingModal onClose={closeModal}/>}
-      {modal?.name === 'learning_detail' && <LearningDetailModal onClose={closeModal}/>}
-      {modal?.name === 'manage_programs' && <ManageProgramsModal onClose={closeModal}/>}
-      {modal?.name === 'all_rewards' && <AllRewardsModal onClose={closeModal}/>}
-      {modal?.name === 'coaching_session' && <CoachingSessionModal onClose={closeModal}/>}
-      {modal?.name === 'journal_history' && <JournalHistoryModal onClose={closeModal}/>}
-      {modal?.name === 'logbook' && <LogbookModal onClose={closeModal}/>}
-      {modal?.name === 'system_guide' && <SystemGuideModal onClose={closeModal}/>}
-      {modal?.name === 'avatar_editor' && <AvatarEditorModal onClose={closeModal}/>}
+      {modal?.name === 'checkin'          && <CheckInModal onClose={closeModal} />}
+      {modal?.name === 'focus'            && <FocusModal onClose={closeModal} />}
+      {modal?.name === 'appreciate'       && <AppreciateModal onClose={closeModal} />}
+      {modal?.name === 'pause'            && <PauseModal onClose={closeModal} />}
+      {modal?.name === 'reflect'          && <ReflectModal onClose={closeModal} />}
+      {modal?.name === 'coach'            && <CoachModal onClose={closeModal} />}
+      {modal?.name === 'notifications'    && <NotificationsModal onClose={closeModal} />}
+      {modal?.name === 'journal'          && <JournalModal onClose={closeModal} {...modal.props} />}
+      {modal?.name === 'new_goal'         && <GoalModal onClose={closeModal} />}
+      {modal?.name === 'manage_priorities'&& <ManagePrioritiesModal onClose={closeModal} />}
+      {modal?.name === 'manage_habits'    && <ManageHabitsModal onClose={closeModal} />}
+      {modal?.name === 'manage_weekly'    && <ManageWeeklyModal onClose={closeModal} />}
+      {modal?.name === 'manage_learning'  && <ManageLearningModal onClose={closeModal} />}
+      {modal?.name === 'schedule_coaching'&& <ScheduleCoachingModal onClose={closeModal} />}
+      {modal?.name === 'learning_detail'  && <LearningDetailModal onClose={closeModal} />}
+      {modal?.name === 'manage_programs'  && <ManageProgramsModal onClose={closeModal} />}
+      {modal?.name === 'all_rewards'      && <AllRewardsModal onClose={closeModal} />}
+      {modal?.name === 'grow_coaching'    && <GROWCoachingModal onClose={closeModal} roleContext={modal.props?.role} topic={modal.props?.topic} />}
+      {modal?.name === 'journal_history'  && <JournalHistoryModal onClose={closeModal} />}
+      {modal?.name === 'logbook'          && <LogbookModal onClose={closeModal} />}
+      {modal?.name === 'system_guide'     && <SystemGuideModal onClose={closeModal} />}
+      {modal?.name === 'avatar_editor'    && <AvatarEditorModal onClose={closeModal} />}
+      {modal?.name === 'skill_assessment' && <SkillAssessmentModal onClose={closeModal} skillName={modal.props?.skill} />}
     </div>
-
-
-
   );
 }
-
-
 
 export default function Home() {
   return (
@@ -132,4 +222,3 @@ export default function Home() {
     </HPProvider>
   );
 }
-

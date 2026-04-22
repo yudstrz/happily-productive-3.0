@@ -1,19 +1,20 @@
 export const HP_TOKENS = {
   // Core palette — all harmonized, low saturation
+  // Main Brand Palette — Flow Productivity (Yellow & Blue)
+  yellow: '#FFD700', // Brighter Gold/Yellow
+  yellowLight: '#FFE44D',
+  yellowSoft: '#FFF9DB',
+  yellowWash: '#FFFEF5',
+
+  blue: '#0052CC', // Strong Professional Blue
+  blueLight: '#4C9AFF',
+  blueSoft: '#DEEBFF',
+  blueWash: '#F4F8FF',
+
   sage: '#4A7C59',
   sageLight: '#8FB39B',
   sageSoft: '#E3EDE6',
   sageWash: '#F3F7F4',
-
-  blue: '#3B6FA0',
-  blueLight: '#8FB1D1',
-  blueSoft: '#E1EAF3',
-  blueWash: '#F2F6FA',
-
-  yellow: '#F5C842',
-  yellowLight: '#F8DC84',
-  yellowSoft: '#FBEFC6',
-  yellowWash: '#FDF7E4',
 
   coral: '#E88B7D',
   coralSoft: '#F6D8D2',
