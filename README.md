@@ -1,4 +1,14 @@
+# Happily Productive 3.0
+
+Selamat datang di Happily Productive 3.0, platform produktivitas dan kesejahteraan masa depan.
+
+> [!IMPORTANT]
+> Untuk dokumentasi teknis dan fungsional yang mendalam dalam Bahasa Indonesia, silakan lihat [**DOCUMENTATION.md**](./DOCUMENTATION.md).
+
+---
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+
 
 ## Getting Started
 
