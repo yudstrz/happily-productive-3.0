@@ -25,7 +25,7 @@ export default function ProgramCardInteractive({ p, onToggleJoin }: ProgramCardI
           background: HP_TOKENS[p.tone + 'Soft' as keyof typeof HP_TOKENS] || HP_TOKENS.sageSoft,
           display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, flexShrink: 0
         }}>
-          {p.emoji || '🌱'}
+          <HPGlyph name={p.glyph || 'leaf'} size={24} color={HP_TOKENS[p.tone as keyof typeof HP_TOKENS] || HP_TOKENS.sage} />
         </div>
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>

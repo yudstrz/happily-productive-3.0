@@ -48,7 +48,7 @@ export default function AllRewardsModal({ onClose }: AllRewardsModalProps) {
         user: { ...s.user, points: (s.user?.points || 0) - reward.points },
         rewardHistory: [
           ...history,
-          { id: Date.now(), title: reward.title, points: reward.points, date: new Date().toLocaleDateString('id-ID'), emoji: reward.emoji }
+          { id: Date.now(), title: reward.title, points: reward.points, date: new Date().toLocaleDateString('id-ID'), glyph: reward.glyph }
         ]
       }));
       
@@ -161,9 +161,9 @@ export default function AllRewardsModal({ onClose }: AllRewardsModalProps) {
                       width: 56, height: 56, borderRadius: 16,
                       background: `${cfg.bg}22`,
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 28, flexShrink: 0,
+                      flexShrink: 0,
                     }}>
-                      {reward.emoji}
+                      <HPGlyph name={reward.glyph} size={28} color={cfg.text} />
                     </div>
 
                     <div style={{ flex: 1, minWidth: 0 }}>
@@ -217,9 +217,9 @@ export default function AllRewardsModal({ onClose }: AllRewardsModalProps) {
                     width: 44, height: 44, borderRadius: 12,
                     background: HP_TOKENS.lineSoft,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 22, flexShrink: 0,
+                    flexShrink: 0,
                   }}>
-                    {h.emoji || '🎁'}
+                    <HPGlyph name={h.glyph || 'sparkle'} size={22} color={HP_TOKENS.ink} />
                   </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ ...HP_TEXT.h, fontSize: 14 }}>{h.title}</div>

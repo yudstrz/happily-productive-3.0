@@ -135,11 +135,11 @@ export const MANAGER_USER = {
 };
 
 export const MANAGER_TEAM_MEMBERS = [
-  { id: 1, name: 'Sari Wijaya', role: 'Product Designer', mood: 'calm', moodEmoji: '🙂', energy: 'high', wellbeing: 78, tasks: { done: 2, total: 3 }, streak: 12, status: 'On track', statusTone: 'sage' },
-  { id: 2, name: 'Rizky Hidayat', role: 'Senior Designer', mood: 'joy', moodEmoji: '😊', energy: 'high', wellbeing: 85, tasks: { done: 3, total: 3 }, streak: 7, status: 'Excellent', statusTone: 'yellow' },
-  { id: 3, name: 'Dian Kusuma', role: 'UX Researcher', mood: 'tired', moodEmoji: '😔', energy: 'low', wellbeing: 58, tasks: { done: 1, total: 4 }, streak: 2, status: 'Needs check-in', statusTone: 'coral' },
-  { id: 4, name: 'Anya Putri', role: 'Design Lead', mood: 'calm', moodEmoji: '🙂', energy: 'mid', wellbeing: 72, tasks: { done: 2, total: 4 }, streak: 5, status: 'On track', statusTone: 'sage' },
-  { id: 5, name: 'Feri Gunawan', role: 'Visual Designer', mood: 'neutral', moodEmoji: '😐', energy: 'mid', wellbeing: 65, tasks: { done: 1, total: 3 }, streak: 0, status: 'At risk', statusTone: 'coral' },
+  { id: 1, name: 'Sari Wijaya', role: 'Product Designer', mood: 'calm', glyph: 'check', energy: 'high', wellbeing: 78, tasks: { done: 2, total: 3 }, streak: 12, status: 'On track', statusTone: 'sage' },
+  { id: 2, name: 'Rizky Hidayat', role: 'Senior Designer', mood: 'joy', glyph: 'sparkle', energy: 'high', wellbeing: 85, tasks: { done: 3, total: 3 }, streak: 7, status: 'Excellent', statusTone: 'yellow' },
+  { id: 3, name: 'Dian Kusuma', role: 'UX Researcher', mood: 'tired', glyph: 'moon', energy: 'low', wellbeing: 58, tasks: { done: 1, total: 4 }, streak: 2, status: 'Needs check-in', statusTone: 'coral' },
+  { id: 4, name: 'Anya Putri', role: 'Design Lead', mood: 'calm', glyph: 'check', energy: 'mid', wellbeing: 72, tasks: { done: 2, total: 4 }, streak: 5, status: 'On track', statusTone: 'sage' },
+  { id: 5, name: 'Feri Gunawan', role: 'Visual Designer', mood: 'neutral', glyph: 'activity', energy: 'mid', wellbeing: 65, tasks: { done: 1, total: 3 }, streak: 0, status: 'At risk', statusTone: 'coral' },
 ];
 
 export const MANAGER_APPROVAL_TASKS = [
@@ -206,14 +206,14 @@ export const HR_USER = {
 };
 
 export const HR_ALL_EMPLOYEES = [
-  { id: 1, name: 'Sari Wijaya', role: 'Product Designer', dept: 'Digital Experience', wellbeing: 78, engagement: 85, performance: 82, risk: 'low', riskLabel: 'Low Risk', riskTone: 'sage', mood: '🙂', streak: 12 },
-  { id: 2, name: 'Rizky Hidayat', role: 'Senior Designer', dept: 'Digital Experience', wellbeing: 85, engagement: 90, performance: 88, risk: 'low', riskLabel: 'Low Risk', riskTone: 'sage', mood: '😊', streak: 7 },
-  { id: 3, name: 'Dian Kusuma', role: 'UX Researcher', dept: 'Digital Experience', wellbeing: 58, engagement: 60, performance: 70, risk: 'high', riskLabel: 'Needs Attention', riskTone: 'coral', mood: '😔', streak: 2 },
-  { id: 4, name: 'Anya Putri', role: 'Design Lead', dept: 'Digital Experience', wellbeing: 72, engagement: 78, performance: 80, risk: 'medium', riskLabel: 'Watch', riskTone: 'yellow', mood: '🙂', streak: 5 },
-  { id: 5, name: 'Feri Gunawan', role: 'Visual Designer', dept: 'Digital Experience', wellbeing: 65, engagement: 55, performance: 68, risk: 'high', riskLabel: 'Needs Attention', riskTone: 'coral', mood: '😐', streak: 0 },
-  { id: 6, name: 'Budi Santoso', role: 'Product Manager', dept: 'Digital Experience', wellbeing: 80, engagement: 88, performance: 85, risk: 'low', riskLabel: 'Low Risk', riskTone: 'sage', mood: '🙂', streak: 8 },
-  { id: 7, name: 'Laras Putri', role: 'Marketing Specialist', dept: 'Marketing', wellbeing: 74, engagement: 72, performance: 76, risk: 'low', riskLabel: 'Low Risk', riskTone: 'sage', mood: '😊', streak: 4 },
-  { id: 8, name: 'Hendra Wijaya', role: 'Backend Engineer', dept: 'Engineering', wellbeing: 62, engagement: 65, performance: 72, risk: 'medium', riskLabel: 'Watch', riskTone: 'yellow', mood: '😐', streak: 1 },
+  { id: 1, name: 'Sari Wijaya', role: 'Product Designer', dept: 'Digital Experience', wellbeing: 78, engagement: 85, performance: 82, risk: 'low', riskLabel: 'Low Risk', riskTone: 'sage', mood: 'calm', glyph: 'check', streak: 12 },
+  { id: 2, name: 'Rizky Hidayat', role: 'Senior Designer', dept: 'Digital Experience', wellbeing: 85, engagement: 90, performance: 88, risk: 'low', riskLabel: 'Low Risk', riskTone: 'sage', mood: 'joy', glyph: 'sparkle', streak: 7 },
+  { id: 3, name: 'Dian Kusuma', role: 'UX Researcher', dept: 'Digital Experience', wellbeing: 58, engagement: 60, performance: 70, risk: 'high', riskLabel: 'Needs Attention', riskTone: 'coral', mood: 'tired', glyph: 'moon', streak: 2 },
+  { id: 4, name: 'Anya Putri', role: 'Design Lead', dept: 'Digital Experience', wellbeing: 72, engagement: 78, performance: 80, risk: 'medium', riskLabel: 'Watch', riskTone: 'yellow', mood: 'calm', glyph: 'check', streak: 5 },
+  { id: 5, name: 'Feri Gunawan', role: 'Visual Designer', dept: 'Digital Experience', wellbeing: 65, engagement: 55, performance: 68, risk: 'high', riskLabel: 'Needs Attention', riskTone: 'coral', mood: 'neutral', glyph: 'activity', streak: 0 },
+  { id: 6, name: 'Budi Santoso', role: 'Product Manager', dept: 'Digital Experience', wellbeing: 80, engagement: 88, performance: 85, risk: 'low', riskLabel: 'Low Risk', riskTone: 'sage', mood: 'calm', glyph: 'check', streak: 8 },
+  { id: 7, name: 'Laras Putri', role: 'Marketing Specialist', dept: 'Marketing', wellbeing: 74, engagement: 72, performance: 76, risk: 'low', riskLabel: 'Low Risk', riskTone: 'sage', mood: 'joy', glyph: 'sparkle', streak: 4 },
+  { id: 8, name: 'Hendra Wijaya', role: 'Backend Engineer', dept: 'Engineering', wellbeing: 62, engagement: 65, performance: 72, risk: 'medium', riskLabel: 'Watch', riskTone: 'yellow', mood: 'neutral', glyph: 'activity', streak: 1 },
 ];
 
 export const HR_ORG_METRICS = {

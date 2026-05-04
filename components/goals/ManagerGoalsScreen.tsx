@@ -107,7 +107,9 @@ export default function ManagerGoalsScreen({ openModal }: Props) {
                     <div style={{ ...HP_TEXT.h, fontSize: 14 }}>{m.name}</div>
                     <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, marginTop: 2 }}>{m.role}</div>
                     <div style={{ display: 'flex', gap: 8, marginTop: 6, alignItems: 'center' }}>
-                      <div style={{ fontSize: 14 }}>{m.moodEmoji}</div>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <HPGlyph name={m.glyph || 'check'} size={14} color={HP_TOKENS.ink} />
+                      </div>
                       <div style={{ flex: 1, height: 4, background: HP_TOKENS.lineSoft, borderRadius: 2, overflow: 'hidden' }}>
                         <div style={{ width: `${m.wellbeing}%`, height: '100%', background: HP_TOKENS.sage, borderRadius: 2 }} />
                       </div>

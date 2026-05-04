@@ -126,7 +126,9 @@ export default function ManagerHomeScreen({ openModal }: Props) {
                       {m.tasks.done}/{m.tasks.total}
                     </div>
                     {/* mood */}
-                    <div style={{ fontSize: 18 }}>{m.moodEmoji}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <HPGlyph name={m.glyph || 'check'} size={18} color={HP_TOKENS.ink} />
+          </div>
                     {/* status badge */}
                     <div style={{
                       fontSize: 10, fontWeight: 800, padding: '3px 8px', borderRadius: 8, fontFamily: HP_FONT,

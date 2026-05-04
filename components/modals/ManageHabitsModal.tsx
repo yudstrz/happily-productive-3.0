@@ -17,7 +17,7 @@ interface ManageHabitsModalProps {
 export default function ManageHabitsModal({ onClose }: ManageHabitsModalProps) {
   const { state, updateState } = useHP();
   const [newName, setNewName] = useState("");
-  const [emoji, setEmoji] = useState("✨");
+  const [glyph, setGlyph] = useState("sparkle");
 
   const addHabit = () => {
     if (!newName) return;
@@ -26,7 +26,7 @@ export default function ManageHabitsModal({ onClose }: ManageHabitsModalProps) {
       streak: 0,
       target: 7,
       done: false,
-      emoji: emoji,
+      glyph: glyph,
     };
     updateState((s: any) => ({
       ...s,
@@ -57,7 +57,9 @@ export default function ManageHabitsModal({ onClose }: ManageHabitsModalProps) {
                 position: 'relative'
               }}
             >
-              <div style={{ fontSize: 20, marginBottom: 4 }}>{h.emoji}</div>
+              <div style={{ marginBottom: 6 }}>
+                <HPGlyph name={h.glyph || 'star'} size={20} color={HP_TOKENS.ink} />
+              </div>
               <div style={{ ...HP_TEXT.h, fontSize: 13, marginBottom: 2 }}>{h.name}</div>
               <div style={{ ...HP_TEXT.small, color: HP_TOKENS.sage, fontWeight: 800 }}>🔥 {h.streak} hari</div>
               <button 
@@ -81,7 +83,7 @@ export default function ManageHabitsModal({ onClose }: ManageHabitsModalProps) {
               display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24,
               border: `1.5px solid ${HP_TOKENS.line}`
             }}>
-              {emoji}
+              <HPGlyph name={glyph} size={24} color={HP_TOKENS.ink} />
             </div>
             <input 
               type="text" 
@@ -95,18 +97,18 @@ export default function ManageHabitsModal({ onClose }: ManageHabitsModalProps) {
             />
           </div>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-            {['✨', '💧', '🥗', '📚', '🏃', '🧘', '🍎', '⏰'].map(e => (
+            {['sparkle', 'leaf', 'heart', 'book', 'activity', 'moon', 'target', 'calendar'].map(g => (
               <button
-                key={e}
-                onClick={() => setEmoji(e)}
+                key={g}
+                onClick={() => setGlyph(g)}
                 style={{
                   width: 38, height: 38, borderRadius: 10, border: 'none',
-                  background: emoji === e ? HP_TOKENS.ink : '#fff',
-                  fontSize: 18, cursor: 'pointer', transition: '0.2s',
+                  background: glyph === g ? HP_TOKENS.ink : '#fff',
+                  cursor: 'pointer', transition: '0.2s',
                   display: 'flex', alignItems: 'center', justifyContent: 'center'
                 }}
               >
-                {e}
+                <HPGlyph name={g} size={18} color={glyph === g ? '#fff' : HP_TOKENS.ink} />
               </button>
             ))}
           </div>

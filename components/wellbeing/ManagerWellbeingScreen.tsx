@@ -101,7 +101,9 @@ export default function ManagerWellbeingScreen({ openModal }: Props) {
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <div style={{ ...HP_TEXT.h, fontSize: 14 }}>{m.name}</div>
-                  <div style={{ fontSize: 16 }}>{m.moodEmoji}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <HPGlyph name={m.glyph} size={16} color={HP_TOKENS.ink} />
+                  </div>
                 </div>
                 <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute }}>{m.role}</div>
                 <div style={{ marginTop: 6, display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -141,9 +143,9 @@ export default function ManagerWellbeingScreen({ openModal }: Props) {
                 <div style={{
                   width: 40, height: 40, borderRadius: 12,
                   background: TONE_SOFT[p.tone] || HP_TOKENS.lineSoft,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20
+                  display: 'flex', alignItems: 'center', justifyContent: 'center'
                 }}>
-                  {p.emoji}
+                  <HPGlyph name={p.glyph || 'star'} size={20} color={TONE_COLOR[p.tone] || HP_TOKENS.ink} />
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>

@@ -3,12 +3,13 @@
 import React from "react";
 import { useHP } from "@/lib/HPContext";
 import { HP_TOKENS, HP_FONT, HP_TEXT } from "@/lib/constants";
+import HPGlyph from "@/components/ui/HPGlyph";
 
 interface RewardCardProps {
   title: string;
   points: number;
   tone: "sage" | "yellow" | "blue" | "coral" | "lavender";
-  emoji?: string;
+  glyph?: string;
   onRedeem?: () => void;
 }
 
@@ -20,22 +21,22 @@ const TONE_CONFIG: Record<string, any> = {
   lavender: { bg: HP_TOKENS.lavenderSoft, accent: HP_TOKENS.lavender, text: '#4A3A6E', glow: 'rgba(123,104,238,0.12)' },
 };
 
-const EMOJI_MAP: Record<string, string> = {
-  'Extra cuti 1 hari':     '🏖️',
-  'Voucher lunch 100k':    '🍱',
-  'Workshop UX intensif':  '🎨',
-  'Donasi program sosial': '🌱',
-  'Tiket bioskop 2x':      '🎬',
-  'Pulsa / e-wallet 50k':  '📱',
-  'Voucher belanja 200k':  '🛍️',
-  'Kelas online premium':  '💻',
-  'Sesi wellness 1:1':     '🧘',
+const GLYPH_MAP: Record<string, string> = {
+  'Extra cuti 1 hari':     'tree',
+  'Voucher lunch 100k':    'heart',
+  'Workshop UX intensif':  'book',
+  'Donasi program sosial': 'leaf',
+  'Tiket bioskop 2x':      'star',
+  'Pulsa / e-wallet 50k':  'zap',
+  'Voucher belanja 200k':  'target',
+  'Kelas online premium':  'refresh',
+  'Sesi wellness 1:1':     'people',
 };
 
-export default function RewardCard({ title, points, tone, emoji, onRedeem }: RewardCardProps) {
+export default function RewardCard({ title, points, tone, glyph, onRedeem }: RewardCardProps) {
   const { state, updateState } = useHP();
   const cfg = TONE_CONFIG[tone] || TONE_CONFIG.sage;
-  const icon = emoji ?? EMOJI_MAP[title] ?? '🎁';
+  const icon = glyph ?? GLYPH_MAP[title] ?? 'sparkle';
 
   const handleRedeem = () => {
     if (onRedeem) {
@@ -56,7 +57,7 @@ export default function RewardCard({ title, points, tone, emoji, onRedeem }: Rew
         user: { ...s.user, points: (s.user?.points || 0) - points },
         rewardHistory: [
           ...(s.rewardHistory || []),
-          { id: Date.now(), title, points, date: new Date().toLocaleDateString('id-ID'), emoji: icon }
+          { id: Date.now(), title, points, date: new Date().toLocaleDateString('id-ID'), glyph: icon }
         ]
       }));
       alert(`Berhasil! "${title}" telah ditambahkan ke reward kamu. 🎉`);
@@ -100,7 +101,9 @@ export default function RewardCard({ title, points, tone, emoji, onRedeem }: Rew
           top: '50%', left: '50%',
           transform: 'translate(-50%, -50%)',
         }}/>
-        <span style={{ position: 'relative', zIndex: 1 }}>{icon}</span>
+        <span style={{ position: 'relative', zIndex: 1, display: 'flex' }}>
+          <HPGlyph name={icon} size={32} color={cfg.text} />
+        </span>
       </div>
 
       {/* Info area */}

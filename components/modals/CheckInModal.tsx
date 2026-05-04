@@ -69,7 +69,9 @@ export default function CheckInModal({ onClose }: CheckInModalProps) {
                 cursor: 'pointer', fontFamily: HP_FONT, display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'center',
                 transition: 'all 180ms', transform: mood === m.key ? 'scale(1.05)' : 'scale(1)',
               }}>
-                <div style={{ fontSize: 30 }}>{m.emoji}</div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <HPGlyph name={m.glyph} size={30} color={mood === m.key ? '#fff' : HP_TOKENS[m.tone as keyof typeof HP_TOKENS] || HP_TOKENS.ink} />
+                </div>
                 <div style={{ fontSize: 11, fontWeight: 800, color: mood === m.key ? '#fff' : HP_TOKENS.inkSoft }}>{m.label}</div>
               </button>
             ))}
@@ -88,8 +90,10 @@ export default function CheckInModal({ onClose }: CheckInModalProps) {
                 <div style={{
                   width: 44, height: 44, borderRadius: 12,
                   background: e.key === 'low' ? HP_TOKENS.blueSoft : e.key === 'mid' ? HP_TOKENS.sageSoft : HP_TOKENS.yellowSoft,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20,
-                }}>{e.key === 'low' ? '🌱' : e.key === 'mid' ? '🌿' : '🔥'}</div>
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <HPGlyph name={e.key === 'low' ? 'moon' : e.key === 'mid' ? 'activity' : 'zap'} size={20} color={HP_TOKENS.ink} />
+                </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ ...HP_TEXT.h, fontSize: 15 }}>{e.label}</div>
                   <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkSoft, fontWeight: 600, marginTop: 2 }}>{e.hint}</div>
@@ -127,7 +131,7 @@ export default function CheckInModal({ onClose }: CheckInModalProps) {
               ...primaryBtn, flex: 2,
               opacity: (step === 1 && !mood) || (step === 2 && !energy) ? 0.4 : 1,
             }}>
-            {step < 3 ? 'Lanjut' : 'Selesai 🌱'}
+            {step < 3 ? 'Lanjut' : 'Selesai'}
           </button>
         </div>
       </div>

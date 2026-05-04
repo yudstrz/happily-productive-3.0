@@ -36,7 +36,9 @@ export default function LogbookModal({ onClose }: LogbookModalProps) {
                   padding: 16, borderRadius: 20, background: HP_TOKENS.blueWash,
                   border: `1.5px solid ${HP_TOKENS.blueSoft}`, display: 'flex', alignItems: 'center', gap: 14
                 }}>
-                  <div style={{ fontSize: 28 }}>{entry.emoji}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <HPGlyph name={entry.glyph || 'check'} size={28} color={HP_TOKENS.blue} />
+                  </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ ...HP_TEXT.h, fontSize: 13 }}>{entry.habitName} Selesai!</div>
                     <div style={{ ...HP_TEXT.small, fontSize: 11, color: HP_TOKENS.inkMute }}>
@@ -90,7 +92,9 @@ export default function LogbookModal({ onClose }: LogbookModalProps) {
                 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <div style={{ fontSize: 24 }}>{isGratitude ? '💖' : '📓'}</div>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <HPGlyph name={isGratitude ? 'heart' : 'book'} size={24} color={isGratitude ? HP_TOKENS.coral : HP_TOKENS.blue} />
+                      </div>
                       <div>
                         <div style={{ ...HP_TEXT.h, fontSize: 13 }}>{isGratitude ? 'Gratitude Log' : 'Reflection Journal'}</div>
                         <div style={{ ...HP_TEXT.small, fontSize: 11, color: HP_TOKENS.inkMute }}>
@@ -123,7 +127,9 @@ export default function LogbookModal({ onClose }: LogbookModalProps) {
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div style={{ fontSize: 24 }}>{moodObj?.emoji || '😶'}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <HPGlyph name={moodObj?.glyph || 'activity'} size={24} color={HP_TOKENS.ink} />
+                    </div>
                     <div>
                       <div style={{ ...HP_TEXT.h, fontSize: 13 }}>{entry.day}, {entry.date}</div>
                       <div style={{ ...HP_TEXT.small, fontSize: 11, color: HP_TOKENS.inkMute }}>Mood: {moodObj?.label || 'Unknown'} · {entry.time || '--:--'}</div>

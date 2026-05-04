@@ -9,6 +9,7 @@ import {
 import { HP_MOODS } from "@/lib/mockData";
 import { useHP } from "@/lib/HPContext";
 import Modal from "@/components/ui/Modal";
+import HPGlyph from "@/components/ui/HPGlyph";
 
 interface ReflectModalProps {
   onClose: () => void;
@@ -47,7 +48,7 @@ export default function ReflectModal({ onClose }: ReflectModalProps) {
   };
 
   return (
-    <Modal onClose={onClose} title="Tutup Hari 🌙">
+    <Modal onClose={onClose} title="Tutup Hari">
       <div style={{ ...HP_TEXT.body, fontSize: 13, marginBottom: 20, color: HP_TOKENS.inkSoft }}>
         Refleksi singkat membantu menjernihkan pikiran sebelum istirahat.
       </div>
@@ -66,7 +67,9 @@ export default function ReflectModal({ onClose }: ReflectModalProps) {
                 cursor: 'pointer', transition: '0.2s', textAlign: 'center'
               }}
             >
-              <div style={{ fontSize: 24, marginBottom: 4 }}>{m.emoji}</div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 6 }}>
+                <HPGlyph name={m.glyph} size={24} color={mood === m.key ? HP_TOKENS.sage : HP_TOKENS.inkFade} />
+              </div>
               <div style={{ ...HP_TEXT.small, fontSize: 10, fontWeight: 700, opacity: mood === m.key ? 1 : 0.6 }}>{m.label}</div>
             </button>
           ))}
@@ -105,7 +108,7 @@ export default function ReflectModal({ onClose }: ReflectModalProps) {
         }}
         className="hp-tap"
       >
-        Simpan & Tutup Hari (+100 Point) 🌱
+        Simpan & Tutup Hari (+100 Poin)
       </button>
     </Modal>
   );
