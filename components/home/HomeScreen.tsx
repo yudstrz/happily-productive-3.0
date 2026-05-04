@@ -124,7 +124,7 @@ export default function HomeScreen({ openModal }: any) {
           id: Date.now(),
           type: 'habit_completion',
           habitName: name,
-          emoji: habit.emoji,
+          glyph: habit.glyph,
           points: 20,
           date: now.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
           day: now.toLocaleDateString('id-ID', { weekday: 'long' }),
@@ -147,154 +147,71 @@ export default function HomeScreen({ openModal }: any) {
 
   return (
     <div style={{ position: 'relative', minHeight: '100%', paddingBottom: 120, fontFamily: HP_FONT }}>
-      <BlobBackground colors={[HP_TOKENS.yellowWash, HP_TOKENS.blueWash, HP_TOKENS.blueSoft]}/>
+      <BlobBackground colors={[HP_TOKENS.yellowWash, '#fff', HP_TOKENS.paper]}/>
       <Confetti show={confetti}/>
 
       <div style={{ position: 'relative', zIndex: 1, padding: '0 16px' }} className="hp-stagger">
-        {/* Top bar - Status Window Style */}
-        {state.penaltyActive && (
-          <div style={{
-            background: `linear-gradient(135deg, ${HP_TOKENS.coral}, #B25A4D)`,
-            borderRadius: 20, padding: '16px 20px', marginBottom: 16, marginTop: 8,
-            color: '#fff', boxShadow: '0 8px 20px rgba(232,139,125,0.4)',
-            display: 'flex', alignItems: 'center', gap: 15,
-            animation: 'hpPulse 2s infinite'
-          }}>
-            <div style={{ fontSize: 32 }}>⚠️</div>
-            <div>
-              <div style={{ ...HP_TEXT.h, color: '#fff', fontSize: 15 }}>PENALTY QUEST RECEIVED</div>
-              <div style={{ ...HP_TEXT.small, color: 'rgba(255,255,255,0.85)', fontSize: 12, marginTop: 2 }}>
-                Kamu melewatkan Daily Quest kemarin. -50 Poin & Streak Reset.
-              </div>
-            </div>
-          </div>
-        )}
-
+        {/* Top Card - Profile & Level */}
         <div style={{ 
-          background: `linear-gradient(135deg, ${HP_TOKENS.paper}, #fff)`,
+          background: HP_TOKENS.card,
           borderRadius: 24,
-          padding: '24px 20px',
-          marginTop: 8,
-          border: `1.5px solid ${HP_TOKENS.line}`,
-          boxShadow: '0 10px 30px rgba(0,0,0,0.04)',
+          padding: '24px',
+          marginTop: 16,
+          border: `1px solid ${HP_TOKENS.line}`,
+          boxShadow: '0 8px 24px rgba(0,0,0,0.02)',
           position: 'relative',
-          overflow: 'hidden'
         }}>
-          {/* Background Decorative Lv */}
-          <div style={{ 
-            position: 'absolute', top: -20, right: -10, fontSize: 120, 
-            fontWeight: 900, color: HP_TOKENS.lineSoft, zIndex: 0, opacity: 0.5 
-          }}>
-            {user.level}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+              <div style={{ position: 'relative' }}>
+                <HPAvatar 
+                  name={user.name} 
+                  size={56} 
+                  rank={user.rank}
+                  levelProgress={levelProgress} 
+                />
+              </div>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{ ...HP_TEXT.h, fontSize: 20 }}>{user.name.split(' ')[0]}</div>
+                  <div style={{ 
+                    background: HP_TOKENS.yellow, color: HP_TOKENS.ink, fontSize: 10, fontWeight: 900, 
+                    padding: '2px 8px', borderRadius: 6, letterSpacing: 0.5 
+                  }}>
+                    LV. {user.level}
+                  </div>
+                </div>
+                <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, fontWeight: 700, fontSize: 12, marginTop: 2 }}>
+                  {user.rank} Rank Specialist
+                </div>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <div className="hp-tap" style={{
+                display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 12,
+                background: HP_TOKENS.yellowSoft, fontFamily: HP_FONT, fontWeight: 900, fontSize: 14, color: HP_TOKENS.ink,
+                border: `1px solid ${HP_TOKENS.yellow}`,
+              }}>
+                <HPGlyph name="zap" size={14} color={HP_TOKENS.ink} />
+                <span>{user.streak}</span>
+              </div>
+            </div>
           </div>
 
-          <div style={{ position: 'relative', zIndex: 1 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                <div style={{ position: 'relative' }}>
-                  <HPAvatar 
-                    name={user.name} 
-                    size={52} 
-                    rank={user.rank}
-                    levelProgress={((user.points % 100) / 100)} 
-                  />
-                  <button 
-                    onClick={() => openModal('avatar_editor')}
-                    style={{
-                      position: 'absolute', bottom: -4, right: -4, width: 26, height: 26,
-                      borderRadius: 13, border: '2px solid #fff', background: HP_TOKENS.ink,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      cursor: 'pointer', zIndex: 10, boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
-                    }}
-                    className="hp-tap"
-                  >
-                    <HPGlyph name="refresh" size={12} color="#fff"/>
-                  </button>
-                </div>
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <div style={{ ...HP_TEXT.h, fontSize: 20 }}>{user.name.split(' ')[0]}</div>
-                    <div style={{ 
-                      background: HP_TOKENS.yellow, color: '#8A6814', fontSize: 10, fontWeight: 900, 
-                      padding: '2px 8px', borderRadius: 6, letterSpacing: 0.5 
-                    }}>
-                      RANK {user.rank}
-                    </div>
-                  </div>
-                  <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, fontWeight: 700, fontSize: 12, marginTop: 2 }}>
-                    Status: <span style={{ color: HP_TOKENS.sage }}>Ready for Quests</span>
-                  </div>
-                </div>
-              </div>
-              <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-                <button onClick={() => openModal('system_guide')} className="hp-tap" style={{
-                  background: HP_TOKENS.lineSoft, border: 'none', borderRadius: 20, width: 32, height: 32,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer'
-                }}>
-                  <HPGlyph name="sparkle" size={16} color={HP_TOKENS.sage}/>
-                </button>
-                <div className="hp-tap" style={{
-                  display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 99,
-                  background: HP_TOKENS.yellowSoft, fontFamily: HP_FONT, fontWeight: 900, fontSize: 14, color: '#8A6814',
-                }}>
-                  🔥 <span>{user.streak}</span>
-                </div>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'flex-end', gap: 20, marginBottom: 12 }}>
-              <div style={{ flex: 1 }}>
-                <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, marginBottom: 4 }}>Current Level</div>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
-                  <span style={{ ...HP_TEXT.small, color: HP_TOKENS.sage, fontWeight: 900, fontSize: 16 }}>Lv.</span>
-                  <span style={{ ...HP_TEXT.display, fontSize: 48, lineHeight: 0.8 }}>{user.level}</span>
-                </div>
-              </div>
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, marginBottom: 4 }}>Combat Power (Points)</div>
-                <div style={{ ...HP_TEXT.h, fontSize: 24 }}>{user.points.toLocaleString()} <span style={{ fontSize: 12, color: HP_TOKENS.inkFade }}>PTS</span></div>
-              </div>
-            </div>
-            
-            <div style={{ marginTop: 16 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                <span style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute }}>Level Progress</span>
-                <span style={{ ...HP_TEXT.tiny, color: HP_TOKENS.sage, fontWeight: 800 }}>{Math.round(levelProgress * 100)}%</span>
-              </div>
-              <div style={{ width: '100%', height: 8, background: HP_TOKENS.lineSoft, borderRadius: 4, overflow: 'hidden' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 20, marginBottom: 16 }}>
+            <div style={{ flex: 1 }}>
+              <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, marginBottom: 4 }}>Level Progress</div>
+              <div style={{ width: '100%', height: 6, background: HP_TOKENS.lineSoft, borderRadius: 3, overflow: 'hidden' }}>
                 <div style={{ 
                   width: `${levelProgress * 100}%`, height: '100%', 
-                  background: `linear-gradient(90deg, ${HP_TOKENS.sageLight}, ${HP_TOKENS.sage})`, 
+                  background: HP_TOKENS.yellow, 
                   transition: '1s cubic-bezier(0.2, 0.8, 0.2, 1)',
-                  boxShadow: `0 0 10px ${HP_TOKENS.sageSoft}`
                 }} />
               </div>
             </div>
-
-            {/* Penalty Threshold Settings */}
-            <div style={{ marginTop: 18, paddingTop: 16, borderTop: `1px solid ${HP_TOKENS.lineSoft}` }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div>
-                  <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute }}>Penalty Quest aktif jika tidak ada aktivitas selama</div>
-                </div>
-                <div style={{ display: 'flex', gap: 6 }}>
-                  {[1, 2, 3].map(d => (
-                    <button
-                      key={d}
-                      onClick={() => updateState((s: any) => ({ ...s, penaltyThresholdDays: d }))}
-                      style={{
-                        width: 36, height: 30, borderRadius: 8,
-                        background: (state.penaltyThresholdDays ?? 1) === d ? HP_TOKENS.sage : HP_TOKENS.lineSoft,
-                        color: (state.penaltyThresholdDays ?? 1) === d ? '#fff' : HP_TOKENS.inkSoft,
-                        fontFamily: HP_FONT, fontWeight: 800, fontSize: 12,
-                        border: 'none', cursor: 'pointer', transition: '0.2s',
-                      }}
-                    >
-                      {d}d
-                    </button>
-                  ))}
-                </div>
-              </div>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, marginBottom: 4 }}>Total Points</div>
+              <div style={{ ...HP_TEXT.h, fontSize: 24 }}>{user.points.toLocaleString()}</div>
             </div>
           </div>
         </div>
@@ -315,28 +232,27 @@ export default function HomeScreen({ openModal }: any) {
         </div>
 
         {/* LAYER 2 — Priorities as Daily Quests */}
-        <div style={{ marginTop: 16 }}>
+        <div style={{ marginTop: 24 }}>
           <SectionHeader 
             icon="target" 
             label="Daily Quests" 
             count={`${done}/${total}`} 
-            action="Kelola"
+            action="Manage"
             onAction={() => openModal('manage_priorities')}
           />
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {priorities.map((p: any) => (
               <PriorityCard key={p.id} p={p} onToggle={() => togglePriority(p.id)}/>
             ))}
             <button onClick={() => openModal('focus')} className="hp-tap" style={{
-              padding: '16px', borderRadius: 20, border: 'none',
-              background: `linear-gradient(135deg, ${HP_TOKENS.sage}, #3A6347)`,
-              color: '#fff', cursor: 'pointer', fontFamily: HP_FONT, fontWeight: 800, fontSize: 15,
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-              boxShadow: `0 8px 22px rgba(74,124,89,0.35)`, position: 'relative', overflow: 'hidden',
+              padding: '16px', borderRadius: 16, border: 'none',
+              background: HP_TOKENS.ink,
+              color: HP_TOKENS.yellow, cursor: 'pointer', fontFamily: HP_FONT, fontWeight: 800, fontSize: 15,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12,
               marginTop: 4,
             }}>
-              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)', transform: 'translateX(-100%)', animation: 'hpShine 3s ease-in-out infinite' }}/>
-              <HPGlyph name="sparkle" size={20} color="#fff"/> Enter Focus Mode
+              <HPGlyph name="sparkle" size={20} color={HP_TOKENS.yellow}/>
+              <span>Start Focus Session</span>
             </button>
           </div>
         </div>
@@ -344,72 +260,66 @@ export default function HomeScreen({ openModal }: any) {
         {/* Energy-based suggestion */}
         {energy && (
           <div style={{
-            marginTop: 12, padding: 14, borderRadius: 20,
-            background: `linear-gradient(135deg, ${HP_TOKENS.blueWash}, ${HP_TOKENS.sageWash})`,
-            border: `1.5px solid ${HP_TOKENS.blueSoft}`,
-            display: 'flex', gap: 12, alignItems: 'flex-start', position: 'relative', overflow: 'hidden',
+            marginTop: 16, padding: 16, borderRadius: 16,
+            background: HP_TOKENS.paper,
+            border: `1px solid ${HP_TOKENS.line}`,
+            display: 'flex', gap: 16, alignItems: 'center',
           }}>
-            <div style={{ fontSize: 32, animation: 'hpWiggle 3s ease-in-out infinite' }}>📜</div>
+            <div style={{ width: 40, height: 40, borderRadius: 12, background: HP_TOKENS.blueSoft, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <HPGlyph name="activity" size={20} color={HP_TOKENS.blue} />
+            </div>
             <div style={{ flex: 1 }}>
-              <div style={{ ...HP_TEXT.h, fontSize: 14, color: HP_TOKENS.blue }}>System Advice</div>
-              <div style={{ ...HP_TEXT.body, fontSize: 13, marginTop: 3 }}>{energyHint(energy)}</div>
+              <div style={{ ...HP_TEXT.h, fontSize: 14, color: HP_TOKENS.blue }}>System Insight</div>
+              <div style={{ ...HP_TEXT.body, fontSize: 13, marginTop: 2 }}>{energyHint(energy)}</div>
             </div>
           </div>
         )}
 
-        {/* LAYER 3 — Insights */}
-        <div style={{ marginTop: 16 }}>
-          <SectionHeader icon="heart" label="Professional Growth" action="Lihat semua" onAction={() => openModal('coach')}/>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {HP_AI_INSIGHTS.map((ins, i) => (
-              <InsightCard key={i} ins={ins} idx={i}/>
-            ))}
-          </div>
-        </div>
-
-        {/* Habits as Training Quests */}
-        <div style={{ marginTop: 16 }}>
+        {/* Habits */}
+        <div style={{ marginTop: 24 }}>
           <SectionHeader 
             icon="leaf" 
-            label="Training Quests" 
-            action="Atur"
+            label="Daily Training" 
+            action="Settings"
             onAction={() => openModal('manage_habits')}
           />
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             {state.habits.map((h: any, i: number) => (
               <HabitCell key={i} h={h} onToggle={() => toggleHabit(h.name)}/>
             ))}
           </div>
         </div>
 
+        {/* Professional Growth */}
+        <div style={{ marginTop: 24 }}>
+          <SectionHeader icon="heart" label="AI Coach Insights" action="Explore" onAction={() => openModal('coach')}/>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {HP_AI_INSIGHTS.map((ins, i) => (
+              <InsightCard key={i} ins={ins} idx={i}/>
+            ))}
+          </div>
+        </div>
 
-        {/* Closing ritual */}
-        <div style={{ marginTop: 24, display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {/* Closing actions */}
+        <div style={{ marginTop: 32, display: 'flex', flexDirection: 'column', gap: 12 }}>
           <button onClick={() => openModal('reflect')} className="hp-tap" style={{
-            width: '100%', padding: '16px', borderRadius: 22,
-            background: `linear-gradient(135deg, #2C2A5E, #4A4080)`, color: '#fff',
-            border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 14,
-            fontFamily: HP_FONT, textAlign: 'left', boxShadow: '0 8px 22px rgba(44,42,94,0.25)',
-            position: 'relative', overflow: 'hidden',
+            width: '100%', padding: '18px', borderRadius: 16,
+            background: HP_TOKENS.yellow, color: HP_TOKENS.ink,
+            border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12,
+            fontFamily: HP_FONT, fontWeight: 800, fontSize: 15,
           }}>
-            <div style={{ position: 'absolute', top: -20, right: 20, fontSize: 80, opacity: 0.15 }}>🌙</div>
-            <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>🌙</div>
-            <div style={{ flex: 1, position: 'relative' }}>
-              <div style={{ ...HP_TEXT.h, fontSize: 15, color: '#fff' }}>Tutup hari dengan refleksi</div>
-              <div style={{ ...HP_TEXT.small, fontWeight: 700, color: 'rgba(255,255,255,0.75)', marginTop: 2 }}>
-                Laporan mood & task selesai
-              </div>
-            </div>
-            <HPGlyph name="arrow" size={18} color="#fff"/>
+            <HPGlyph name="moon" size={20} color={HP_TOKENS.ink} />
+            <span>Evening Reflection</span>
           </button>
 
           <button onClick={() => openModal('logbook')} className="hp-tap" style={{
-            width: '100%', padding: '14px', borderRadius: 20,
-            background: HP_TOKENS.paper, color: HP_TOKENS.ink,
+            width: '100%', padding: '16px', borderRadius: 16,
+            background: 'transparent', color: HP_TOKENS.inkMute,
             border: `1.5px solid ${HP_TOKENS.line}`, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
             fontFamily: HP_FONT, fontWeight: 700, fontSize: 14,
           }}>
-            <HPGlyph name="book" size={18} color={HP_TOKENS.inkSoft}/> Lihat Riwayat Logbook
+            <HPGlyph name="book" size={18} color={HP_TOKENS.inkMute}/>
+            <span>View Activity Logbook</span>
           </button>
         </div>
       </div>

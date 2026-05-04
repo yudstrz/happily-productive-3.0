@@ -3,6 +3,8 @@
 import React from "react";
 import { HP_TOKENS, HP_TEXT } from "@/lib/constants";
 
+import HPGlyph from "@/components/ui/HPGlyph";
+
 interface InsightCardProps {
   ins: any;
   idx: number;
@@ -11,25 +13,22 @@ interface InsightCardProps {
 export default function InsightCard({ ins, idx }: InsightCardProps) {
   const tones: Record<string, any> = {
     sage: { 
-      bg: `linear-gradient(135deg, ${HP_TOKENS.sageWash}, #fff)`, 
-      border: HP_TOKENS.sageSoft, 
-      fg: HP_TOKENS.sage, 
-      emoji: '⚡', 
-      chipBg: HP_TOKENS.sageSoft 
+      bg: HP_TOKENS.yellowSoft, 
+      border: HP_TOKENS.yellow, 
+      fg: HP_TOKENS.ink, 
+      glyph: 'sparkle', 
     },
     blue: { 
-      bg: `linear-gradient(135deg, ${HP_TOKENS.blueWash}, #fff)`, 
+      bg: HP_TOKENS.blueWash, 
       border: HP_TOKENS.blueSoft, 
       fg: HP_TOKENS.blue, 
-      emoji: '🌙', 
-      chipBg: HP_TOKENS.blueSoft 
+      glyph: 'activity', 
     },
     yellow: { 
-      bg: `linear-gradient(135deg, ${HP_TOKENS.yellowWash}, #fff)`, 
+      bg: HP_TOKENS.yellowWash, 
       border: HP_TOKENS.yellowSoft, 
-      fg: '#8A6814', 
-      emoji: '🎉', 
-      chipBg: HP_TOKENS.yellowSoft 
+      fg: HP_TOKENS.ink, 
+      glyph: 'target', 
     },
   };
   
@@ -39,32 +38,31 @@ export default function InsightCard({ ins, idx }: InsightCardProps) {
     <div 
       className="hp-tap" 
       style={{
-        padding: 14, 
-        borderRadius: 20, 
-        background: t.bg, 
-        border: `1.5px solid ${t.border}`,
+        padding: '16px', 
+        borderRadius: 16, 
+        background: HP_TOKENS.card, 
+        border: `1px solid ${HP_TOKENS.line}`,
         display: 'flex', 
-        gap: 12, 
-        alignItems: 'flex-start', 
+        gap: 16, 
+        alignItems: 'center', 
         cursor: 'pointer',
       }}
     >
       <div style={{ 
         width: 40, 
         height: 40, 
-        borderRadius: 14, 
-        background: t.chipBg, 
+        borderRadius: 10, 
+        background: t.bg, 
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center', 
-        fontSize: 20, 
         flexShrink: 0 
       }}>
-        {t.emoji}
+        <HPGlyph name={t.glyph} size={18} color={t.fg} />
       </div>
       <div style={{ flex: 1 }}>
-        <div style={{ ...HP_TEXT.h, fontSize: 14, color: t.fg }}>{ins.title}</div>
-        <div style={{ ...HP_TEXT.body, fontSize: 13, marginTop: 4 }}>{ins.body}</div>
+        <div style={{ ...HP_TEXT.h, fontSize: 14, color: HP_TOKENS.ink }}>{ins.title}</div>
+        <div style={{ ...HP_TEXT.body, fontSize: 13, marginTop: 2, color: HP_TOKENS.inkMute }}>{ins.body}</div>
       </div>
     </div>
   );

@@ -1,15 +1,15 @@
 export const HP_TOKENS = {
   // Core palette — all harmonized, low saturation
   // Main Brand Palette — Flow Productivity (Yellow & Blue)
-  yellow: '#FFD700', // Brighter Gold/Yellow
-  yellowLight: '#FFE44D',
+  yellow: '#FDB913',
+  yellowLight: '#FFCA4D',
   yellowSoft: '#FFF9DB',
   yellowWash: '#FFFEF5',
 
-  blue: '#0052CC', // Strong Professional Blue
-  blueLight: '#4C9AFF',
-  blueSoft: '#DEEBFF',
-  blueWash: '#F4F8FF',
+  blue: '#4A90E2',
+  blueLight: '#7FB1EB',
+  blueSoft: '#EBF4FF',
+  blueWash: '#F8FBFF',
 
   sage: '#4A7C59',
   sageLight: '#8FB39B',
@@ -23,14 +23,14 @@ export const HP_TOKENS = {
   lavenderSoft: '#E9E4F1',
 
   // Neutrals — warm, not sterile
-  ink: '#2C2A28',
+  ink: '#1F1D1B',
   inkSoft: '#524E49',
   inkMute: '#8A837C',
   inkFade: '#BDB6AE',
-  paper: '#FBF7F2',
+  paper: '#FFFBF5',
   card: '#FFFFFF',
-  line: '#EFE9E0',
-  lineSoft: '#F5F1EA',
+  line: 'rgba(31,29,27,0.08)',
+  lineSoft: 'rgba(31,29,27,0.04)',
 };
 
 export const HP_FONT = "'Nunito', 'Inter', -apple-system, system-ui, sans-serif";

@@ -20,21 +20,21 @@ export default function SectionHeader({
   onAction 
 }: SectionHeaderProps) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '22px 4px 10px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '24px 4px 12px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         <div style={{ 
-          width: 28, 
-          height: 28, 
-          borderRadius: 9, 
-          background: HP_TOKENS.sageSoft, 
+          width: 32, 
+          height: 32, 
+          borderRadius: 10, 
+          background: HP_TOKENS.yellowSoft, 
           display: 'flex', 
           alignItems: 'center', 
           justifyContent: 'center' 
         }}>
-          <HPGlyph name={icon} size={16} color={HP_TOKENS.sage}/>
+          <HPGlyph name={icon} size={16} color={HP_TOKENS.ink}/>
         </div>
-        <div style={{ ...HP_TEXT.h, fontSize: 16 }}>{label}</div>
-        {count && <span style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, fontWeight: 800 }}>· {count}</span>}
+        <div style={{ ...HP_TEXT.h, fontSize: 17 }}>{label}</div>
+        {count && <span style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, fontWeight: 700, fontSize: 13 }}>({count})</span>}
       </div>
       {action && (
         <button 
@@ -46,11 +46,12 @@ export default function SectionHeader({
             fontFamily: HP_FONT, 
             fontWeight: 800, 
             fontSize: 13, 
-            color: HP_TOKENS.sage, 
-            cursor: 'pointer' 
+            color: HP_TOKENS.inkMute, 
+            cursor: 'pointer',
+            opacity: 0.7
           }}
         >
-          {action} →
+          {action}
         </button>
       )}
     </div>

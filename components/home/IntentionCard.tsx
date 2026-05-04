@@ -9,15 +9,21 @@ interface IntentionCardProps {
   setState: React.Dispatch<React.SetStateAction<any>>;
 }
 
+import HPGlyph from "@/components/ui/HPGlyph";
+
+interface IntentionCardProps {
+  state: any;
+  setState: React.Dispatch<React.SetStateAction<any>>;
+}
+
 const primaryBtn: React.CSSProperties = {
-  padding: '9px 16px', borderRadius: 99, border: 'none', background: HP_TOKENS.sage,
-  color: '#fff', fontFamily: HP_FONT, fontWeight: 800, fontSize: 13, cursor: 'pointer',
-  boxShadow: `0 4px 12px rgba(74,124,89,0.3)`,
+  padding: '10px 18px', borderRadius: 12, border: 'none', background: HP_TOKENS.ink,
+  color: HP_TOKENS.yellow, fontFamily: HP_FONT, fontWeight: 800, fontSize: 13, cursor: 'pointer',
 };
 
 const ghostBtn: React.CSSProperties = {
-  padding: '9px 14px', borderRadius: 99, border: `1.5px solid ${HP_TOKENS.line}`, background: '#FFFFFF',
-  color: HP_TOKENS.inkSoft, fontFamily: HP_FONT, fontWeight: 800, fontSize: 13, cursor: 'pointer',
+  padding: '10px 18px', borderRadius: 12, border: `1px solid ${HP_TOKENS.line}`, background: 'transparent',
+  color: HP_TOKENS.inkMute, fontFamily: HP_FONT, fontWeight: 800, fontSize: 13, cursor: 'pointer',
 };
 
 export default function IntentionCard({ state, setState }: IntentionCardProps) {
@@ -36,23 +42,25 @@ export default function IntentionCard({ state, setState }: IntentionCardProps) {
         className="hp-tap" 
         style={{
           width: '100%', 
-          padding: '14px 16px', 
-          borderRadius: 18,
+          padding: '16px', 
+          borderRadius: 20,
           background: HP_TOKENS.card, 
-          border: `2px dashed ${HP_TOKENS.sageLight}`,
+          border: `1.5px dashed ${HP_TOKENS.yellow}`,
           display: 'flex', 
           alignItems: 'center', 
-          gap: 12, 
+          gap: 16, 
           cursor: 'pointer', 
           fontFamily: HP_FONT, 
           textAlign: 'left',
         }}
       >
-        <div style={{ fontSize: 24 }}>🧭</div>
+        <div style={{ width: 40, height: 40, borderRadius: 12, background: HP_TOKENS.yellowSoft, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <HPGlyph name="target" size={20} color={HP_TOKENS.ink} />
+        </div>
         <div style={{ flex: 1 }}>
-          <div style={{ ...HP_TEXT.small, color: HP_TOKENS.sage, fontWeight: 800 }}>SET INTENTION</div>
+          <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, fontWeight: 700, textTransform: 'uppercase' }}>Focus Today</div>
           <div style={{ ...HP_TEXT.body, fontSize: 14, fontWeight: 700, marginTop: 2, color: HP_TOKENS.inkSoft }}>
-            Hari ini saya fokus pada...
+            What is your main intention?
           </div>
         </div>
       </button>
@@ -61,30 +69,33 @@ export default function IntentionCard({ state, setState }: IntentionCardProps) {
 
   if (editing) {
     return (
-      <HPCard padding={14}>
-        <div style={{ ...HP_TEXT.small, color: HP_TOKENS.sage, marginBottom: 8, fontWeight: 800 }}>🧭 Hari ini saya fokus pada...</div>
+      <HPCard padding={16} style={{ borderRadius: 20 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+          <HPGlyph name="target" size={16} color={HP_TOKENS.ink} />
+          <div style={{ ...HP_TEXT.h, fontSize: 14 }}>Set Your Focus</div>
+        </div>
         <input 
           autoFocus 
           value={draft} 
           onChange={e => setDraft(e.target.value)} 
-          placeholder="Satu kalimat aja"
+          placeholder="I will focus on..."
           style={{
             width: '100%', 
-            padding: '12px 14px', 
-            borderRadius: 14,
-            border: `2px solid ${HP_TOKENS.sageSoft}`, 
+            padding: '14px', 
+            borderRadius: 12,
+            border: `1.5px solid ${HP_TOKENS.yellow}`, 
             fontFamily: HP_FONT, 
             fontSize: 15, 
             fontWeight: 700,
             color: HP_TOKENS.ink, 
             outline: 'none', 
-            background: HP_TOKENS.sageWash, 
+            background: '#fff', 
             boxSizing: 'border-box',
           }}
         />
-        <div style={{ display: 'flex', gap: 8, marginTop: 10, justifyContent: 'flex-end' }}>
-          <button onClick={() => setEditing(false)} style={ghostBtn}>Batal</button>
-          <button onClick={save} style={primaryBtn}>Simpan ✨</button>
+        <div style={{ display: 'flex', gap: 10, marginTop: 16, justifyContent: 'flex-end' }}>
+          <button onClick={() => setEditing(false)} style={ghostBtn}>Cancel</button>
+          <button onClick={save} style={primaryBtn}>Save Focus</button>
         </div>
       </HPCard>
     );
@@ -92,15 +103,17 @@ export default function IntentionCard({ state, setState }: IntentionCardProps) {
 
   return (
     <HPCard 
-      padding={14} 
+      padding={16} 
       onClick={() => { setDraft(state.intention); setEditing(true); }} 
-      style={{ cursor: 'pointer', background: `linear-gradient(135deg, #fff, ${HP_TOKENS.sageWash})` }}
+      style={{ cursor: 'pointer', borderRadius: 20, background: HP_TOKENS.card }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-        <div style={{ fontSize: 26 }}>🧭</div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <div style={{ width: 40, height: 40, borderRadius: 12, background: HP_TOKENS.yellowSoft, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <HPGlyph name="target" size={20} color={HP_TOKENS.ink} />
+        </div>
         <div style={{ flex: 1 }}>
-          <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, fontWeight: 800 }}>INTENTION HARI INI</div>
-          <div style={{ ...HP_TEXT.h, fontSize: 15, marginTop: 3 }}>{state.intention}</div>
+          <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, fontWeight: 700, textTransform: 'uppercase' }}>Current Focus</div>
+          <div style={{ ...HP_TEXT.h, fontSize: 16, marginTop: 2 }}>{state.intention}</div>
         </div>
       </div>
     </HPCard>

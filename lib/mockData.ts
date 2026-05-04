@@ -1,11 +1,11 @@
 // ─── SHARED ─────────────────────────────────────────────────────────────────
 
 export const HP_MOODS = [
-  { key: 'joy', label: 'Bahagia', emoji: '😊', tone: 'yellow', value: 5 },
-  { key: 'calm', label: 'Tenang', emoji: '🙂', tone: 'sage', value: 4 },
-  { key: 'neutral', label: 'Biasa', emoji: '😐', tone: 'neutral', value: 3 },
-  { key: 'tired', label: 'Lelah', emoji: '😔', tone: 'blue', value: 2 },
-  { key: 'stress', label: 'Stress', emoji: '😣', tone: 'coral', value: 1 },
+  { key: 'joy', label: 'Bahagia', glyph: 'sparkle', tone: 'yellow', value: 5 },
+  { key: 'calm', label: 'Tenang', glyph: 'check', tone: 'sage', value: 4 },
+  { key: 'neutral', label: 'Biasa', glyph: 'activity', tone: 'neutral', value: 3 },
+  { key: 'tired', label: 'Lelah', glyph: 'moon', tone: 'blue', value: 2 },
+  { key: 'stress', label: 'Stress', glyph: 'zap', tone: 'coral', value: 1 },
 ];
 
 export const HP_ENERGY = [
@@ -19,15 +19,15 @@ export const HP_QUICK_TAGS = ['Semangat', 'Fokus', 'Lelah', 'Cemas', 'Bersyukur'
 export const HP_VALUES = ['Collaboration', 'Innovation', 'Respect', 'Ownership', 'Growth'];
 
 export const HP_REWARDS = [
-  { id: 1, title: "Extra cuti 1 hari", points: 500, tone: "sage", emoji: "🏖️", category: "Wellbeing", desc: "Nikmati satu hari penuh istirahat untuk mengisi ulang energimu." },
-  { id: 2, title: "Voucher lunch 100k", points: 250, tone: "yellow", emoji: "🍱", category: "Lifestyle", desc: "Makan siang enak bareng teman kerja — ditanggung kantor!" },
-  { id: 3, title: "Workshop UX intensif", points: 800, tone: "blue", emoji: "🎨", category: "Growth", desc: "Ikuti workshop 2 hari bersama praktisi UX terkemuka." },
-  { id: 4, title: "Donasi program sosial", points: 100, tone: "coral", emoji: "🌱", category: "Impact", desc: "Ubah poinmu menjadi donasi nyata untuk komunitas sekitar." },
-  { id: 5, title: "Tiket bioskop 2x", points: 300, tone: "lavender", emoji: "🎬", category: "Lifestyle", desc: "Nonton film favorit bersama teman atau keluarga." },
-  { id: 6, title: "Pulsa / e-wallet 50k", points: 150, tone: "sage", emoji: "📱", category: "Lifestyle", desc: "Top up pulsa atau saldo e-wallet langsung ke akunmu." },
-  { id: 7, title: "Voucher belanja 200k", points: 400, tone: "yellow", emoji: "🛍️", category: "Lifestyle", desc: "Belanja kebutuhanmu dengan voucher dari partner kami." },
-  { id: 8, title: "Kelas online premium", points: 600, tone: "blue", emoji: "💻", category: "Growth", desc: "Akses kursus online dari platform terkemuka selama 3 bulan." },
-  { id: 9, title: "Sesi wellness 1:1", points: 350, tone: "coral", emoji: "🧘", category: "Wellbeing", desc: "Konsultasi pribadi dengan wellness coach berpengalaman." },
+  { id: 1, title: "Extra cuti 1 hari", points: 500, tone: "sage", glyph: "tree", category: "Wellbeing", desc: "Nikmati satu hari penuh istirahat untuk mengisi ulang energimu." },
+  { id: 2, title: "Voucher lunch 100k", points: 250, tone: "yellow", glyph: "heart", category: "Lifestyle", desc: "Makan siang enak bareng teman kerja — ditanggung kantor!" },
+  { id: 3, title: "Workshop UX intensif", points: 800, tone: "blue", glyph: "book", category: "Growth", desc: "Ikuti workshop 2 hari bersama praktisi UX terkemuka." },
+  { id: 4, title: "Donasi program sosial", points: 100, tone: "coral", glyph: "leaf", category: "Impact", desc: "Ubah poinmu menjadi donasi nyata untuk komunitas sekitar." },
+  { id: 5, title: "Tiket bioskop 2x", points: 300, tone: "lavender", glyph: "star", category: "Lifestyle", desc: "Nonton film favorit bersama teman atau keluarga." },
+  { id: 6, title: "Pulsa / e-wallet 50k", points: 150, tone: "sage", glyph: "zap", category: "Lifestyle", desc: "Top up pulsa atau saldo e-wallet langsung ke akunmu." },
+  { id: 7, title: "Voucher belanja 200k", points: 400, tone: "yellow", glyph: "target", category: "Lifestyle", desc: "Belanja kebutuhanmu dengan voucher dari partner kami." },
+  { id: 8, title: "Kelas online premium", points: 600, tone: "blue", glyph: "refresh", category: "Growth", desc: "Akses kursus online dari platform terkemuka selama 3 bulan." },
+  { id: 9, title: "Sesi wellness 1:1", points: 350, tone: "coral", glyph: "people", category: "Wellbeing", desc: "Konsultasi pribadi dengan wellness coach berpengalaman." },
 ];
 
 export const ORG_REWARDS_CATALOG = [
@@ -109,10 +109,10 @@ export const HP_SKILLS = [
 ];
 
 export const HP_HABITS = [
-  { name: 'Tidur 7+ jam', streak: 8, target: 7, done: true, emoji: '🌙', history: [true, true, false, true, true, true, true] },
-  { name: 'Jalan kaki 15 menit', streak: 3, target: 7, done: false, emoji: '🚶', history: [false, true, true, false, false, true, false] },
-  { name: 'Meditasi pagi', streak: 12, target: 7, done: true, emoji: '🧘', history: [true, true, true, true, true, true, true] },
-  { name: 'Jurnal syukur', streak: 5, target: 7, done: false, emoji: '📓', history: [true, false, true, true, false, true, false] },
+  { name: 'Tidur 7+ jam', streak: 8, target: 7, done: true, glyph: 'moon', history: [true, true, false, true, true, true, true] },
+  { name: 'Jalan kaki 15 menit', streak: 3, target: 7, done: false, glyph: 'activity', history: [false, true, true, false, false, true, false] },
+  { name: 'Meditasi pagi', streak: 12, target: 7, done: true, glyph: 'sparkle', history: [true, true, true, true, true, true, true] },
+  { name: 'Jurnal syukur', streak: 5, target: 7, done: false, glyph: 'book', history: [true, false, true, true, false, true, false] },
 ];
 
 export const HP_WELLBEING_DIMS = [
@@ -185,12 +185,12 @@ export const MANAGER_TEAM_WELLBEING = [
 // `assignedToTeam` = whether the manager has activated it for the team
 // `source` = 'hr' (org-wide) | 'manager' (custom by manager)
 export const MANAGER_PROGRAMS_CATALOG = [
-  { id: 1, title: '21 Hari Meditasi', desc: 'Mulai hari dengan meditasi terpandu 10 menit setiap pagi.', emoji: '🧘', tone: 'lavender', category: 'Mental', duration: '21 hari', enrolledTeam: 3, totalTeam: 5, assignedToTeam: true, source: 'hr' },
-  { id: 2, title: 'Step Challenge Bulanan', desc: 'Target 8.000 langkah per hari selama satu bulan.', emoji: '🚶', tone: 'sage', category: 'Fisik', duration: '30 hari', enrolledTeam: 4, totalTeam: 5, assignedToTeam: true, source: 'hr' },
-  { id: 3, title: 'Gratitude Week', desc: 'Tulis 3 hal yang kamu syukuri setiap hari selama seminggu.', emoji: '📓', tone: 'yellow', category: 'Mental', duration: '7 hari', enrolledTeam: 2, totalTeam: 5, assignedToTeam: false, source: 'hr' },
-  { id: 4, title: 'Tim Challenge: No Meeting Friday', desc: 'Satu hari dalam seminggu tanpa meeting — deep work time.', emoji: '🎯', tone: 'blue', category: 'Produktivitas', duration: 'Weekly', enrolledTeam: 5, totalTeam: 5, assignedToTeam: true, source: 'manager' },
-  { id: 5, title: 'Tim Challenge: Lunch Together', desc: 'Makan siang bareng minimal 2x seminggu untuk bonding tim.', emoji: '🍱', tone: 'coral', category: 'Sosial', duration: 'Weekly', enrolledTeam: 3, totalTeam: 5, assignedToTeam: true, source: 'manager' },
-  { id: 6, title: 'Financial Wellness Talk', desc: 'Webinar perencanaan keuangan pribadi bersama advisor.', emoji: '💰', tone: 'yellow', category: 'Finansial', duration: '1 sesi', enrolledTeam: 0, totalTeam: 5, assignedToTeam: false, source: 'hr' },
+  { id: 1, title: '21 Hari Meditasi', desc: 'Mulai hari dengan meditasi terpandu 10 menit setiap pagi.', glyph: 'sparkle', tone: 'lavender', category: 'Mental', duration: '21 hari', enrolledTeam: 3, totalTeam: 5, assignedToTeam: true, source: 'hr' },
+  { id: 2, title: 'Step Challenge Bulanan', desc: 'Target 8.000 langkah per hari selama satu bulan.', glyph: 'activity', tone: 'sage', category: 'Fisik', duration: '30 hari', enrolledTeam: 4, totalTeam: 5, assignedToTeam: true, source: 'hr' },
+  { id: 3, title: 'Gratitude Week', desc: 'Tulis 3 hal yang kamu syukuri setiap hari selama seminggu.', glyph: 'book', tone: 'yellow', category: 'Mental', duration: '7 hari', enrolledTeam: 2, totalTeam: 5, assignedToTeam: false, source: 'hr' },
+  { id: 4, title: 'Tim Challenge: No Meeting Friday', desc: 'Satu hari dalam seminggu tanpa meeting — deep work time.', glyph: 'target', tone: 'blue', category: 'Produktivitas', duration: 'Weekly', enrolledTeam: 5, totalTeam: 5, assignedToTeam: true, source: 'manager' },
+  { id: 5, title: 'Tim Challenge: Lunch Together', desc: 'Makan siang bareng minimal 2x seminggu untuk bonding tim.', glyph: 'heart', tone: 'coral', category: 'Sosial', duration: 'Weekly', enrolledTeam: 3, totalTeam: 5, assignedToTeam: true, source: 'manager' },
+  { id: 6, title: 'Financial Wellness Talk', desc: 'Webinar perencanaan keuangan pribadi bersama advisor.', glyph: 'zap', tone: 'yellow', category: 'Finansial', duration: '1 sesi', enrolledTeam: 0, totalTeam: 5, assignedToTeam: false, source: 'hr' },
 ];
 
 // ─── HR DATA (Maya Sari) ─────────────────────────────────────────────────────

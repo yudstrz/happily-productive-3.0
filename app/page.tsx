@@ -58,10 +58,10 @@ import SkillAssessmentModal from "@/components/modals/SkillAssessmentModal";
 import AvatarEditorModal from "@/components/modals/AvatarEditorModal";
 
 // ─── Role pill badge colors ──────────────────────────────────────────────────
-const ROLE_META: Record<UserRole, { label: string; color: string; bg: string; emoji: string }> = {
-  employee: { label: 'Employee', color: HP_TOKENS.yellow, bg: HP_TOKENS.yellowSoft, emoji: '🎯' },
-  manager:  { label: 'Manager',  color: HP_TOKENS.blue, bg: HP_TOKENS.blueSoft,  emoji: '👥' },
-  hr:       { label: 'HR',       color: '#7B6BB5',       bg: '#EDE8F5',           emoji: '🏢' },
+const ROLE_META: Record<UserRole, { label: string; color: string; bg: string; glyph: string }> = {
+  employee: { label: 'Employee', color: HP_TOKENS.yellow, bg: HP_TOKENS.yellowSoft, glyph: 'target' },
+  manager:  { label: 'Manager',  color: HP_TOKENS.blue, bg: HP_TOKENS.blueSoft,  glyph: 'people' },
+  hr:       { label: 'HR',       color: '#7B6BB5',       bg: '#EDE8F5',           glyph: 'medal' },
 };
 
 function AppContent() {
@@ -145,7 +145,7 @@ function AppContent() {
           }}
           title="Ganti peran"
         >
-          <span>{meta.emoji}</span>
+          <HPGlyph name={meta.glyph} size={11} color={meta.color} />
           <span>{meta.label}</span>
           <HPGlyph name="refresh" size={11} color={meta.color} />
         </button>
@@ -162,27 +162,20 @@ function AppContent() {
         style={{
           position: 'absolute', right: 18, bottom: 106, zIndex: 30,
           width: 56, height: 56, borderRadius: 28, border: 'none',
-          background: `linear-gradient(135deg, ${
-            currentRole === 'manager' ? HP_TOKENS.blue :
-            currentRole === 'hr' ? '#7B6BB5' :
-            HP_TOKENS.sage
-          }, ${
-            currentRole === 'manager' ? '#2B5286' :
-            currentRole === 'hr' ? '#5A4E9A' :
-            HP_TOKENS.blue
-          })`,
+          background: currentRole === 'manager' ? HP_TOKENS.blue :
+                     currentRole === 'hr' ? '#7B6BB5' :
+                     HP_TOKENS.yellow,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           cursor: 'pointer',
           boxShadow: `0 8px 24px ${
-            currentRole === 'manager' ? 'rgba(59,111,160,0.35)' :
-            currentRole === 'hr' ? 'rgba(123,107,181,0.35)' :
-            'rgba(74,124,89,0.35)'
+            currentRole === 'manager' ? 'rgba(59,111,160,0.2)' :
+            currentRole === 'hr' ? 'rgba(123,107,181,0.2)' :
+            'rgba(253,185,19,0.2)'
           }`,
-          animation: 'hpPulse 3.2s ease-in-out infinite',
         }}
         className="hp-tap"
       >
-        <HPGlyph name="sparkle" size={26} color="#fff" />
+        <HPGlyph name="sparkle" size={26} color={currentRole === 'employee' ? HP_TOKENS.ink : "#fff"} />
       </button>
 
       <TabNav tab={tab} setTab={setTab} userRole={currentRole} />

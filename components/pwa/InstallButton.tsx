@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import HPGlyph from '@/components/ui/HPGlyph';
 
 export default function InstallButton() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -39,8 +40,8 @@ export default function InstallButton() {
       className="hp-install-btn"
       id="install-button"
     >
-      <span className="hp-icon">🐝</span>
-      Download Aplikasi
+      <HPGlyph name="bee" size={18} stroke={2.5} />
+      <span>Install App</span>
     </button>
   );
 }

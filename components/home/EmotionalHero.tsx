@@ -26,23 +26,34 @@ export default function EmotionalHero({
         onClick={onOpenCheckIn} 
         style={{
           position: 'relative', 
-          borderRadius: 28, 
-          padding: 18, 
+          borderRadius: 24, 
+          padding: '20px', 
           cursor: 'pointer',
-          background: `linear-gradient(135deg, ${HP_TOKENS.blueSoft} 0%, ${HP_TOKENS.yellowSoft} 100%)`,
-          overflow: 'hidden',
+          background: HP_TOKENS.card,
+          border: `1px solid ${HP_TOKENS.line}`,
+          boxShadow: '0 4px 12px rgba(0,0,0,0.02)',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          <div style={{ animation: 'hpBounceIn 500ms' }}>
-            <Mascot mood={moodObj.key} size={90}/>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <div style={{
+            width: 64, height: 64, borderRadius: 16,
+            background: moodObj.tone === 'yellow' ? HP_TOKENS.yellowSoft : HP_TOKENS.blueSoft,
+            display: 'flex', alignItems: 'center', justifyContent: 'center'
+          }}>
+            <HPGlyph name={moodObj.glyph} size={32} color={moodObj.tone === 'yellow' ? HP_TOKENS.yellow : HP_TOKENS.blue} />
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkSoft, fontWeight: 800, letterSpacing: 0.3, textTransform: 'uppercase' }}>Perasaanmu sekarang</div>
-            <div style={{ ...HP_TEXT.title, fontSize: 22, marginTop: 4 }}>{moodObj.label} <span style={{ fontSize: 24 }}>{moodObj.emoji}</span></div>
-            <div style={{ display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
-              <HPChip tone="blue" size="sm">⚡ Energi {energyObj.label.toLowerCase()}</HPChip>
-              {state.tag && <HPChip tone="yellow" size="sm">#{state.tag.toLowerCase()}</HPChip>}
+            <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, fontWeight: 700, textTransform: 'uppercase' }}>Kondisi Saat Ini</div>
+            <div style={{ ...HP_TEXT.h, fontSize: 18, marginTop: 4 }}>{moodObj.label}</div>
+            <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 8, background: HP_TOKENS.blueWash, color: HP_TOKENS.blue, fontSize: 11, fontWeight: 700 }}>
+                <HPGlyph name="zap" size={10} color={HP_TOKENS.blue} /> {energyObj.label}
+              </div>
+              {state.tag && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 8, background: HP_TOKENS.yellowWash, color: HP_TOKENS.ink, fontSize: 11, fontWeight: 700 }}>
+                  #{state.tag}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -56,39 +67,27 @@ export default function EmotionalHero({
       onClick={onOpenCheckIn} 
       style={{
         position: 'relative', 
-        borderRadius: 28, 
-        padding: '22px 18px', 
+        borderRadius: 24, 
+        padding: '24px 20px', 
         cursor: 'pointer',
-          background: `linear-gradient(135deg, ${HP_TOKENS.blueSoft} 0%, ${HP_TOKENS.yellowSoft} 50%, ${HP_TOKENS.coralSoft} 100%)`,
-        overflow: 'hidden', 
-        border: 'none',
+        background: HP_TOKENS.paper,
+        border: `1px solid ${HP_TOKENS.line}`,
       }}
     >
-      {/* floating sparkles */}
-      <div style={{ position: 'absolute', top: 20, right: 30, fontSize: 16, animation: 'hpSparkle 2.5s ease-in-out infinite' }}>✨</div>
-      <div style={{ position: 'absolute', bottom: 30, right: 80, fontSize: 12, animation: 'hpSparkle 2.5s 0.8s ease-in-out infinite' }}>✨</div>
-      <div style={{ position: 'absolute', top: 60, right: 90, fontSize: 10, animation: 'hpSparkle 2.5s 1.4s ease-in-out infinite' }}>✨</div>
-
-      <div style={{ display: 'flex', alignItems: 'center', gap: 14, position: 'relative' }}>
-        <Mascot mood="calm" size={96}/>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <div style={{
+          width: 56, height: 56, borderRadius: 16,
+          background: HP_TOKENS.yellow,
+          display: 'flex', alignItems: 'center', justifyContent: 'center'
+        }}>
+          <HPGlyph name="sparkle" size={28} color={HP_TOKENS.ink} />
+        </div>
         <div style={{ flex: 1 }}>
-          <div style={{ ...HP_TEXT.small, color: HP_TOKENS.blue, fontWeight: 900, letterSpacing: 0.3, textTransform: 'uppercase' }}>Hai, aku Flow</div>
-          <div style={{ ...HP_TEXT.title, fontSize: 20, marginTop: 4, lineHeight: 1.2 }}>Gimana perasaanmu<br/>hari ini?</div>
-          <div style={{
-            display: 'inline-flex', 
-            alignItems: 'center', 
-            gap: 6, 
-            marginTop: 10,
-            padding: '6px 12px', 
-            borderRadius: 99, 
-            background: '#fff',
-            fontFamily: HP_FONT, 
-            fontWeight: 800, 
-            fontSize: 12, 
-            color: HP_TOKENS.blue,
-            boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-          }}>
-            Check-in 3 detik <HPGlyph name="arrow" size={14} color={HP_TOKENS.blue}/>
+          <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, fontWeight: 700, textTransform: 'uppercase' }}>Sapa Diri Sendiri</div>
+          <div style={{ ...HP_TEXT.h, fontSize: 20, marginTop: 4 }}>Bagaimana perasaan Anda?</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10, color: HP_TOKENS.blue, fontSize: 13, fontWeight: 800 }}>
+            <span>Mulai check-in</span>
+            <HPGlyph name="arrow" size={14} color={HP_TOKENS.blue} />
           </div>
         </div>
       </div>

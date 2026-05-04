@@ -45,10 +45,8 @@ export default function TabNav({ tab, setTab, userRole }: TabNavProps) {
       left: 0,
       right: 0,
       zIndex: 25,
-      padding: '8px 12px 26px',
-      background: 'rgba(251,247,242,0.92)',
-      backdropFilter: 'blur(20px)',
-      WebkitBackdropFilter: 'blur(20px)',
+      padding: '12px 16px 28px',
+      background: HP_TOKENS.paper,
       borderTop: `1px solid ${HP_TOKENS.line}`,
       display: 'flex',
       justifyContent: 'space-around',
@@ -61,39 +59,26 @@ export default function TabNav({ tab, setTab, userRole }: TabNavProps) {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: 3,
+            gap: 4,
             background: 'none',
             border: 'none',
             cursor: 'pointer',
-            padding: '6px 4px',
-            color: tab === t.key ? HP_TOKENS.sage : HP_TOKENS.inkMute,
+            padding: '4px 8px',
+            color: tab === t.key ? HP_TOKENS.yellow : HP_TOKENS.inkMute,
             fontFamily: HP_FONT,
             fontWeight: 800,
             fontSize: 10,
-            transition: 'all 180ms',
+            transition: 'all 200ms ease',
             position: 'relative',
           }}
         >
-          {/* Active indicator dot */}
-          {tab === t.key && (
-            <div style={{
-              position: 'absolute',
-              top: -8,
-              left: '50%',
-              transform: 'translateX(-50%)',
-              width: 4,
-              height: 4,
-              borderRadius: 2,
-              background: HP_TOKENS.sage,
-            }}/>
-          )}
           <HPGlyph
             name={t.icon}
-            size={22}
-            color={tab === t.key ? HP_TOKENS.sage : HP_TOKENS.inkMute}
-            stroke={tab === t.key ? 2.2 : 1.8}
+            size={20}
+            color={tab === t.key ? HP_TOKENS.yellow : HP_TOKENS.inkMute}
+            stroke={tab === t.key ? 2.5 : 2}
           />
-          <div>{t.label}</div>
+          <div style={{ opacity: tab === t.key ? 1 : 0.7 }}>{t.label}</div>
         </button>
       ))}
     </div>

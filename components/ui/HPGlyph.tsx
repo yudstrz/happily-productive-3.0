@@ -184,6 +184,15 @@ export default function HPGlyph({ name, size = 24, color = "currentColor", strok
         <line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" />
       </svg>
     ),
+    bee: (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2v2M7 4.8 8.5 6M17 4.8 15.5 6" />
+        <path d="M12 9c2.2 0 4 1.8 4 4s-1.8 4-4 4-4-1.8-4-4 1.8-4 4-4Z" />
+        <path d="M16 11c1.5-1.5 4-1 4 2s-2.5 3.5-4 2" />
+        <path d="M8 11c-1.5-1.5-4-1-4 2s2.5 3.5 4 2" />
+        <path d="M12 17v3M10 21h4" />
+      </svg>
+    ),
   };
 
   return icons[name] || (
