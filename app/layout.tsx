@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Nunito, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import Shell from "@/components/layout/Shell";
@@ -15,9 +15,26 @@ const jetbrains = JetBrains_Mono({
   variable: "--hp-font-mono",
 });
 
+export const viewport: Viewport = {
+  themeColor: "#FDB913",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
 export const metadata: Metadata = {
   title: "Flow Productivity",
   description: "Intelligent Happiness — Human-Centered Platform",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Flow",
+  },
+  formatDetection: {
+    telephone: false,
+  },
 };
 
 export default function RootLayout({
