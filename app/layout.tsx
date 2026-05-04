@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Nunito, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import Shell from "@/components/layout/Shell";
+import PWARegistration from "@/components/pwa/PWARegistration";
+import InstallButton from "@/components/pwa/InstallButton";
 
 const nunito = Nunito({
   subsets: ["latin"],
@@ -45,6 +47,8 @@ export default function RootLayout({
   return (
     <html lang="id" className={`${nunito.variable} ${jetbrains.variable}`}>
       <body>
+        <PWARegistration />
+        <InstallButton />
         <Shell>{children}</Shell>
       </body>
     </html>
