@@ -6,7 +6,6 @@ import { HP_TOKENS, HP_FONT, HP_TEXT } from "@/lib/constants";
 import HPGlyph from "@/components/ui/HPGlyph";
 import HPCard from "@/components/ui/HPCard";
 import HPAvatar from "@/components/ui/HPAvatar";
-import DiceBearAvatar from "@/components/ui/DiceBearAvatar";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import SectionHeader from "@/components/home/SectionHeader";
 import ReadinessRing from "@/components/growth/ReadinessRing";
@@ -43,8 +42,7 @@ export default function WellbeingScreen({ openModal }: WellbeingScreenProps) {
     setRefreshing(false);
   };
 
-  const user = ctxUser || { name: "User", avatarConfig: null };
-  const config = user.avatarConfig && 'seed' in user.avatarConfig ? user.avatarConfig : null;
+  const user = ctxUser || { name: "User" };
 
   return (
     <div style={{ padding: '0 16px 120px', fontFamily: HP_FONT }}>
@@ -63,11 +61,7 @@ export default function WellbeingScreen({ openModal }: WellbeingScreenProps) {
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             boxShadow: '0 12px 32px rgba(74,124,89,0.1)'
           }}>
-            {config ? (
-              <DiceBearAvatar config={config as any} size={160} mood={state.mood ?? null} />
-            ) : (
               <HPAvatar name={user.name} size={60} />
-            )}
           </div>
           <div style={{
             position: 'absolute', bottom: 10, right: -10,

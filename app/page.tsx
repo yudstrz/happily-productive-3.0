@@ -56,7 +56,6 @@ import JournalHistoryModal from "@/components/modals/JournalHistoryModal";
 import LogbookModal from "@/components/modals/LogbookModal";
 import SystemGuideModal from "@/components/modals/SystemGuideModal";
 import SkillAssessmentModal from "@/components/modals/SkillAssessmentModal";
-import AvatarEditorModal from "@/components/modals/AvatarEditorModal";
 import ProfileEditorModal from "@/components/modals/ProfileEditorModal";
 import ManageSurveysModal from "@/components/modals/ManageSurveysModal";
 import TakeSurveyModal from "@/components/modals/TakeSurveyModal";
@@ -223,10 +222,8 @@ function AppContent() {
       {modal?.name === 'manage_programs'  && <ManageProgramsModal onClose={closeModal} />}
       {modal?.name === 'all_rewards'      && <AllRewardsModal onClose={closeModal} />}
       {modal?.name === 'grow_coaching'    && <GROWCoachingModal onClose={closeModal} roleContext={modal.props?.role} topic={modal.props?.topic} />}
-      {modal?.name === 'journal_history'  && <JournalHistoryModal onClose={closeModal} />}
       {modal?.name === 'logbook'          && <LogbookModal onClose={closeModal} />}
       {modal?.name === 'system_guide'     && <SystemGuideModal onClose={closeModal} />}
-      {modal?.name === 'avatar_editor'    && <AvatarEditorModal onClose={closeModal} />}
       {modal?.name === 'profile_editor'   && <ProfileEditorModal onClose={closeModal} />}
       {modal?.name === 'manage_surveys'   && <ManageSurveysModal onClose={closeModal} />}
       {modal?.name === 'take_survey'     && <TakeSurveyModal onClose={closeModal} {...modal.props} />}

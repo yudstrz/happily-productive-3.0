@@ -1,7 +1,6 @@
 "use client";
 
 import { HP_TOKENS, HP_FONT } from "@/lib/constants";
-import DiceBearAvatar from "@/components/ui/DiceBearAvatar";
 import { useHP } from "@/lib/HPContext";
 
 interface HPAvatarProps {
@@ -19,9 +18,7 @@ export default function HPAvatar({
   levelProgress = 0,
   rank
 }: HPAvatarProps) {
-  const { user, state } = useHP();
-  const config = user?.avatarConfig;
-  const currentMood = state?.mood ?? null;
+  const { user } = useHP();
   
   const initials = name.split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase();
   const palette = [HP_TOKENS.sage, HP_TOKENS.blue, HP_TOKENS.coral, HP_TOKENS.lavender, '#B5884A'];
@@ -67,7 +64,7 @@ export default function HPAvatar({
         width: size, 
         height: size, 
         borderRadius: size / 2,
-        background: config ? 'transparent' : bg, 
+        background: user?.avatarImage ? 'transparent' : bg, 
         color: '#fff',
         display: 'flex', 
         alignItems: 'center', 
@@ -86,12 +83,6 @@ export default function HPAvatar({
             src={user.avatarImage} 
             alt={name} 
             style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-          />
-        ) : config ? (
-          <DiceBearAvatar 
-            size={size * 1.2} 
-            config={config}
-            mood={currentMood}
           />
         ) : (
           initials

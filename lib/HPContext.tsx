@@ -39,7 +39,6 @@ interface HPUser {
   rank: string;
   userRole?: UserRole | null;
   avatarImage?: string;
-  avatarConfig?: any;
 }
 
 interface HPContextType {

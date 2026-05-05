@@ -25,7 +25,6 @@ export async function GET(request: Request) {
       level: userRow.level,
       rank: userRow.rank,
       avatarImage: userRow.avatar_image,
-      avatarConfig: JSON.parse(userRow.avatar_config_json as string || '{}'),
       userRole: userRow.user_role_context || userRow.role
     };
 
@@ -101,10 +100,10 @@ export async function POST(request: Request) {
 
     // Update User
     await db.execute({
-      sql: `UPDATE users SET name = ?, streak = ?, points = ?, level = ?, rank = ?, avatar_image = ?, avatar_config_json = ?, user_role_context = ?, last_activity_at = ? WHERE id = ?`,
+      sql: `UPDATE users SET name = ?, streak = ?, points = ?, level = ?, rank = ?, avatar_image = ?, user_role_context = ?, last_activity_at = ? WHERE id = ?`,
       args: [
         user.name, user.streak, user.points, user.level, user.rank, 
-        user.avatarImage || null, JSON.stringify(user.avatarConfig || {}), 
+        user.avatarImage || null, 
         user.userRole || user.role, state.lastActivityDate, userId
       ]
     });

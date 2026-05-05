@@ -37,7 +37,6 @@ export async function POST(request: Request) {
       rank: userRow.rank,
       streak: userRow.streak,
       avatarImage: userRow.avatar_image,
-      avatarConfig: JSON.parse(userRow.avatar_config_json as string || '{}'),
       userRole: userRow.user_role_context || userRow.role
     };
 
