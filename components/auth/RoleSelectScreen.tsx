@@ -51,6 +51,17 @@ const ROLES: {
     colorWash: "#F0ECF8",
     features: ["People analytics", "Employee health map", "Org-wide OKR", "L&D programs", "Engagement pulse"],
   },
+  {
+    key: "admin",
+    label: "Admin",
+    subtitle: "System Administrator",
+    desc: "Full system control, user management, and organization settings",
+    glyph: "sparkle",
+    color: HP_TOKENS.coral,
+    colorSoft: HP_TOKENS.coralSoft,
+    colorWash: HP_TOKENS.coralSoft + '20',
+    features: ["Full User Management", "Role Override", "Global System Access", "DB Schema Management"],
+  },
 ];
 
 export default function RoleSelectScreen({ onSelect }: RoleSelectScreenProps) {

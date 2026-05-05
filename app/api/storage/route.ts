@@ -97,7 +97,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const { state, user, userId } = await request.json();
-    if (!user || !userId) return NextResponse.json({ error: 'User data or ID missing' });
+    if (!user || !userId || !state) return NextResponse.json({ error: 'User data, state or ID missing' });
 
     // Update User
     await db.execute({

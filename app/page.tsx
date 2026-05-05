@@ -113,8 +113,11 @@ function AppContent() {
   const renderScreen = () => {
     // Admin
     if (currentRole === 'admin') {
-      if (tab === 'home') return <div style={pad}><HRHomeScreen openModal={openModal} /></div>; // Placeholder
-      if (tab === 'goals') return <div style={pad}><HRPeopleScreen openModal={openModal} /></div>; // Admin can manage people
+      if (tab === 'home')      return <div style={pad}><HRHomeScreen openModal={openModal} /></div>;
+      if (tab === 'goals')     return <div style={pad}><HRPeopleScreen openModal={openModal} /></div>;
+      if (tab === 'recognize') return <div style={pad}><HRRecognizeScreen openModal={openModal} /></div>;
+      if (tab === 'growth')    return <div style={pad}><HRAnalyticsScreen openModal={openModal} /></div>;
+      if (tab === 'wellbeing') return <div style={pad}><HRWellbeingScreen openModal={openModal} /></div>;
     }
     // Employee
     if (currentRole === 'employee') {

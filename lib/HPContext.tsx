@@ -69,6 +69,17 @@ export function HPProvider({ children }: { children: React.ReactNode }) {
       const res = await fetch(`/api/storage?userId=${userId}`);
       const data = await res.json();
       if (data.state) setState(data.state);
+      else {
+        // Initialize default state if new user
+        setState({
+          mood: null, energy: null, tag: null, intention: "",
+          priorities: [], feed: [], goals: [], habits: [], weeklyPriorities: [],
+          surveys: [], skills: [], learning: [], coaching: {}, wellbeing: { dims: [], programs: [] },
+          points: data.user?.points || 0, notifications: 0, rewards: [], rewardHistory: [],
+          logbook: [], lastActivityDate: new Date().toISOString(),
+          penaltyActive: false, penaltyThresholdDays: 3
+        });
+      }
       if (data.user) {
         setUser(data.user);
       }
@@ -100,9 +111,8 @@ export function HPProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem("hp_user_id");
   };
 
-  // Sync to API whenever state or user changes
   useEffect(() => {
-    if (!loading && user && (state || user)) {
+    if (!loading && user && state) {
       fetch("/api/storage", {
         method: "POST",
         headers: { "Content-Type": "application/json" },

@@ -72,7 +72,7 @@ export default function HRPeopleScreen({ openModal }: Props) {
   const managers = dbUsers.filter(u => u.role === 'manager');
 
   const filtered = dbUsers.filter(e =>
-    e.name.toLowerCase().includes(search.toLowerCase()) ||
+    (e.name || "").toLowerCase().includes(search.toLowerCase()) ||
     (e.department || "").toLowerCase().includes(search.toLowerCase())
   );
 

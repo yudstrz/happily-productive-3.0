@@ -63,7 +63,7 @@ export default function HRHomeScreen({ openModal }: Props) {
                 <HPAvatar name={user.name} size={52} rank={user.rank} />
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <div style={{ ...HP_TEXT.h, fontSize: 20 }}>{user.name.split(' ')[0]}</div>
+                    <div style={{ ...HP_TEXT.h, fontSize: 20 }}>{(user.name || "User").split(' ')[0]}</div>
                     <div style={{ background: HP_TOKENS.lavender, color: '#fff', fontSize: 10, fontWeight: 900, padding: '2px 8px', borderRadius: 6 }}>
                       HR
                     </div>
