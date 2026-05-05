@@ -16,7 +16,7 @@ interface ReflectModalProps {
 }
 
 export default function ReflectModal({ onClose }: ReflectModalProps) {
-  const { state, updateState, updateUser } = useHP();
+  const { state, updateState, updateUser, user } = useHP();
   const [mood, setMood] = useState('calm');
   const [blockers, setBlockers] = useState('');
   const [notes, setNotes] = useState('');

@@ -223,7 +223,7 @@ export function HPProvider({ children }: { children: React.ReactNode }) {
   return (
     <HPContext.Provider value={{ 
       state, user, updateState, updateUser, setUserRole, login, logout, awardXP,
-      loading, refresh: fetchData, resetData, syncSkillProgress 
+      loading, refresh: async () => { if (user?.id) await fetchData(user.id); }, resetData, syncSkillProgress 
     }}>
       {children}
     </HPContext.Provider>

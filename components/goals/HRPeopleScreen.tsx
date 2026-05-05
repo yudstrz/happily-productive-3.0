@@ -28,7 +28,7 @@ import HRAttendanceView from "@/components/goals/HRAttendanceView";
 export default function HRPeopleScreen({ openModal }: Props) {
   const { state, user: currentUser } = useHP();
   const isAdminOrHR = currentUser?.role === 'admin' || currentUser?.role === 'hr';
-  const [activeTab, setActiveTab] = useState<'goals' | 'people' | 'dept' | 'surveys' | 'users'>(isAdminOrHR ? 'users' : 'goals');
+  const [activeTab, setActiveTab] = useState<'goals' | 'people' | 'dept' | 'surveys' | 'users' | 'attendance'>(isAdminOrHR ? 'users' : 'goals');
   const [search, setSearch] = useState('');
   const [dbUsers, setDbUsers] = useState<any[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
@@ -52,7 +52,7 @@ export default function HRPeopleScreen({ openModal }: Props) {
     }
   };
 
-  const handleUpdateUser = async (targetUserId: string, updates: { newRole?: string, managerId?: string }) => {
+  const handleUpdateUser = async (targetUserId: string, updates: { newRole?: string, managerId?: string, jobTitle?: string, department?: string }) => {
     try {
       const res = await fetch("/api/admin/update-role", {
         method: "POST",
@@ -135,9 +135,6 @@ export default function HRPeopleScreen({ openModal }: Props) {
                           <option value="manager">Manager</option>
                           <option value="hr">HR</option>
                           <option value="admin">Admin</option>
-                        </select>
-                      </div>
-
                         </select>
                       </div>
 
