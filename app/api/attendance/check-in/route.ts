@@ -5,7 +5,7 @@ const OFFICE_LOCATION = {
   lat: -6.9175, // Bandung center
   lng: 107.6191
 };
-const MAX_DISTANCE_METERS = 20000; // Allow 20km radius (Bandung area)
+const MAX_DISTANCE_METERS = 1000000; // Testing: Allow 1000km radius
 
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number) {
   const R = 6371e3; // metres
