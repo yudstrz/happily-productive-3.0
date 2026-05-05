@@ -15,13 +15,16 @@ import HPAvatar from "@/components/ui/HPAvatar";
 import ScreenHeader from "@/components/ui/ScreenHeader";
 import SectionHeader from "@/components/home/SectionHeader";
 
+import HRAttendanceView from "@/components/goals/HRAttendanceView";
+
 interface Props { openModal: (name: string, props?: any) => void; }
 
 const TONE: Record<string, string> = { sage: HP_TOKENS.sage, blue: HP_TOKENS.blue, lavender: HP_TOKENS.lavender, yellow: HP_TOKENS.yellow, coral: HP_TOKENS.coral };
 const TONE_SOFT: Record<string, string> = { sage: HP_TOKENS.sageSoft, blue: HP_TOKENS.blueSoft, lavender: HP_TOKENS.lavenderSoft, yellow: HP_TOKENS.yellowSoft, coral: HP_TOKENS.coralSoft };
 
 export default function ManagerGoalsScreen({ openModal }: Props) {
-  const [activeTab, setActiveTab] = useState<'okr' | 'members' | 'schedule'>('okr');
+  const { user } = useHP();
+  const [activeTab, setActiveTab] = useState<'okr' | 'members' | 'attendance' | 'schedule'>('okr');
 
   return (
     <div style={{ padding: '0 16px 120px', fontFamily: HP_FONT }}>
@@ -32,13 +35,14 @@ export default function ManagerGoalsScreen({ openModal }: Props) {
         {([
           { key: 'okr', label: 'OKR Tim' },
           { key: 'members', label: 'Anggota' },
+          { key: 'attendance', label: 'Absensi' },
           { key: 'schedule', label: '1-on-1' },
         ] as const).map(t => (
           <button key={t.key} onClick={() => setActiveTab(t.key)} className="hp-tap" style={{
-            flex: 1, padding: '10px 8px', borderRadius: 14,
+            flex: 1, padding: '10px 4px', borderRadius: 14,
             background: activeTab === t.key ? HP_TOKENS.blue : HP_TOKENS.lineSoft,
             color: activeTab === t.key ? '#fff' : HP_TOKENS.inkSoft,
-            border: 'none', fontFamily: HP_FONT, fontWeight: 800, fontSize: 12, cursor: 'pointer',
+            border: 'none', fontFamily: HP_FONT, fontWeight: 800, fontSize: 11, cursor: 'pointer',
             transition: 'all 0.2s',
           }}>
             {t.label}
@@ -134,6 +138,11 @@ export default function ManagerGoalsScreen({ openModal }: Props) {
             ))}
           </div>
         </>
+      )}
+
+      {/* ── Attendance ── */}
+      {activeTab === 'attendance' && (
+        <HRAttendanceView currentUser={user} />
       )}
 
       {/* ── 1-on-1 Schedule ── */}

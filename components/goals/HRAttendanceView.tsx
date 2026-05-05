@@ -120,6 +120,14 @@ export default function HRAttendanceView({ currentUser }: HRAttendanceViewProps)
                     <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, marginTop: 2 }}>
                       {new Date(log.check_in_at).toLocaleString('id-ID')}
                     </div>
+                    {log.location_lat && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
+                        <HPGlyph name="target" size={10} color={HP_TOKENS.inkFade} />
+                        <span style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkFade, fontSize: 9 }}>
+                          {log.location_lat.toFixed(4)}, {log.location_lng.toFixed(4)}
+                        </span>
+                      </div>
+                    )}
                   </div>
                   <div style={{
                     padding: '4px 10px', borderRadius: 10, fontSize: 10, fontWeight: 800, fontFamily: HP_FONT,
