@@ -13,12 +13,13 @@ interface GoalModalProps {
   onClose: () => void;
 }
 
-export default function GoalModal({ onClose }: GoalModalProps) {
-  const { state, updateState } = useHP();
-  const [title, setTitle] = useState("");
-  const [due, setDue] = useState("");
-  const [scope, setScope] = useState("personal");
-  const [parentId, setParentId] = useState("");
+export default function GoalModal({ onClose, goal }: { onClose: () => void; goal?: any }) {
+  const { state, updateState, user } = useHP();
+  const [title, setTitle] = useState(goal?.title || "");
+  const [due, setDue] = useState(goal?.due || "");
+  const [scope, setScope] = useState(goal?.scope || "personal");
+  const [parentId, setParentId] = useState(goal?.parent_id || "");
+  const [progress, setProgress] = useState(goal?.progress || 0);
 
   const parentOptions = state?.goals.filter((g: any) => {
     if (scope === 'personal') return g.scope === 'team' || g.scope === 'company';
@@ -26,27 +27,46 @@ export default function GoalModal({ onClose }: GoalModalProps) {
     return false;
   }) || [];
 
-  const save = () => {
+  const save = async () => {
     if (!title || !due) return;
     
-    updateState((s: any) => ({
-      ...s,
-      goals: [
-        ...s.goals,
-        {
-          id: Date.now(),
-          title,
-          progress: 0,
-          alignment: 100,
-          owner: "You",
-          due,
-          tone: scope === 'personal' ? "sage" : scope === 'team' ? "blue" : "yellow",
-          metric: "0% complete",
-          scope,
-          parent_id: parentId || null
-        }
-      ]
-    }));
+    if (goal) {
+      // Update existing
+      try {
+        await fetch("/api/goals/update", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            goalId: goal.id,
+            progress,
+            parentId,
+            metric: `${progress}% complete`
+          })
+        });
+      } catch (e) {
+        console.error(e);
+      }
+    } else {
+      // Create new
+      updateState((s: any) => ({
+        ...s,
+        goals: [
+          ...s.goals,
+          {
+            id: Date.now(),
+            title,
+            progress: 0,
+            alignment: 100,
+            owner: user?.name || "You",
+            due,
+            tone: scope === 'personal' ? "sage" : scope === 'team' ? "blue" : "yellow",
+            metric: "0% complete",
+            scope,
+            parent_id: parentId || null
+          }
+        ]
+      }));
+    }
     onClose();
   };
 
@@ -84,6 +104,19 @@ export default function GoalModal({ onClose }: GoalModalProps) {
             color: HP_TOKENS.ink, outline: 'none', background: HP_TOKENS.card, boxSizing: 'border-box',
           }}
         />
+
+        {goal && (
+          <>
+            <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, fontWeight: 700, marginTop: 20 }}>PROGRESS: {progress}%</div>
+            <input 
+              type="range" 
+              min="0" max="100" 
+              value={progress} 
+              onChange={e => setProgress(Number(e.target.value))}
+              style={{ width: '100%', marginTop: 10 }}
+            />
+          </>
+        )}
 
         <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, fontWeight: 700, marginTop: 20 }}>SCOPE</div>
         <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>

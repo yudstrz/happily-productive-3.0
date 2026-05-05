@@ -21,28 +21,27 @@ export default function ReflectModal({ onClose }: ReflectModalProps) {
   const [blockers, setBlockers] = useState('');
   const [notes, setNotes] = useState('');
 
-  const handleFinish = () => {
+    const handleFinish = async () => {
     // Award 100 points
     updateUser((u: any) => ({ ...u, points: u.points + 100 }));
     
-    // Create logbook entry
-    const now = new Date();
-    const newEntry = {
-      id: Date.now(),
-      type: 'daily_reflection',
-      date: now.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
-      day: now.toLocaleDateString('id-ID', { weekday: 'long' }),
-      time: now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
-      mood: mood,
-      blockers: blockers,
-      notes: notes,
-      taskCount: state?.priorities.filter((p: any) => p.done).length || 0,
-    };
-    
-    updateState((s: any) => ({
-      ...s,
-      logbook: [newEntry, ...(s.logbook || [])]
-    }));
+    // Create logbook entry in DB
+    try {
+      await fetch("/api/logbook", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: user?.id,
+          type: 'daily_reflection',
+          title: 'Refleksi Akhir Hari',
+          content: notes,
+          points: 100,
+          metadata: { mood, blockers, taskCount: state?.priorities.filter((p: any) => p.done).length || 0 }
+        })
+      });
+    } catch (e) {
+      console.error(e);
+    }
     
     onClose();
   };

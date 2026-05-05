@@ -14,6 +14,7 @@ import HPCard from "@/components/ui/HPCard";
 import HPAvatar from "@/components/ui/HPAvatar";
 import SectionHeader from "@/components/home/SectionHeader";
 import BlobBackground from "@/components/home/BlobBackground";
+import AnnouncementFeed from "@/components/home/AnnouncementFeed";
 
 interface Props { openModal: (name: string, props?: any) => void; }
 
@@ -213,6 +214,11 @@ export default function HRHomeScreen({ openModal }: Props) {
               </HPCard>
             ))}
           </div>
+        </div>
+
+        {/* Company News */}
+        <div style={{ marginTop: 16 }}>
+          <AnnouncementFeed />
         </div>
 
         {/* AI HR Coach */}

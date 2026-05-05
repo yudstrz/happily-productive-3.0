@@ -23,6 +23,7 @@ import SectionHeader from "@/components/home/SectionHeader";
 import PriorityCard from "@/components/home/PriorityCard";
 import InsightCard from "@/components/home/InsightCard";
 import HabitCell from "@/components/home/HabitCell";
+import AnnouncementFeed from "@/components/home/AnnouncementFeed";
 
 interface HomeScreenProps {
   tab: string;
@@ -242,6 +243,11 @@ export default function HomeScreen({ openModal }: any) {
           <IntentionCard state={state} setState={updateState}/>
         </div>
 
+        {/* Company News */}
+        <div style={{ marginTop: 24 }}>
+          <AnnouncementFeed />
+        </div>
+
         {/* LAYER 2 — Priorities as Daily Quests */}
         <div style={{ marginTop: 24 }}>
           <SectionHeader 
@@ -331,6 +337,16 @@ export default function HomeScreen({ openModal }: any) {
           }}>
             <HPGlyph name="book" size={18} color={HP_TOKENS.inkMute}/>
             <span>View Activity Logbook</span>
+          </button>
+
+          <button onClick={() => openModal('director_qa')} className="hp-tap" style={{
+            width: '100%', padding: '16px', borderRadius: 16,
+            background: HP_TOKENS.blueWash, color: HP_TOKENS.blue,
+            border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+            fontFamily: HP_FONT, fontWeight: 800, fontSize: 14,
+          }}>
+            <HPGlyph name="people" size={18} color={HP_TOKENS.blue}/>
+            <span>Tanya Direktur</span>
           </button>
         </div>
       </div>

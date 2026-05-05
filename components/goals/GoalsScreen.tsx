@@ -72,7 +72,11 @@ export default function GoalsScreen({ openModal }: GoalsScreenProps) {
         onAction={() => openModal('new_goal')}
       />
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        {filteredGoals.map((g: any) => <GoalCard key={g.id} g={g}/>)}
+        {filteredGoals.map((g: any) => (
+          <div key={g.id} onClick={() => openModal('new_goal', { goal: g })} className="hp-tap">
+            <GoalCard g={g}/>
+          </div>
+        ))}
         {filteredGoals.length === 0 && (
           <div style={{ textAlign: 'center', padding: '40px 20px', color: HP_TOKENS.inkMute }}>
             <div style={{ fontSize: 32, marginBottom: 12 }}>🌱</div>

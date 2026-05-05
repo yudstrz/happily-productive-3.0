@@ -71,9 +71,9 @@ export default function HRPeopleScreen({ openModal }: Props) {
 
   const managers = dbUsers.filter(u => u.role === 'manager');
 
-  const filtered = HR_ALL_EMPLOYEES.filter(e =>
+  const filtered = dbUsers.filter(e =>
     e.name.toLowerCase().includes(search.toLowerCase()) ||
-    e.dept.toLowerCase().includes(search.toLowerCase())
+    (e.department || "").toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -138,21 +138,33 @@ export default function HRPeopleScreen({ openModal }: Props) {
                         </select>
                       </div>
 
+                        </select>
+                      </div>
+
                       <div style={{ marginTop: 10 }}>
-                        <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkFade, fontWeight: 700, marginBottom: 4 }}>REPORT TO (MANAGER)</div>
-                        <select 
-                          value={u.manager_id || ""}
-                          onChange={(e) => handleUpdateUser(u.id, { managerId: e.target.value })}
+                        <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkFade, fontWeight: 700, marginBottom: 4 }}>JOB TITLE</div>
+                        <input 
+                          defaultValue={u.job_title || ""}
+                          onBlur={(e) => handleUpdateUser(u.id, { jobTitle: e.target.value })}
+                          placeholder="e.g. Product Designer"
                           style={{
                             width: '100%', padding: '8px', borderRadius: 10, border: `1px solid ${HP_TOKENS.line}`,
                             fontFamily: HP_FONT, fontSize: 11, fontWeight: 700, outline: 'none', background: '#fff'
                           }}
-                        >
-                          <option value="">-- Tanpa Manager --</option>
-                          {managers.map(m => (
-                            <option key={m.id} value={m.id}>{m.name}</option>
-                          ))}
-                        </select>
+                        />
+                      </div>
+
+                      <div style={{ marginTop: 10 }}>
+                        <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkFade, fontWeight: 700, marginBottom: 4 }}>DEPARTMENT</div>
+                        <input 
+                          defaultValue={u.department || ""}
+                          onBlur={(e) => handleUpdateUser(u.id, { department: e.target.value })}
+                          placeholder="e.g. Digital Experience"
+                          style={{
+                            width: '100%', padding: '8px', borderRadius: 10, border: `1px solid ${HP_TOKENS.line}`,
+                            fontFamily: HP_FONT, fontSize: 11, fontWeight: 700, outline: 'none', background: '#fff'
+                          }}
+                        />
                       </div>
                     </div>
                   </div>
@@ -290,9 +302,9 @@ export default function HRPeopleScreen({ openModal }: Props) {
           {/* Stats summary */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 12 }}>
             {[
-              { label: 'Total', value: HR_ALL_EMPLOYEES.length, color: HP_TOKENS.lavender },
-              { label: 'At Risk', value: HR_ALL_EMPLOYEES.filter(e => e.risk === 'high').length, color: HP_TOKENS.coral },
-              { label: 'Excellent', value: HR_ALL_EMPLOYEES.filter(e => e.engagement >= 85).length, color: HP_TOKENS.sage },
+              { label: 'Total', value: dbUsers.length, color: HP_TOKENS.lavender },
+              { label: 'Excellent', value: dbUsers.filter(e => (e.points || 0) >= 1000).length, color: HP_TOKENS.sage },
+              { label: 'Level 10+', value: dbUsers.filter(e => (e.level || 0) >= 10).length, color: HP_TOKENS.blue },
             ].map(s => (
               <div key={s.label} style={{
                 background: HP_TOKENS.lineSoft, borderRadius: 12, padding: '10px',
@@ -312,20 +324,20 @@ export default function HRPeopleScreen({ openModal }: Props) {
                   <div style={{ flex: 1 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                       <div style={{ ...HP_TEXT.h, fontSize: 13 }}>{e.name}</div>
-                      <div style={{ fontSize: 14 }}>{e.mood}</div>
+                      <div style={{ fontSize: 14 }}>{e.mood || "✨"}</div>
                     </div>
-                    <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute }}>{e.role} · {e.dept}</div>
+                    <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute }}>{e.job_title || "Team Member"} · {e.department || "Organization"}</div>
                     <div style={{ display: 'flex', gap: 6, marginTop: 4 }}>
-                      <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.sage }}>WB {e.wellbeing}</div>
-                      <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.blue }}>Eng {e.engagement}</div>
+                      <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.sage }}>Lvl {e.level || 1}</div>
+                      <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.blue }}>{e.points || 0} XP</div>
                     </div>
                   </div>
                   <div style={{
                     padding: '4px 10px', borderRadius: 10, fontSize: 10, fontWeight: 800, fontFamily: HP_FONT,
-                    background: e.risk === 'low' ? HP_TOKENS.sageSoft : e.risk === 'medium' ? HP_TOKENS.yellowSoft : HP_TOKENS.coralSoft,
-                    color: e.risk === 'low' ? HP_TOKENS.sage : e.risk === 'medium' ? '#8A6814' : HP_TOKENS.coral,
+                    background: HP_TOKENS.lineSoft,
+                    color: HP_TOKENS.inkSoft,
                   }}>
-                    {e.riskLabel}
+                    ACTIVE
                   </div>
                 </div>
               </HPCard>

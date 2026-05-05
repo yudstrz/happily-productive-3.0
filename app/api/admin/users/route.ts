@@ -13,11 +13,12 @@ export async function GET(request: Request) {
       args: [adminId]
     });
 
-    if (adminCheck.rows[0]?.role !== 'admin') {
+    const role = adminCheck.rows[0]?.role;
+    if (role !== 'admin' && role !== 'hr') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const res = await db.execute("SELECT id, name, email, role, level, points FROM users ORDER BY created_at DESC");
+    const res = await db.execute("SELECT id, name, email, role, level, points, job_title, department, manager_id FROM users ORDER BY created_at DESC");
     
     return NextResponse.json({ users: res.rows });
   } catch (error) {

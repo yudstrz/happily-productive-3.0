@@ -12,8 +12,24 @@ interface LogbookModalProps {
 }
 
 export default function LogbookModal({ onClose }: LogbookModalProps) {
-  const { state } = useHP();
-  const logbook = state?.logbook || [];
+  const { user } = useHP();
+  const [logbook, setLogbook] = React.useState<any[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const fetchLogs = async () => {
+      try {
+        const res = await fetch(`/api/logbook?userId=${user?.id}`);
+        const data = await res.json();
+        if (data.entries) setLogbook(data.entries);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (user?.id) fetchLogs();
+  }, [user?.id]);
 
   return (
     <Modal onClose={onClose} title="Logbook Personal 📋">
@@ -119,7 +135,8 @@ export default function LogbookModal({ onClose }: LogbookModalProps) {
               );
             }
 
-            const moodObj = HP_MOODS.find(m => m.key === entry.mood);
+            const meta = JSON.parse(entry.metadata_json || '{}');
+            const moodObj = HP_MOODS.find(m => m.key === meta.mood);
             return (
               <div key={entry.id} style={{
                 padding: 18, borderRadius: 24, background: HP_TOKENS.card,
@@ -131,29 +148,29 @@ export default function LogbookModal({ onClose }: LogbookModalProps) {
                       <HPGlyph name={moodObj?.glyph || 'activity'} size={24} color={HP_TOKENS.ink} />
                     </div>
                     <div>
-                      <div style={{ ...HP_TEXT.h, fontSize: 13 }}>{entry.day}, {entry.date}</div>
-                      <div style={{ ...HP_TEXT.small, fontSize: 11, color: HP_TOKENS.inkMute }}>Mood: {moodObj?.label || 'Unknown'} · {entry.time || '--:--'}</div>
+                      <div style={{ ...HP_TEXT.h, fontSize: 13 }}>{new Date(entry.created_at).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short' })}</div>
+                      <div style={{ ...HP_TEXT.small, fontSize: 11, color: HP_TOKENS.inkMute }}>Mood: {moodObj?.label || 'Unknown'} · {new Date(entry.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</div>
                     </div>
                   </div>
                   <div style={{ 
                     padding: '6px 12px', borderRadius: 99, background: HP_TOKENS.blueWash, 
                     color: HP_TOKENS.blue, fontSize: 11, fontWeight: 900 
                   }}>
-                    {entry.taskCount} Task Selesai
+                    {meta.taskCount || 0} Task Selesai
                   </div>
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                   <div>
                     <div style={{ ...HP_TEXT.small, fontWeight: 800, color: HP_TOKENS.coral, textTransform: 'uppercase', fontSize: 10, letterSpacing: '0.05em' }}>Hambatan</div>
-                    <div style={{ ...HP_TEXT.body, fontSize: 13, marginTop: 2, color: entry.blockers ? HP_TOKENS.ink : HP_TOKENS.inkFade }}>
-                      {entry.blockers || "Tidak ada hambatan."}
+                    <div style={{ ...HP_TEXT.body, fontSize: 13, marginTop: 2, color: meta.blockers ? HP_TOKENS.ink : HP_TOKENS.inkFade }}>
+                      {meta.blockers || "Tidak ada hambatan."}
                     </div>
                   </div>
                   <div>
                     <div style={{ ...HP_TEXT.small, fontWeight: 800, color: HP_TOKENS.blue, textTransform: 'uppercase', fontSize: 10, letterSpacing: '0.05em' }}>Catatan</div>
-                    <div style={{ ...HP_TEXT.body, fontSize: 13, marginTop: 2, color: entry.notes ? HP_TOKENS.ink : HP_TOKENS.inkFade }}>
-                      {entry.notes || "Tidak ada catatan."}
+                    <div style={{ ...HP_TEXT.body, fontSize: 13, marginTop: 2, color: entry.content ? HP_TOKENS.ink : HP_TOKENS.inkFade }}>
+                      {entry.content || "Tidak ada catatan."}
                     </div>
                   </div>
                 </div>

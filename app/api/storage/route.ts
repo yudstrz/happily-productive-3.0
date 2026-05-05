@@ -59,7 +59,7 @@ export async function GET(request: Request) {
       args: [userId]
     });
     const goals = goalsRes.rows.map(r => ({
-      id: r.id, title: r.title, progress: r.progress, alignment: r.alignment, due: r.due_date, tone: r.tone, metric: r.metric, scope: r.scope
+      id: r.id, title: r.title, progress: r.progress, alignment: r.alignment, due: r.due_date, tone: r.tone, metric: r.metric, scope: r.scope, parent_id: r.parent_id
     }));
 
     const surveysRes = await db.execute("SELECT * FROM surveys WHERE status = 'active'");
@@ -138,6 +138,22 @@ export async function POST(request: Request) {
         await db.execute({
           sql: `INSERT INTO habits (user_id, name, streak, target_days, is_done_today, glyph) VALUES (?, ?, ?, ?, ?, ?)`,
           args: [userId, h.name, h.streak, h.target, h.done ? 1 : 0, h.glyph]
+        });
+      }
+    }
+
+    // Sync Goals
+    if (state.goals) {
+      for (const g of state.goals) {
+        // We use INSERT OR REPLACE (UPSERT) logic
+        await db.execute({
+          sql: `INSERT INTO goals (id, owner_id, title, progress, alignment, due_date, tone, metric, scope, parent_id) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(id) DO UPDATE SET 
+                title=excluded.title, progress=excluded.progress, alignment=excluded.alignment, 
+                due_date=excluded.due_date, tone=excluded.tone, metric=excluded.metric, 
+                scope=excluded.scope, parent_id=excluded.parent_id`,
+          args: [String(g.id), userId, g.title, g.progress, g.alignment, g.due, g.tone, g.metric, g.scope, g.parent_id || null]
         });
       }
     }
