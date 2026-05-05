@@ -45,18 +45,18 @@ export default function DiceBearAvatar({ config, size = 100, mood }: DiceBearAva
   const svgString = useMemo(() => {
     const moodOverride = getMoodOverride(mood ?? null);
 
-    // Parse stored hex (without #)
-    const skinHex = config.skinColor.replace("#", "");
-    const hairHex = config.hairColor.replace("#", "");
-    const bgHex = config.backgroundColor.replace("#", "");
+    // Parse stored hex (without #) with safe fallbacks
+    const skinHex = (config.skinColor || "#f2d3b1").replace("#", "");
+    const hairHex = (config.hairColor || "#0e0e0e").replace("#", "");
+    const bgHex = (config.backgroundColor || "b6e3f4").replace("#", "");
 
     const avatar = createAvatar(adventurer, {
-      seed: config.seed,
+      seed: config.seed || "user",
       skinColor: [skinHex] as any,
       hairColor: [hairHex] as any,
-      hair: [config.hair] as any,
+      hair: [config.hair || "short01"] as any,
       eyes: [moodOverride.eyes] as any,
-      eyebrows: [config.eyebrows] as any,
+      eyebrows: [config.eyebrows || "variant01"] as any,
       mouth: [moodOverride.mouth] as any,
       backgroundColor: [bgHex] as any,
       ...(config.features ? { features: [config.features] as any, featuresProbability: 100 } : { featuresProbability: 0 }),
