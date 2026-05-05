@@ -11,9 +11,10 @@ interface ProfileEditorModalProps {
 }
 
 export default function ProfileEditorModal({ onClose }: ProfileEditorModalProps) {
-  const { user, updateUser } = useHP();
+  const { user, updateUser, logout } = useHP();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(user?.avatarImage || null);
+  const [name, setName] = useState(user?.name || "");
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -28,9 +29,10 @@ export default function ProfileEditorModal({ onClose }: ProfileEditorModalProps)
   };
 
   const handleSave = () => {
-    if (preview) {
-      updateUser({ avatarImage: preview });
-    }
+    updateUser({ 
+      name,
+      ...(preview !== undefined ? { avatarImage: preview } : {})
+    });
     onClose();
   };
 
@@ -40,8 +42,13 @@ export default function ProfileEditorModal({ onClose }: ProfileEditorModalProps)
     onClose();
   };
 
+  const handleLogout = () => {
+    logout();
+    onClose();
+  };
+
   return (
-    <Modal onClose={onClose} title="Edit Profile Image 📸">
+    <Modal onClose={onClose} title="Profil & Pengaturan ⚙️">
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24, marginTop: 20 }}>
         
         {/* Preview Area */}
@@ -84,6 +91,19 @@ export default function ProfileEditorModal({ onClose }: ProfileEditorModalProps)
           style={{ display: 'none' }} 
         />
 
+        <div style={{ width: '100%' }}>
+          <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkFade, fontWeight: 700, marginBottom: 6 }}>NAMA LENGKAP</div>
+          <input 
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Ketik nama Anda"
+            style={{
+              width: '100%', padding: '12px 16px', borderRadius: 12, border: `1px solid ${HP_TOKENS.line}`,
+              fontFamily: HP_FONT, fontSize: 14, fontWeight: 600, outline: 'none', background: HP_TOKENS.card
+            }}
+          />
+        </div>
+
         <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 12 }}>
           <button 
             onClick={handleSave}
@@ -96,7 +116,7 @@ export default function ProfileEditorModal({ onClose }: ProfileEditorModalProps)
             className="hp-tap"
           >
             <HPGlyph name="check" size={18} color={HP_TOKENS.ink} />
-            <span>Simpan Foto</span>
+            <span>Simpan Perubahan</span>
           </button>
 
           {user?.avatarImage && (
@@ -117,8 +137,23 @@ export default function ProfileEditorModal({ onClose }: ProfileEditorModalProps)
         </div>
 
         <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, textAlign: 'center', lineHeight: 1.5 }}>
-          Foto profil akan muncul di Dashboard, Goals, dan leaderboard tim.
+          Foto profil dan nama akan muncul di Dashboard, Goals, dan leaderboard tim.
         </div>
+
+        <button 
+          onClick={handleLogout}
+          style={{
+            width: '100%', padding: '16px', borderRadius: 16, marginTop: 12,
+            background: HP_TOKENS.coralSoft, color: HP_TOKENS.coral,
+            border: `1.5px solid ${HP_TOKENS.coral}40`, 
+            fontFamily: HP_FONT, fontWeight: 800, fontSize: 15,
+            cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10
+          }}
+          className="hp-tap"
+        >
+          <HPGlyph name="refresh" size={18} color={HP_TOKENS.coral} />
+          Keluar (Logout)
+        </button>
       </div>
     </Modal>
   );

@@ -53,7 +53,11 @@ export default function ManagerHomeScreen({ openModal }: Props) {
           </div>
           <div style={{ position: 'relative', zIndex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+              <div 
+                className="hp-tap"
+                onClick={() => openModal('profile_editor')}
+                style={{ display: 'flex', alignItems: 'center', gap: 14, cursor: 'pointer' }}
+              >
                 <HPAvatar name={user.name} size={52} rank={user.rank} />
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
