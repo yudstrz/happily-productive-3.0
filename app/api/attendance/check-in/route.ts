@@ -5,7 +5,7 @@ const OFFICE_LOCATION = {
   lat: -6.2000, // Placeholder: Jakarta coordinate
   lng: 106.8166
 };
-const MAX_DISTANCE_METERS = 200; // Allow 200m radius
+const MAX_DISTANCE_METERS = 100000; // Testing: Allow 100km radius
 
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number) {
   const R = 6371e3; // metres
