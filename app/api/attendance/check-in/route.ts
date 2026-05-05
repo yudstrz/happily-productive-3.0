@@ -2,10 +2,10 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/turso";
 
 const OFFICE_LOCATION = {
-  lat: -6.2000, // Placeholder: Jakarta coordinate
-  lng: 106.8166
+  lat: -6.9175, // Bandung center
+  lng: 107.6191
 };
-const MAX_DISTANCE_METERS = 100000; // Testing: Allow 100km radius
+const MAX_DISTANCE_METERS = 20000; // Allow 20km radius (Bandung area)
 
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number) {
   const R = 6371e3; // metres
