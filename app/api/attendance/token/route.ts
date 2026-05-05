@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from "uuid";
 export async function GET() {
   try {
     const token = uuidv4();
-    const expiresAt = new Date(Date.now() + 2 * 60 * 1000).toISOString(); // 2 minutes
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString(); // 5 minutes
 
     await db.execute({
       sql: "INSERT INTO attendance_tokens (token, expires_at) VALUES (?, ?)",

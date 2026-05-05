@@ -47,6 +47,18 @@ export default function HRAttendanceView({ currentUser }: HRAttendanceViewProps)
     }
   };
 
+  useEffect(() => {
+    if (!expiresAt) return;
+    
+    const checkExpiry = setInterval(() => {
+      if (new Date() >= expiresAt) {
+        generateQR();
+      }
+    }, 5000); // Check every 5 seconds
+
+    return () => clearInterval(checkExpiry);
+  }, [expiresAt]);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       
@@ -54,7 +66,7 @@ export default function HRAttendanceView({ currentUser }: HRAttendanceViewProps)
       <HPCard padding={20} style={{ textAlign: 'center', border: `1.5px solid ${HP_TOKENS.blue}40` }}>
         <div style={{ ...HP_TEXT.h, fontSize: 16, marginBottom: 8, color: HP_TOKENS.blue }}>QR Absensi Dinamis</div>
         <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, marginBottom: 20 }}>
-          Berlaku 2 menit. Karyawan wajib scan di area kantor.
+          Berlaku 5 menit. QR akan diperbarui otomatis saat kedaluwarsa.
         </div>
 
         {qrToken ? (

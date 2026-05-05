@@ -59,7 +59,7 @@ import ProfileEditorModal from "@/components/modals/ProfileEditorModal";
 import ManageSurveysModal from "@/components/modals/ManageSurveysModal";
 import TakeSurveyModal from "@/components/modals/TakeSurveyModal";
 import AttendanceScannerModal from "@/components/modals/AttendanceScannerModal";
-import DirectorQAModal from "@/components/modals/DirectorQAModal";
+
 
 // ─── Role pill badge colors ──────────────────────────────────────────────────
 const ROLE_META: Record<UserRole, { label: string; color: string; bg: string; glyph: string }> = {
@@ -211,7 +211,7 @@ function AppContent() {
       {modal?.name === 'take_survey'     && <TakeSurveyModal onClose={closeModal} {...modal.props} />}
       {modal?.name === 'skill_assessment' && <SkillAssessmentModal onClose={closeModal} skillName={modal.props?.skill} />}
       {modal?.name === 'attendance_scanner' && <AttendanceScannerModal onClose={closeModal} />}
-      {modal?.name === 'director_qa'      && <DirectorQAModal close={closeModal} />}
+
     </div>
   );
 }

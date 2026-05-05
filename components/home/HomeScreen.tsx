@@ -339,15 +339,6 @@ export default function HomeScreen({ openModal }: any) {
             <span>View Activity Logbook</span>
           </button>
 
-          <button onClick={() => openModal('director_qa')} className="hp-tap" style={{
-            width: '100%', padding: '16px', borderRadius: 16,
-            background: HP_TOKENS.blueWash, color: HP_TOKENS.blue,
-            border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-            fontFamily: HP_FONT, fontWeight: 800, fontSize: 14,
-          }}>
-            <HPGlyph name="people" size={18} color={HP_TOKENS.blue}/>
-            <span>Tanya Direktur</span>
-          </button>
         </div>
       </div>
     </div>
