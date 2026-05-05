@@ -14,10 +14,17 @@ interface GoalModalProps {
 }
 
 export default function GoalModal({ onClose }: GoalModalProps) {
-  const { updateState } = useHP();
+  const { state, updateState } = useHP();
   const [title, setTitle] = useState("");
   const [due, setDue] = useState("");
   const [scope, setScope] = useState("personal");
+  const [parentId, setParentId] = useState("");
+
+  const parentOptions = state?.goals.filter((g: any) => {
+    if (scope === 'personal') return g.scope === 'team' || g.scope === 'company';
+    if (scope === 'team') return g.scope === 'company';
+    return false;
+  }) || [];
 
   const save = () => {
     if (!title || !due) return;
@@ -30,12 +37,13 @@ export default function GoalModal({ onClose }: GoalModalProps) {
           id: Date.now(),
           title,
           progress: 0,
-          alignment: 80,
-          owner: scope === 'personal' ? "Sari" : scope === 'team' ? "Team" : "Management",
+          alignment: 100,
+          owner: "You",
           due,
           tone: scope === 'personal' ? "sage" : scope === 'team' ? "blue" : "yellow",
-          metric: "0 / 1 milestones",
+          metric: "0% complete",
           scope,
+          parent_id: parentId || null
         }
       ]
     }));
@@ -43,20 +51,20 @@ export default function GoalModal({ onClose }: GoalModalProps) {
   };
 
   const scopes = [
-    { key: 'personal', label: 'Saya' },
+    { key: 'personal', label: 'Personal' },
     { key: 'team', label: 'Tim' },
-    { key: 'company', label: 'Perusahaan' },
+    { key: 'company', label: 'Company' },
   ];
 
   return (
-    <Modal onClose={onClose} title="Tambah Goal Baru">
+    <Modal onClose={onClose} title="Tambah OKR Baru">
       <div style={{ marginTop: 4 }}>
-        <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, fontWeight: 700 }}>NAMA GOAL / OKR</div>
+        <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, fontWeight: 700 }}>NAMA OKR</div>
         <input 
           type="text" 
           value={title} 
           onChange={e => setTitle(e.target.value)}
-          placeholder="Misal: Launch Apps Redesign"
+          placeholder="Misal: Tingkatkan User Retention 20%"
           style={{
             width: '100%', marginTop: 10, padding: 14, borderRadius: 14,
             border: `1.5px solid ${HP_TOKENS.line}`, fontFamily: HP_FONT, fontSize: 14,
@@ -69,7 +77,7 @@ export default function GoalModal({ onClose }: GoalModalProps) {
           type="text" 
           value={due} 
           onChange={e => setDue(e.target.value)}
-          placeholder="Misal: 30 Apr"
+          placeholder="Misal: Q2 2026"
           style={{
             width: '100%', marginTop: 10, padding: 14, borderRadius: 14,
             border: `1.5px solid ${HP_TOKENS.line}`, fontFamily: HP_FONT, fontSize: 14,
@@ -77,12 +85,12 @@ export default function GoalModal({ onClose }: GoalModalProps) {
           }}
         />
 
-        <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, fontWeight: 700, marginTop: 20 }}>SCOPE / ROLE</div>
+        <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, fontWeight: 700, marginTop: 20 }}>SCOPE</div>
         <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
           {scopes.map(s => (
             <button
               key={s.key}
-              onClick={() => setScope(s.key)}
+              onClick={() => { setScope(s.key); setParentId(""); }}
               style={{
                 flex: 1, padding: '12px 8px', borderRadius: 12, border: 'none',
                 background: scope === s.key ? HP_TOKENS.ink : HP_TOKENS.lineSoft,
@@ -94,6 +102,26 @@ export default function GoalModal({ onClose }: GoalModalProps) {
             </button>
           ))}
         </div>
+
+        {parentOptions.length > 0 && (
+          <>
+            <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, fontWeight: 700, marginTop: 20 }}>ALIGN TO (PARENT OKR)</div>
+            <select
+              value={parentId}
+              onChange={e => setParentId(e.target.value)}
+              style={{
+                width: '100%', marginTop: 10, padding: 14, borderRadius: 14,
+                border: `1.5px solid ${HP_TOKENS.line}`, fontFamily: HP_FONT, fontSize: 14,
+                color: HP_TOKENS.ink, outline: 'none', background: HP_TOKENS.card, boxSizing: 'border-box',
+              }}
+            >
+              <option value="">-- Tanpa Parent --</option>
+              {parentOptions.map((p: any) => (
+                <option key={p.id} value={p.id}>{p.title} ({p.scope})</option>
+              ))}
+            </select>
+          </>
+        )}
 
         <button 
           onClick={save} 
@@ -107,7 +135,7 @@ export default function GoalModal({ onClose }: GoalModalProps) {
           }}
           className="hp-tap"
         >
-          Simpan Goal 🌱
+          Simpan OKR 🎯
         </button>
       </div>
     </Modal>

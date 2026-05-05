@@ -21,9 +21,55 @@ const TONE_SOFT: Record<string, string> = {
   yellow: HP_TOKENS.yellowSoft, coral: HP_TOKENS.coralSoft, lavender: HP_TOKENS.lavenderSoft,
 };
 
+import { useHP } from "@/lib/HPContext";
+import { useEffect } from "react";
+import HRAttendanceView from "@/components/goals/HRAttendanceView";
+
 export default function HRPeopleScreen({ openModal }: Props) {
-  const [activeTab, setActiveTab] = useState<'goals' | 'people' | 'dept'>('goals');
+  const { state, user: currentUser } = useHP();
+  const isAdminOrHR = currentUser?.role === 'admin' || currentUser?.role === 'hr';
+  const [activeTab, setActiveTab] = useState<'goals' | 'people' | 'dept' | 'surveys' | 'users'>(isAdminOrHR ? 'users' : 'goals');
   const [search, setSearch] = useState('');
+  const [dbUsers, setDbUsers] = useState<any[]>([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
+
+  useEffect(() => {
+    if (activeTab === 'users' && isAdminOrHR) {
+      fetchUsers();
+    }
+  }, [activeTab, isAdminOrHR]);
+
+  const fetchUsers = async () => {
+    setLoadingUsers(true);
+    try {
+      const res = await fetch(`/api/admin/users?adminId=${currentUser?.id}`);
+      const data = await res.json();
+      if (data.users) setDbUsers(data.users);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
+
+  const handleUpdateUser = async (targetUserId: string, updates: { newRole?: string, managerId?: string }) => {
+    try {
+      const res = await fetch("/api/admin/update-role", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          requesterId: currentUser?.id,
+          targetUserId,
+          ...updates
+        }),
+      });
+      if (res.ok) fetchUsers();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const managers = dbUsers.filter(u => u.role === 'manager');
 
   const filtered = HR_ALL_EMPLOYEES.filter(e =>
     e.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -32,26 +78,151 @@ export default function HRPeopleScreen({ openModal }: Props) {
 
   return (
     <div style={{ padding: '0 16px 120px', fontFamily: HP_FONT }}>
-      <ScreenHeader title="People" subtitle="Kelola karyawan & organisasi" />
+      <ScreenHeader 
+        title={isAdminOrHR ? "Management Console" : "People"} 
+        subtitle={isAdminOrHR ? "Kelola karyawan, role & pelaporan" : "Kelola karyawan & organisasi"} 
+      />
 
       {/* Tab switcher */}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-        {([
-          { key: 'goals', label: 'Org Goals' },
-          { key: 'people', label: 'Karyawan' },
-          { key: 'dept',   label: 'Departemen' },
-        ] as const).map(t => (
+      <div style={{ display: 'flex', gap: 6, marginBottom: 16, overflowX: 'auto', paddingBottom: 4 }}>
+        {[
+          isAdminOrHR && { key: 'users', label: 'Users & Roles' },
+          { key: 'attendance', label: 'Attendance' },
+          { key: 'goals',   label: 'Org Goals' },
+          { key: 'people',  label: 'Directory' },
+          { key: 'dept',    label: 'Pulse' },
+          { key: 'surveys', label: 'Surveys' },
+        ].filter(Boolean).map((t: any) => (
           <button key={t.key} onClick={() => setActiveTab(t.key)} className="hp-tap" style={{
-            flex: 1, padding: '10px 8px', borderRadius: 14,
+            flex: '0 0 auto', padding: '10px 16px', borderRadius: 14,
             background: activeTab === t.key ? HP_TOKENS.lavender : HP_TOKENS.lineSoft,
             color: activeTab === t.key ? '#fff' : HP_TOKENS.inkSoft,
-            border: 'none', fontFamily: HP_FONT, fontWeight: 800, fontSize: 12, cursor: 'pointer',
+            border: 'none', fontFamily: HP_FONT, fontWeight: 800, fontSize: 11, cursor: 'pointer',
             transition: 'all 0.2s',
           }}>
             {t.label}
           </button>
         ))}
       </div>
+
+      {/* ── Users (Admin/HR Only) ── */}
+      {activeTab === 'users' && isAdminOrHR && (
+        <>
+          <SectionHeader icon="people" label="Daftar Seluruh User" count={String(dbUsers.length)} />
+          {loadingUsers ? (
+            <div style={{ textAlign: 'center', padding: 40, color: HP_TOKENS.inkMute }}>Loading users...</div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {dbUsers.map(u => (
+                <HPCard key={u.id} padding={16}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                    <HPAvatar name={u.name} size={40} />
+                    <div style={{ flex: 1 }}>
+                      <div style={{ ...HP_TEXT.h, fontSize: 14 }}>{u.name}</div>
+                      <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute }}>{u.email}</div>
+                      
+                      <div style={{ marginTop: 10 }}>
+                        <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkFade, fontWeight: 700, marginBottom: 4 }}>ROLE</div>
+                        <select 
+                          value={u.role}
+                          onChange={(e) => handleUpdateUser(u.id, { newRole: e.target.value })}
+                          style={{
+                            width: '100%', padding: '8px', borderRadius: 10, border: `1px solid ${HP_TOKENS.line}`,
+                            fontFamily: HP_FONT, fontSize: 11, fontWeight: 700, outline: 'none', background: '#fff'
+                          }}
+                        >
+                          <option value="employee">Employee</option>
+                          <option value="manager">Manager</option>
+                          <option value="hr">HR</option>
+                          <option value="admin">Admin</option>
+                        </select>
+                      </div>
+
+                      <div style={{ marginTop: 10 }}>
+                        <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkFade, fontWeight: 700, marginBottom: 4 }}>REPORT TO (MANAGER)</div>
+                        <select 
+                          value={u.manager_id || ""}
+                          onChange={(e) => handleUpdateUser(u.id, { managerId: e.target.value })}
+                          style={{
+                            width: '100%', padding: '8px', borderRadius: 10, border: `1px solid ${HP_TOKENS.line}`,
+                            fontFamily: HP_FONT, fontSize: 11, fontWeight: 700, outline: 'none', background: '#fff'
+                          }}
+                        >
+                          <option value="">-- Tanpa Manager --</option>
+                          {managers.map(m => (
+                            <option key={m.id} value={m.id}>{m.name}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </HPCard>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+
+      {/* ── Attendance ── */}
+      {activeTab === 'attendance' && (
+        <HRAttendanceView currentUser={currentUser} />
+      )}
+
+      {/* ── Surveys ── */}
+      {activeTab === 'surveys' && (
+        <>
+          <HPCard style={{ background: HP_TOKENS.blueSoft, border: 'none', marginBottom: 14 }} padding={16}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ width: 36, height: 36, borderRadius: 10, background: HP_TOKENS.blue, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <HPGlyph name="book" size={18} color="#fff" />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ ...HP_TEXT.h, fontSize: 14, color: HP_TOKENS.blue }}>Engagement Surveys</div>
+                <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkSoft, fontWeight: 600, marginTop: 2 }}>
+                  Kirim survey ke seluruh karyawan
+                </div>
+              </div>
+            </div>
+          </HPCard>
+
+          <SectionHeader 
+            icon="book" 
+            label="Active Surveys" 
+            count={String(state?.surveys?.length || 0)} 
+            action="Manage" 
+            onAction={() => openModal('manage_surveys')} 
+          />
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {state?.surveys?.map((sr: any) => (
+              <HPCard key={sr.id} padding={16}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 12, background: HP_TOKENS.lineSoft, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <HPGlyph name="target" size={20} color={HP_TOKENS.inkMute} />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ ...HP_TEXT.h, fontSize: 14 }}>{sr.title}</div>
+                    <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, marginTop: 2 }}>
+                      Diterbitkan pada {new Date(sr.publishedAt).toLocaleDateString()}
+                    </div>
+                  </div>
+                  <div style={{
+                    padding: '4px 10px', borderRadius: 10, fontSize: 10, fontWeight: 800, fontFamily: HP_FONT,
+                    background: HP_TOKENS.sageSoft, color: HP_TOKENS.sage
+                  }}>
+                    ACTIVE
+                  </div>
+                </div>
+              </HPCard>
+            ))}
+            {(!state?.surveys || state.surveys.length === 0) && (
+              <div style={{ textAlign: 'center', padding: '40px 20px', color: HP_TOKENS.inkMute, border: `1.5px dashed ${HP_TOKENS.line}`, borderRadius: 20 }}>
+                Belum ada survey yang dibuat.
+              </div>
+            )}
+          </div>
+        </>
+      )}
 
       {/* ── Org Goals ── */}
       {activeTab === 'goals' && (

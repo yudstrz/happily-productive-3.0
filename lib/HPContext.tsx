@@ -12,6 +12,7 @@ interface HPState {
   goals: any[];
   habits: any[];
   weeklyPriorities: any[];
+  surveys: any[]; // NEW: For HR Surveys
   skills: any[];
   learning: any[];
   coaching: any;
@@ -26,28 +27,19 @@ interface HPState {
   penaltyThresholdDays: number; // How many days of inactivity before penalty triggers
 }
 
-export type UserRole = 'employee' | 'manager' | 'hr';
+export type UserRole = 'admin' | 'hr' | 'manager' | 'employee';
 
 interface HPUser {
+  id: string;
   name: string;
-  role: string;
+  role: UserRole;
   streak: number;
   points: number;
   level: number;
   rank: string;
   userRole?: UserRole | null;
-  avatarConfig?: {
-    seed: string;
-    skinColor: string;
-    hair: string;
-    hairColor: string;
-    eyes: string;
-    eyebrows: string;
-    mouth: string;
-    backgroundColor: string;
-    features?: string;
-    glasses?: string;
-  };
+  avatarImage?: string;
+  avatarConfig?: any;
 }
 
 interface HPContextType {
@@ -56,10 +48,13 @@ interface HPContextType {
   updateState: (update: Partial<HPState> | ((prev: HPState) => HPState)) => void;
   updateUser: (update: Partial<HPUser> | ((prev: HPUser) => HPUser)) => void;
   setUserRole: (role: UserRole) => void;
+  login: (userData: any) => void;
+  logout: () => void;
   loading: boolean;
   refresh: () => Promise<void>;
   resetData: () => Promise<void>;
   syncSkillProgress: (source: string, amount: number) => void;
+  awardXP: (actionType: string, description?: string) => Promise<void>;
 }
 
 const HPContext = createContext<HPContextType | undefined>(undefined);
@@ -69,42 +64,13 @@ export function HPProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<HPUser | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async (userId: string) => {
     try {
-      const res = await fetch("/api/storage");
+      const res = await fetch(`/api/storage?userId=${userId}`);
       const data = await res.json();
       if (data.state) setState(data.state);
       if (data.user) {
-        let finalUser = data.user;
-        let finalState = data.state || {};
-        
-        // Penalty Check Logic
-        if (data.state?.lastActivityDate) {
-          const last = new Date(data.state.lastActivityDate);
-          const now = new Date();
-          // Reset time to midnight for day comparison
-          last.setHours(0,0,0,0);
-          now.setHours(0,0,0,0);
-          
-          const diffDays = Math.floor((now.getTime() - last.getTime()) / (1000 * 60 * 60 * 24));
-          const threshold = data.state?.penaltyThresholdDays ?? 1;
-          
-          if (diffDays > threshold) {
-            // Penalty!
-            finalUser = {
-              ...data.user,
-              points: Math.max(0, data.user.points - 50),
-              streak: 0
-            };
-            finalState = {
-              ...finalState,
-              penaltyActive: true
-            };
-          }
-        }
-        
-        setUser(finalUser);
-        if (data.state) setState(finalState);
+        setUser(data.user);
       }
     } catch (error) {
       console.error("Failed to fetch state:", error);
@@ -114,16 +80,33 @@ export function HPProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    fetchData();
+    const savedUserId = localStorage.getItem("hp_user_id");
+    if (savedUserId) {
+      fetchData(savedUserId);
+    } else {
+      setLoading(false);
+    }
   }, [fetchData]);
+
+  const login = (userData: any) => {
+    setUser(userData);
+    localStorage.setItem("hp_user_id", userData.id);
+    fetchData(userData.id);
+  };
+
+  const logout = () => {
+    setUser(null);
+    setState(null);
+    localStorage.removeItem("hp_user_id");
+  };
 
   // Sync to API whenever state or user changes
   useEffect(() => {
-    if (!loading && (state || user)) {
+    if (!loading && user && (state || user)) {
       fetch("/api/storage", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ state, user }),
+        body: JSON.stringify({ state, user, userId: user.id }),
       });
     }
   }, [state, user, loading]);
@@ -220,8 +203,28 @@ export function HPProvider({ children }: { children: React.ReactNode }) {
     window.location.reload();
   };
 
+  const awardXP = async (actionType: string, description?: string) => {
+    if (!user) return;
+    try {
+      const res = await fetch("/api/xp/award", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: user.id, actionType, description }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        updateUser({ points: data.newTotal });
+      }
+    } catch (e) {
+      console.error("Failed to award XP:", e);
+    }
+  };
+
   return (
-    <HPContext.Provider value={{ state, user, updateState, updateUser, setUserRole, loading, refresh: fetchData, resetData, syncSkillProgress }}>
+    <HPContext.Provider value={{ 
+      state, user, updateState, updateUser, setUserRole, login, logout, awardXP,
+      loading, refresh: fetchData, resetData, syncSkillProgress 
+    }}>
       {children}
     </HPContext.Provider>
   );

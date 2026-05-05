@@ -12,13 +12,15 @@ interface GoalCardProps {
 }
 
 export default function GoalCard({ g }: GoalCardProps) {
-  const { updateState } = useHP();
+  const { state, updateState } = useHP();
   const tones: Record<string, string> = { 
     sage: HP_TOKENS.sage, 
     blue: HP_TOKENS.blue, 
     lavender: '#6B5F8E',
     yellow: HP_TOKENS.yellow
   };
+
+  const parentGoal = g.parent_id ? state?.goals.find((item: any) => String(item.id) === String(g.parent_id)) : null;
 
   const deleteGoal = () => {
     if (confirm(`Hapus goal "${g.title}"?`)) {
@@ -44,6 +46,16 @@ export default function GoalCard({ g }: GoalCardProps) {
               </div>
             </button>
           </div>
+          {parentGoal && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
+              <div style={{ width: 12, height: 12, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: 1.5, height: 6, background: HP_TOKENS.line, transform: 'rotate(90deg)' }} />
+              </div>
+              <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.blue, fontWeight: 800 }}>
+                Aligned to: {parentGoal.title}
+              </div>
+            </div>
+          )}
           <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, marginTop: 4 }}>
             {g.metric} · Due {g.due}
           </div>

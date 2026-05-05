@@ -81,7 +81,13 @@ export default function HPAvatar({
         zIndex: 1,
         overflow: 'hidden',
       }}>
-        {config ? (
+        {user?.avatarImage ? (
+          <img 
+            src={user.avatarImage} 
+            alt={name} 
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+          />
+        ) : config ? (
           <DiceBearAvatar 
             size={size * 1.2} 
             config={config}

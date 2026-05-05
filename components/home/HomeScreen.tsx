@@ -35,7 +35,7 @@ const iconBtnStyle: React.CSSProperties = {
 };
 
 export default function HomeScreen({ openModal }: any) {
-  const { state, updateState, updateUser, user, syncSkillProgress } = useHP();
+  const { state, updateState, updateUser, user, syncSkillProgress, awardXP } = useHP();
   const [greeting, setGreeting] = useState('');
   const [confetti, setConfetti] = useState(false);
 
@@ -66,15 +66,13 @@ export default function HomeScreen({ openModal }: any) {
   const togglePriority = (id: number) => {
     updateState((s: any) => {
       const pIndex = s.priorities.findIndex((p: any) => p.id === id);
-      const wasDone = s.priorities[pIndex].done;
-      const pointsToAward = s.priorities[pIndex].points || 50;
+      const priority = s.priorities[pIndex];
+      const wasDone = priority.done;
       
       if (!wasDone) { 
         setConfetti(true); 
         setTimeout(() => setConfetti(false), 1200); 
-        updateUser((u: any) => ({ ...u, points: u.points + pointsToAward }));
-      } else {
-        updateUser((u: any) => ({ ...u, points: Math.max(0, u.points - pointsToAward) }));
+        awardXP('priority_complete', `Selesaikan: ${priority.title}`);
       }
       const newPriorities = [...s.priorities];
       newPriorities[pIndex] = { ...newPriorities[pIndex], done: !wasDone };
@@ -83,15 +81,14 @@ export default function HomeScreen({ openModal }: any) {
       if (!wasDone) {
         const now = new Date();
         update.lastActivityDate = now.toISOString();
-        update.penaltyActive = false; // Completing a quest clears penalty banner for the current view
-        syncSkillProgress(newPriorities[pIndex].title + " " + newPriorities[pIndex].goal, 2);
+        update.penaltyActive = false;
+        syncSkillProgress(newPriorities[pIndex].title + " " + (newPriorities[pIndex].goal || ""), 2);
 
-        // Create logbook entry for quest
         const newLog = {
           id: Date.now(),
           type: 'quest_completion',
           title: newPriorities[pIndex].title,
-          points: pointsToAward,
+          points: 50,
           date: now.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
           day: now.toLocaleDateString('id-ID', { weekday: 'long' }),
           time: now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
@@ -114,18 +111,15 @@ export default function HomeScreen({ openModal }: any) {
       if (!wasDone) { 
         setConfetti(true); 
         setTimeout(() => setConfetti(false), 1200); 
-        
-        // Award 20 points
-        updateUser((u: any) => ({ ...u, points: u.points + 20 }));
+        awardXP('habit_complete', `Latihan: ${name}`);
 
-        // Create logbook entry
         const now = new Date();
         const newLog = {
           id: Date.now(),
           type: 'habit_completion',
           habitName: name,
           glyph: habit.glyph,
-          points: 20,
+          points: 30,
           date: now.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
           day: now.toLocaleDateString('id-ID', { weekday: 'long' }),
           time: now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
@@ -133,7 +127,6 @@ export default function HomeScreen({ openModal }: any) {
 
         return { ...s, habits: newHabits, logbook: [newLog, ...(s.logbook || [])], lastActivityDate: now.toISOString(), penaltyActive: false };
       } else {
-        updateUser((u: any) => ({ ...u, points: Math.max(0, u.points - 20) }));
         return { ...s, habits: newHabits };
       }
     });
@@ -161,7 +154,11 @@ export default function HomeScreen({ openModal }: any) {
           boxShadow: '0 8px 24px rgba(0,0,0,0.02)',
           position: 'relative',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+          <div 
+            onClick={() => openModal('profile_editor')}
+            className="hp-tap"
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, cursor: 'pointer' }}
+          >
             <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
               <div style={{ position: 'relative' }}>
                 <HPAvatar 
@@ -214,6 +211,20 @@ export default function HomeScreen({ openModal }: any) {
               <div style={{ ...HP_TEXT.h, fontSize: 24 }}>{user.points.toLocaleString()}</div>
             </div>
           </div>
+
+          {/* Check-in Button */}
+          <button 
+            onClick={() => openModal('attendance_scanner')}
+            style={{
+              width: '100%', padding: '14px', borderRadius: 16, background: HP_TOKENS.ink, color: '#fff',
+              border: 'none', fontFamily: HP_FONT, fontWeight: 800, fontSize: 14, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)', marginTop: 12
+            }} className="hp-tap"
+          >
+            <HPGlyph name="target" size={18} color="#fff" />
+            Check-in Office (QR)
+          </button>
         </div>
 
         {/* HERO — Emotional check-in */}

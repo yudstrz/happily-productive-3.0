@@ -6,6 +6,7 @@ import { HP_TOKENS, HP_FONT } from "@/lib/constants";
 
 // Auth
 import RoleSelectScreen from "@/components/auth/RoleSelectScreen";
+import AuthScreen from "@/components/auth/AuthScreen";
 
 // UI
 import HPGlyph from "@/components/ui/HPGlyph";
@@ -56,16 +57,21 @@ import LogbookModal from "@/components/modals/LogbookModal";
 import SystemGuideModal from "@/components/modals/SystemGuideModal";
 import SkillAssessmentModal from "@/components/modals/SkillAssessmentModal";
 import AvatarEditorModal from "@/components/modals/AvatarEditorModal";
+import ProfileEditorModal from "@/components/modals/ProfileEditorModal";
+import ManageSurveysModal from "@/components/modals/ManageSurveysModal";
+import TakeSurveyModal from "@/components/modals/TakeSurveyModal";
+import AttendanceScannerModal from "@/components/modals/AttendanceScannerModal";
 
 // ─── Role pill badge colors ──────────────────────────────────────────────────
 const ROLE_META: Record<UserRole, { label: string; color: string; bg: string; glyph: string }> = {
+  admin:    { label: 'Admin',    color: HP_TOKENS.coral, bg: HP_TOKENS.coral + '15', glyph: 'sparkle' },
   employee: { label: 'Employee', color: HP_TOKENS.yellow, bg: HP_TOKENS.yellowSoft, glyph: 'target' },
   manager:  { label: 'Manager',  color: HP_TOKENS.blue, bg: HP_TOKENS.blueSoft,  glyph: 'people' },
   hr:       { label: 'HR',       color: '#7B6BB5',       bg: '#EDE8F5',           glyph: 'medal' },
 };
 
 function AppContent() {
-  const { state, loading, user, setUserRole } = useHP();
+  const { state, loading, user, login, setUserRole } = useHP();
   const [tab, setTab] = useState('home');
   const [modal, setModal] = useState<{ name: string; props?: any } | null>(null);
   const [switchingRole, setSwitchingRole] = useState(false);
@@ -74,7 +80,16 @@ function AppContent() {
   const closeModal = () => setModal(null);
 
   // ── Loading splash ─────────────────────────────────────────────────────────
-  if (loading || !state) return <div style={{ background: HP_TOKENS.paper, height: '100vh' }} />;
+  if (loading) return (
+    <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: HP_TOKENS.paper }}>
+      <div className="hp-bounce" style={{ width: 40, height: 40, background: HP_TOKENS.yellow, borderRadius: 12 }} />
+    </div>
+  );
+
+  // ── Auth Check ─────────────────────────────────────────────────────────────
+  if (!user) {
+    return <AuthScreen onLogin={login} />;
+  }
 
   // ── Role selection ─────────────────────────────────────────────────────────
   const currentRole = user?.userRole as UserRole | null | undefined;
@@ -95,6 +110,11 @@ function AppContent() {
   const pad = { paddingTop: 58 };
 
   const renderScreen = () => {
+    // Admin
+    if (currentRole === 'admin') {
+      if (tab === 'home') return <div style={pad}><HRHomeScreen openModal={openModal} /></div>; // Placeholder
+      if (tab === 'goals') return <div style={pad}><HRPeopleScreen openModal={openModal} /></div>; // Admin can manage people
+    }
     // Employee
     if (currentRole === 'employee') {
       if (tab === 'home')      return <div style={pad}><HomeScreen tab={tab} openModal={openModal} /></div>;
@@ -203,7 +223,11 @@ function AppContent() {
       {modal?.name === 'logbook'          && <LogbookModal onClose={closeModal} />}
       {modal?.name === 'system_guide'     && <SystemGuideModal onClose={closeModal} />}
       {modal?.name === 'avatar_editor'    && <AvatarEditorModal onClose={closeModal} />}
+      {modal?.name === 'profile_editor'   && <ProfileEditorModal onClose={closeModal} />}
+      {modal?.name === 'manage_surveys'   && <ManageSurveysModal onClose={closeModal} />}
+      {modal?.name === 'take_survey'     && <TakeSurveyModal onClose={closeModal} {...modal.props} />}
       {modal?.name === 'skill_assessment' && <SkillAssessmentModal onClose={closeModal} skillName={modal.props?.skill} />}
+      {modal?.name === 'attendance_scanner' && <AttendanceScannerModal onClose={closeModal} />}
     </div>
   );
 }

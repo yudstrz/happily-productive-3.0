@@ -167,6 +167,40 @@ export default function WellbeingScreen({ openModal }: WellbeingScreenProps) {
         )}
       </div>
 
+      {/* Surveys Section */}
+      {state.surveys && state.surveys.length > 0 && (
+        <>
+          <SectionHeader 
+            icon="book" 
+            label="Survey untuk kamu" 
+            count={String(state.surveys.length)}
+          />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {state.surveys.map((sr: any) => (
+              <HPCard 
+                key={sr.id} 
+                padding={16} 
+                onClick={() => openModal('take_survey', { survey: sr })}
+                style={{ cursor: 'pointer', border: `1.5px solid ${HP_TOKENS.blue}40` }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                  <div style={{ width: 44, height: 44, borderRadius: 12, background: HP_TOKENS.blueSoft, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <HPGlyph name="book" size={22} color={HP_TOKENS.blue} />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ ...HP_TEXT.h, fontSize: 15 }}>{sr.title}</div>
+                    <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkSoft, fontWeight: 600, marginTop: 2 }}>
+                      Klik untuk isi survey (Google Forms)
+                    </div>
+                  </div>
+                  <HPGlyph name="arrow" size={18} color={HP_TOKENS.inkMute}/>
+                </div>
+              </HPCard>
+            ))}
+          </div>
+        </>
+      )}
+
       <SectionHeader 
         icon="book" 
         label="Jurnal & refleksi"

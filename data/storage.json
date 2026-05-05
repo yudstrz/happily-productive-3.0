@@ -74,6 +74,7 @@
       { "id": 3, "text": "Mentoring session dengan Rizky", "done": true },
       { "id": 4, "text": "Research interview × 3", "done": false }
     ],
+    "surveys": [],
     "habits": [
 
       { "name": "Tidur 7+ jam", "streak": 8, "target": 7, "done": true, "emoji": "🌙" },
@@ -131,6 +132,7 @@
     "points": 1340,
     "level": 11,
     "rank": "D",
-    "userRole": null
+    "userRole": null,
+    "avatarImage": null
   }
 }

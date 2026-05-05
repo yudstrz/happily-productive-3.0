@@ -17,6 +17,8 @@ interface ManageWeeklyModalProps {
 export default function ManageWeeklyModal({ onClose }: ManageWeeklyModalProps) {
   const { state, updateState } = useHP();
   const [newText, setNewText] = useState("");
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editText, setEditText] = useState("");
 
   const addWeekly = () => {
     if (!newText) return;
@@ -46,6 +48,22 @@ export default function ManageWeeklyModal({ onClose }: ManageWeeklyModalProps) {
     }));
   };
 
+  const startEdit = (w: any) => {
+    setEditingId(w.id);
+    setEditText(w.text);
+  };
+
+  const saveEdit = () => {
+    if (!editText.trim()) return;
+    updateState((s: any) => ({
+      ...s,
+      weeklyPriorities: s.weeklyPriorities.map((w: any) => 
+        w.id === editingId ? { ...w, text: editText } : w
+      )
+    }));
+    setEditingId(null);
+  };
+
   if (!state || !state.weeklyPriorities) return null;
 
   return (
@@ -64,33 +82,66 @@ export default function ManageWeeklyModal({ onClose }: ManageWeeklyModalProps) {
                 transition: 'all 0.2s ease'
               }}
             >
-              <button 
-                onClick={() => toggleWeekly(w.id)}
-                style={{ 
-                  width: 24, height: 24, borderRadius: 8, 
-                  background: w.done ? HP_TOKENS.sage : 'transparent',
-                  border: `2px solid ${w.done ? HP_TOKENS.sage : HP_TOKENS.line}`,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  padding: 0, cursor: 'pointer', transition: 'all 0.2s'
-                }}
-                className="hp-tap"
-              >
-                {w.done && <HPGlyph name="check" size={12} color="#fff" stroke={3}/>}
-              </button>
-              <div style={{ 
-                flex: 1, ...HP_TEXT.body, fontSize: 14, fontWeight: 600, 
-                color: w.done ? HP_TOKENS.inkFade : HP_TOKENS.ink,
-                textDecoration: w.done ? 'line-through' : 'none'
-              }}>
-                {w.text}
-              </div>
-              <button 
-                onClick={() => deleteWeekly(w.id)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center' }}
-                className="hp-tap"
-              >
-                <HPGlyph name="trash" size={16} color={HP_TOKENS.coral}/>
-              </button>
+              {editingId === w.id ? (
+                <>
+                  <input 
+                    autoFocus
+                    value={editText}
+                    onChange={(e) => setEditText(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && saveEdit()}
+                    style={{
+                      flex: 1, padding: '8px 12px', borderRadius: 10, border: `1.5px solid ${HP_TOKENS.blue}`,
+                      fontFamily: HP_FONT, fontSize: 14, outline: 'none'
+                    }}
+                  />
+                  <button 
+                    onClick={saveEdit}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}
+                    className="hp-tap"
+                  >
+                    <HPGlyph name="check" size={18} color={HP_TOKENS.sage}/>
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button 
+                    onClick={() => toggleWeekly(w.id)}
+                    style={{ 
+                      width: 24, height: 24, borderRadius: 8, 
+                      background: w.done ? HP_TOKENS.sage : 'transparent',
+                      border: `2px solid ${w.done ? HP_TOKENS.sage : HP_TOKENS.line}`,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      padding: 0, cursor: 'pointer', transition: 'all 0.2s'
+                    }}
+                    className="hp-tap"
+                  >
+                    {w.done && <HPGlyph name="check" size={12} color="#fff" stroke={3}/>}
+                  </button>
+                  <div style={{ 
+                    flex: 1, ...HP_TEXT.body, fontSize: 14, fontWeight: 600, 
+                    color: w.done ? HP_TOKENS.inkFade : HP_TOKENS.ink,
+                    textDecoration: w.done ? 'line-through' : 'none'
+                  }}>
+                    {w.text}
+                  </div>
+                  <div style={{ display: 'flex', gap: 4 }}>
+                    <button 
+                      onClick={() => startEdit(w)}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}
+                      className="hp-tap"
+                    >
+                      <HPGlyph name="refresh" size={16} color={HP_TOKENS.inkMute}/>
+                    </button>
+                    <button 
+                      onClick={() => deleteWeekly(w.id)}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}
+                      className="hp-tap"
+                    >
+                      <HPGlyph name="trash" size={16} color={HP_TOKENS.coral}/>
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           ))}
           {state.weeklyPriorities.length === 0 && (
