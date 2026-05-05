@@ -24,7 +24,7 @@ export default function HRAttendanceView({ currentUser }: HRAttendanceViewProps)
   const fetchLogs = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/attendance/logs?userId=${currentUser?.id}`);
+      const res = await fetch(`/api/attendance/logs?userId=${currentUser?.id}`, { cache: 'no-store' });
       const data = await res.json();
       if (data.logs) setLogs(data.logs);
     } catch (e) {

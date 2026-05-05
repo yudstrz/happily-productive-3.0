@@ -29,21 +29,32 @@ export async function GET(request: Request) {
         ORDER BY a.check_in_at DESC
       `;
     } else if (role === 'manager') {
-      // Manager sees subordinates
+      // Manager sees subordinates + themselves
       query = `
         SELECT a.*, u.name as user_name, u.email as user_email 
         FROM attendance a 
         JOIN users u ON a.user_id = u.id 
-        WHERE u.manager_id = ? 
+        WHERE u.manager_id = ? OR a.user_id = ?
+        ORDER BY a.check_in_at DESC
+      `;
+      args = [userId, userId];
+    } else {
+      // Regular employees see only THEIR OWN logs
+      query = `
+        SELECT a.*, u.name as user_name, u.email as user_email 
+        FROM attendance a 
+        JOIN users u ON a.user_id = u.id 
+        WHERE a.user_id = ?
         ORDER BY a.check_in_at DESC
       `;
       args = [userId];
-    } else {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
     const res = await db.execute({ sql: query, args });
-    return NextResponse.json({ logs: res.rows });
+    return NextResponse.json(
+      { logs: res.rows },
+      { headers: { 'Cache-Control': 'no-store, max-age=0' } }
+    );
   } catch (error) {
     console.error("Attendance Logs Error:", error);
     return NextResponse.json({ error: "Failed to fetch logs" }, { status: 500 });
