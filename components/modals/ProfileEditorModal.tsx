@@ -31,7 +31,7 @@ export default function ProfileEditorModal({ onClose }: ProfileEditorModalProps)
   const handleSave = () => {
     updateUser({ 
       name,
-      ...(preview !== undefined ? { avatarImage: preview } : {})
+      ...(preview !== undefined ? { avatarImage: preview ?? undefined } : {})
     });
     onClose();
   };
