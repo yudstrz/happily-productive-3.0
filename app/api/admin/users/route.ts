@@ -14,7 +14,7 @@ export async function GET(request: Request) {
     });
 
     const role = adminCheck.rows[0]?.role;
-    if (role !== 'admin' && role !== 'hr') {
+    if (role !== 'admin') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

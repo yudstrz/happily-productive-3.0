@@ -27,17 +27,18 @@ import HRAttendanceView from "@/components/goals/HRAttendanceView";
 
 export default function HRPeopleScreen({ openModal }: Props) {
   const { state, user: currentUser } = useHP();
-  const isAdminOrHR = currentUser?.role === 'admin' || currentUser?.role === 'hr';
-  const [activeTab, setActiveTab] = useState<'goals' | 'people' | 'dept' | 'surveys' | 'users' | 'attendance'>(isAdminOrHR ? 'users' : 'goals');
+  const isAdmin = currentUser?.role === 'admin';
+  const isAdminOrHR = isAdmin || currentUser?.role === 'hr';
+  const [activeTab, setActiveTab] = useState<'goals' | 'people' | 'dept' | 'surveys' | 'users' | 'attendance'>(isAdmin ? 'users' : 'goals');
   const [search, setSearch] = useState('');
   const [dbUsers, setDbUsers] = useState<any[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
 
   useEffect(() => {
-    if (activeTab === 'users' && isAdminOrHR) {
+    if (activeTab === 'users' && isAdmin) {
       fetchUsers();
     }
-  }, [activeTab, isAdminOrHR]);
+  }, [activeTab, isAdmin]);
 
   const fetchUsers = async () => {
     setLoadingUsers(true);
@@ -86,7 +87,7 @@ export default function HRPeopleScreen({ openModal }: Props) {
       {/* Tab switcher */}
       <div style={{ display: 'flex', gap: 6, marginBottom: 16, overflowX: 'auto', paddingBottom: 4 }}>
         {[
-          isAdminOrHR && { key: 'users', label: 'Users & Roles' },
+          isAdmin && { key: 'users', label: 'Users & Roles' },
           { key: 'attendance', label: 'Attendance' },
           { key: 'goals',   label: 'Org Goals' },
           { key: 'people',  label: 'Directory' },
@@ -105,8 +106,8 @@ export default function HRPeopleScreen({ openModal }: Props) {
         ))}
       </div>
 
-      {/* ── Users (Admin/HR Only) ── */}
-      {activeTab === 'users' && isAdminOrHR && (
+      {/* ── Users (Admin Only) ── */}
+      {activeTab === 'users' && isAdmin && (
         <>
           <SectionHeader icon="people" label="Daftar Seluruh User" count={String(dbUsers.length)} />
           {loadingUsers ? (

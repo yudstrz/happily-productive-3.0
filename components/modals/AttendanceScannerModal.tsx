@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useRef } from "react";
 import { Html5QrcodeScanner, Html5Qrcode } from "html5-qrcode";
+import { QRCodeCanvas } from "qrcode.react";
 import Modal from "@/components/ui/Modal";
 import { HP_TOKENS, HP_FONT, HP_TEXT } from "@/lib/constants";
 import { useHP } from "@/lib/HPContext";
@@ -13,7 +14,7 @@ interface AttendanceScannerModalProps {
 
 export default function AttendanceScannerModal({ onClose }: AttendanceScannerModalProps) {
   const { user, awardXP } = useHP();
-  const [status, setStatus] = useState<'idle' | 'scanning' | 'verifying' | 'success' | 'error'>('idle');
+  const [status, setStatus] = useState<'idle' | 'scanning' | 'verifying' | 'success' | 'error' | 'show_qr'>('idle');
   const [errorMsg, setErrorMsg] = useState("");
   const [location, setLocation] = useState<{lat: number, lng: number} | null>(null);
   
@@ -101,6 +102,19 @@ export default function AttendanceScannerModal({ onClose }: AttendanceScannerMod
     }
   };
 
+  const downloadQR = () => {
+    const canvas = document.getElementById("my-qr") as HTMLCanvasElement;
+    if (canvas) {
+      const pngUrl = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+      let downloadLink = document.createElement("a");
+      downloadLink.href = pngUrl;
+      downloadLink.download = `QR_Absen_${user?.name?.replace(/\s+/g, '_') || 'Karyawan'}.png`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+    }
+  };
+
   return (
     <Modal onClose={onClose} title="Attendance Check-in">
       <div style={{ padding: '10px 0' }}>
@@ -139,6 +153,30 @@ export default function AttendanceScannerModal({ onClose }: AttendanceScannerMod
                   <div style={{ ...HP_TEXT.h, fontSize: 14 }}>Memverifikasi...</div>
                 </div>
               )}
+
+              {status === 'show_qr' && (
+                <div style={{ 
+                  position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column',
+                  alignItems: 'center', justifyContent: 'center', background: '#fff', zIndex: 10
+                }}>
+                  <QRCodeCanvas 
+                    id="my-qr" 
+                    value={user?.id || "unknown_user"} 
+                    size={200} 
+                    level={"H"} 
+                    includeMargin={true}
+                  />
+                  <button onClick={downloadQR} style={{
+                    marginTop: 16, padding: '10px 20px', borderRadius: 99,
+                    background: HP_TOKENS.sage, color: '#fff', border: 'none',
+                    fontFamily: HP_FONT, fontWeight: 800, fontSize: 13, cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', gap: 8
+                  }}>
+                    <HPGlyph name="download" size={16} color="#fff" />
+                    Download QR
+                  </button>
+                </div>
+              )}
             </div>
 
             {status === 'error' && (
@@ -174,11 +212,20 @@ export default function AttendanceScannerModal({ onClose }: AttendanceScannerMod
                       width: '100%', padding: '16px', borderRadius: 99,
                       background: 'transparent', color: HP_TOKENS.blue, 
                       border: `1.5px solid ${HP_TOKENS.blue}`,
-                      fontFamily: HP_FONT, fontWeight: 800, fontSize: 15,
+                      fontFamily: HP_FONT, fontWeight: 800, fontSize: 15, cursor: 'pointer'
                     }}>
                       Upload Gambar QR
                     </button>
                   </div>
+                  
+                  <button onClick={() => setStatus('show_qr')} style={{
+                    width: '100%', padding: '16px', borderRadius: 99,
+                    background: 'transparent', color: HP_TOKENS.inkFade, border: 'none',
+                    fontFamily: HP_FONT, fontWeight: 800, fontSize: 15, cursor: 'pointer',
+                    textDecoration: 'underline'
+                  }}>
+                    Tampilkan QR Saya
+                  </button>
                 </>
               ) : (
                 <button onClick={() => setStatus('idle')} style={{

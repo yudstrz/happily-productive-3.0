@@ -5,7 +5,6 @@ import { HPProvider, useHP, UserRole } from "@/lib/HPContext";
 import { HP_TOKENS, HP_FONT } from "@/lib/constants";
 
 // Auth
-import RoleSelectScreen from "@/components/auth/RoleSelectScreen";
 import AuthScreen from "@/components/auth/AuthScreen";
 
 // UI
@@ -74,7 +73,6 @@ function AppContent() {
   const { state, loading, user, login, setUserRole } = useHP();
   const [tab, setTab] = useState('home');
   const [modal, setModal] = useState<{ name: string; props?: any } | null>(null);
-  const [switchingRole, setSwitchingRole] = useState(false);
 
   const openModal  = (name: string, props?: any) => setModal({ name, props });
   const closeModal = () => setModal(null);
@@ -91,20 +89,8 @@ function AppContent() {
     return <AuthScreen onLogin={login} />;
   }
 
-  // ── Role selection ─────────────────────────────────────────────────────────
-  const currentRole = user?.userRole as UserRole | null | undefined;
-
-  if (!currentRole || switchingRole) {
-    return (
-      <RoleSelectScreen
-        onSelect={(role: UserRole) => {
-          setUserRole(role);
-          setSwitchingRole(false);
-          setTab('home');
-        }}
-      />
-    );
-  }
+  // ── Determine Role ─────────────────────────────────────────────────────────
+  const currentRole = (user?.role || 'employee') as UserRole;
 
   // ── Render screen by role + tab ─────────────────────────────────────────────
   const pad = { paddingTop: 58 };
@@ -154,24 +140,20 @@ function AppContent() {
         position: 'absolute', top: 10, right: 14, zIndex: 40,
         display: 'flex', alignItems: 'center', gap: 6,
       }}>
-        <button
-          onClick={() => setSwitchingRole(true)}
-          className="hp-tap"
+        <div
           style={{
             display: 'flex', alignItems: 'center', gap: 6,
             padding: '6px 12px', borderRadius: 99,
             background: meta.bg,
             border: `1.5px solid ${meta.color}30`,
-            cursor: 'pointer', fontFamily: HP_FONT, fontWeight: 800, fontSize: 11,
+            fontFamily: HP_FONT, fontWeight: 800, fontSize: 11,
             color: meta.color,
             boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
           }}
-          title="Ganti peran"
         >
           <HPGlyph name={meta.glyph} size={11} color={meta.color} />
           <span>{meta.label}</span>
-          <HPGlyph name="refresh" size={11} color={meta.color} />
-        </button>
+        </div>
       </div>
 
       {/* Main content */}
