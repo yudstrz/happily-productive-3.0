@@ -20,24 +20,15 @@ export async function GET(request: Request) {
     let query = "";
     let args: any[] = [];
 
-    if (role === 'admin' || role === 'hr') {
-      // HR/Admin sees everyone
+    if (role === 'admin' || role === 'hr' || role === 'manager') {
+      // HR, Admin, and Manager see EVERYONE
       query = `
         SELECT a.*, u.name as user_name, u.email as user_email 
         FROM attendance a 
         JOIN users u ON a.user_id = u.id 
         ORDER BY a.check_in_at DESC
       `;
-    } else if (role === 'manager') {
-      // Manager sees subordinates + themselves
-      query = `
-        SELECT a.*, u.name as user_name, u.email as user_email 
-        FROM attendance a 
-        JOIN users u ON a.user_id = u.id 
-        WHERE u.manager_id = ? OR a.user_id = ?
-        ORDER BY a.check_in_at DESC
-      `;
-      args = [userId, userId];
+      args = [];
     } else {
       // Regular employees see only THEIR OWN logs
       query = `
