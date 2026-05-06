@@ -208,7 +208,7 @@ function AppContent() {
       {modal?.name === 'logbook'          && <LogbookModal onClose={closeModal} />}
       {modal?.name === 'system_guide'     && <SystemGuideModal onClose={closeModal} />}
       {modal?.name === 'profile_editor'   && <ProfileEditorModal onClose={closeModal} />}
-      {modal?.name === 'manage_surveys'   && <ManageSurveysModal onClose={closeModal} />}
+      {modal?.name === 'manage_surveys'   && <ManageSurveysModal onClose={closeModal} {...modal.props} />}
       {modal?.name === 'take_survey'     && <TakeSurveyModal onClose={closeModal} {...modal.props} />}
       {modal?.name === 'skill_assessment' && <SkillAssessmentModal onClose={closeModal} skillName={modal.props?.skill} />}
       {modal?.name === 'attendance_scanner' && <AttendanceScannerModal onClose={closeModal} />}

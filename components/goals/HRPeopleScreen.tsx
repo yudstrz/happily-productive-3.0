@@ -223,11 +223,20 @@ export default function HRPeopleScreen({ openModal }: Props) {
                       Diterbitkan pada {new Date(sr.publishedAt).toLocaleDateString()}
                     </div>
                   </div>
-                  <div style={{
-                    padding: '4px 10px', borderRadius: 10, fontSize: 10, fontWeight: 800, fontFamily: HP_FONT,
-                    background: HP_TOKENS.sageSoft, color: HP_TOKENS.sage
-                  }}>
-                    ACTIVE
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    <button 
+                      onClick={() => openModal('manage_surveys', { editId: sr.id })}
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}
+                      className="hp-tap"
+                    >
+                      <HPGlyph name="sparkle" size={16} color={HP_TOKENS.blue}/>
+                    </button>
+                    <div style={{
+                      padding: '4px 10px', borderRadius: 10, fontSize: 10, fontWeight: 800, fontFamily: HP_FONT,
+                      background: HP_TOKENS.sageSoft, color: HP_TOKENS.sage
+                    }}>
+                      ACTIVE
+                    </div>
                   </div>
                 </div>
               </HPCard>

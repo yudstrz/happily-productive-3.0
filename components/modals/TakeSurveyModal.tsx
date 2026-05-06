@@ -45,17 +45,36 @@ export default function TakeSurveyModal({ onClose, survey }: TakeSurveyModalProp
           Loading…
         </iframe>
       </div>
-      <button
-        onClick={handleFinish}
-        style={{
-          width: '100%', marginTop: 20, padding: '16px', borderRadius: 99,
-          background: HP_TOKENS.blue, color: '#fff', border: 'none',
-          fontFamily: HP_FONT, fontWeight: 800, fontSize: 15, cursor: 'pointer',
-        }}
-        className="hp-tap"
-      >
-        Saya sudah mengisi survey & Ambil 100 XP 🎁
-      </button>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 16 }}>
+        <a 
+          href={survey.url} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            padding: '14px', borderRadius: 16, background: HP_TOKENS.blueSoft,
+            color: HP_TOKENS.blue, textDecoration: 'none', fontFamily: HP_FONT,
+            fontWeight: 800, fontSize: 14
+          }}
+          className="hp-tap"
+        >
+          <HPGlyph name="sparkle" size={16} color={HP_TOKENS.blue} />
+          Buka di Tab Baru
+        </a>
+
+        <button
+          onClick={handleFinish}
+          style={{
+            width: '100%', padding: '16px', borderRadius: 16,
+            background: HP_TOKENS.lavender, color: '#fff', border: 'none',
+            fontFamily: HP_FONT, fontWeight: 800, fontSize: 15, cursor: 'pointer',
+            boxShadow: '0 8px 20px rgba(123, 107, 181, 0.2)',
+          }}
+          className="hp-tap"
+        >
+          Saya sudah mengisi survey & Ambil 100 XP 🎁
+        </button>
+      </div>
     </Modal>
   );
 }

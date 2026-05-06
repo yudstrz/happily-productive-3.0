@@ -8,31 +8,59 @@ import HPGlyph from "@/components/ui/HPGlyph";
 
 interface ManageSurveysModalProps {
   onClose: () => void;
+  editId?: number;
 }
 
-export default function ManageSurveysModal({ onClose }: ManageSurveysModalProps) {
-  const { state, updateState } = useHP();
-  const [title, setTitle] = useState("");
-  const [url, setUrl] = useState("");
+export default function ManageSurveysModal({ onClose, editId }: ManageSurveysModalProps) {
+  const { state, refresh } = useHP();
+  
+  // Find the survey if editId is provided
+  const initialSurvey = editId ? state?.surveys?.find((s: any) => s.id === editId) : null;
 
-  const addSurvey = () => {
+  const [title, setTitle] = useState(initialSurvey?.title || "");
+  const [url, setUrl] = useState(initialSurvey?.url || "");
+  const [editingId, setEditingId] = useState<number | null>(editId || null);
+  const [saving, setSaving] = useState(false);
+
+  const saveSurvey = async () => {
     if (!title || !url) return;
-    updateState((s: any) => ({
-      ...s,
-      surveys: [
-        ...(s.surveys || []),
-        { id: Date.now(), title, url, publishedAt: new Date().toISOString(), status: 'active' }
-      ]
-    }));
-    setTitle("");
-    setUrl("");
+    setSaving(true);
+    try {
+      const method = editingId ? 'PUT' : 'POST';
+      const res = await fetch('/api/hr/surveys', {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: editingId, title, url, status: 'active' })
+      });
+      if (res.ok) {
+        setTitle("");
+        setUrl("");
+        setEditingId(null);
+        await refresh(); // Sync global state
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const deleteSurvey = (id: number) => {
-    updateState((s: any) => ({
-      ...s,
-      surveys: s.surveys.filter((sr: any) => sr.id !== id)
-    }));
+  const deleteSurvey = async (id: number) => {
+    if (!confirm("Hapus survey ini?")) return;
+    try {
+      const res = await fetch(`/api/hr/surveys?id=${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        await refresh();
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const startEdit = (sr: any) => {
+    setEditingId(sr.id);
+    setTitle(sr.title);
+    setUrl(sr.url);
   };
 
   if (!state || !state.surveys) return null;
@@ -60,13 +88,22 @@ export default function ManageSurveysModal({ onClose }: ManageSurveysModalProps)
                   Diterbitkan {new Date(sr.publishedAt).toLocaleDateString('id-ID')}
                 </div>
               </div>
-              <button 
-                onClick={() => deleteSurvey(sr.id)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}
-                className="hp-tap"
-              >
-                <HPGlyph name="trash" size={16} color={HP_TOKENS.coral}/>
-              </button>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button 
+                  onClick={() => startEdit(sr)}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}
+                  className="hp-tap"
+                >
+                  <HPGlyph name="sparkle" size={16} color={HP_TOKENS.blue}/>
+                </button>
+                <button 
+                  onClick={() => deleteSurvey(sr.id)}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}
+                  className="hp-tap"
+                >
+                  <HPGlyph name="trash" size={16} color={HP_TOKENS.coral}/>
+                </button>
+              </div>
             </div>
           ))}
           {state.surveys.length === 0 && (
@@ -76,7 +113,9 @@ export default function ManageSurveysModal({ onClose }: ManageSurveysModalProps)
           )}
         </div>
 
-        <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, fontWeight: 800, marginBottom: 12, letterSpacing: '0.05em' }}>TERBITKAN SURVEY BARU</div>
+        <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, fontWeight: 800, marginBottom: 12, letterSpacing: '0.05em' }}>
+          {editingId ? "EDIT SURVEY" : "TERBITKAN SURVEY BARU"}
+        </div>
         <div style={{ 
           display: 'flex', flexDirection: 'column', gap: 12, padding: '16px', 
           borderRadius: 22, background: HP_TOKENS.lavenderSoft, border: `1.5px solid ${HP_TOKENS.lavender}20`
@@ -104,20 +143,34 @@ export default function ManageSurveysModal({ onClose }: ManageSurveysModalProps)
           <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, padding: '0 4px', fontSize: 10 }}>
             Tips: Gunakan link yang sudah di-shorten atau link Google Form langsung.
           </div>
-          <button 
-            onClick={addSurvey}
-            disabled={!title || !url}
-            style={{
-              padding: '14px', borderRadius: 14, border: 'none',
-              background: HP_TOKENS.lavender, color: '#fff',
-              fontFamily: HP_FONT, fontWeight: 800, fontSize: 15, cursor: 'pointer',
-              opacity: (!title || !url) ? 0.5 : 1, transition: 'all 0.2s',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8
-            }}
-            className="hp-tap"
-          >
-             <HPGlyph name="plus" size={16} color="#fff"/> Terbitkan Survey
-          </button>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <button 
+              onClick={saveSurvey}
+              disabled={!title || !url || saving}
+              style={{
+                flex: 1, padding: '14px', borderRadius: 14, border: 'none',
+                background: HP_TOKENS.lavender, color: '#fff',
+                fontFamily: HP_FONT, fontWeight: 800, fontSize: 15, cursor: 'pointer',
+                opacity: (!title || !url || saving) ? 0.5 : 1, transition: 'all 0.2s',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8
+              }}
+              className="hp-tap"
+            >
+               <HPGlyph name={editingId ? "sparkle" : "plus"} size={16} color="#fff"/> {saving ? "Menyimpan..." : (editingId ? "Update Survey" : "Terbitkan Survey")}
+            </button>
+            {editingId && (
+              <button 
+                onClick={() => { setEditingId(null); setTitle(""); setUrl(""); }}
+                style={{
+                  padding: '14px 20px', borderRadius: 14, border: `1.5px solid ${HP_TOKENS.line}`,
+                  background: '#fff', color: HP_TOKENS.inkSoft,
+                  fontFamily: HP_FONT, fontWeight: 800, fontSize: 15, cursor: 'pointer'
+                }}
+              >
+                Batal
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </Modal>
