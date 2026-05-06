@@ -362,6 +362,7 @@ export default function AttendanceScannerModal({ onClose }: AttendanceScannerMod
                 </div>
               )}
             </div>
+          )}
 
             {status === 'error' && (
               <div style={{ 

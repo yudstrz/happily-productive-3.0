@@ -9,8 +9,6 @@ import HPGlyph from "@/components/ui/HPGlyph";
 import HPCard from "@/components/ui/HPCard";
 import { OpenLocationCode } from "open-location-code";
 
-const olc = new OpenLocationCode();
-
 // Fix Leaflet icons
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -80,7 +78,7 @@ export default function LeafletMap({ offices, onAddOffice, onDeleteOffice, onUpd
     const fullCodeMatch = query.match(/^[2-9C-FGHJ-MP-R-VWX]{8}\+[2-9C-FGHJ-MP-R-VWX]{2,3}$/i);
     if (fullCodeMatch) {
       try {
-        const decoded = olc.decode(query.toUpperCase());
+        const decoded = OpenLocationCode.decode(query.toUpperCase());
         setSearchResults([{
           lat: decoded.latitudeCenter,
           lon: decoded.longitudeCenter,
@@ -112,8 +110,8 @@ export default function LeafletMap({ offices, onAddOffice, onDeleteOffice, onUpd
          try {
            const refLat = parseFloat(data[0].lat);
            const refLon = parseFloat(data[0].lon);
-           const fullCode = olc.recoverNearest(shortCode, refLat, refLon);
-           const decoded = olc.decode(fullCode);
+           const fullCode = OpenLocationCode.recoverNearest(shortCode, refLat, refLon);
+           const decoded = OpenLocationCode.decode(fullCode);
            setSearchResults([{
              lat: decoded.latitudeCenter,
              lon: decoded.longitudeCenter,
