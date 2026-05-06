@@ -153,8 +153,11 @@ export function HPProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (user && (user.role === 'hr' || user.role === 'admin' || user.role === 'manager')) {
-      fetchDashboards(user.id, user.role);
+    if (user) {
+      const activeRole = user.userRole || user.role;
+      if (activeRole === 'hr' || activeRole === 'admin' || activeRole === 'manager') {
+        fetchDashboards(user.id, activeRole);
+      }
     }
   }, [user, fetchDashboards]);
 
