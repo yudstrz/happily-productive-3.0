@@ -155,9 +155,9 @@ export const MANAGER_TEAM_GOALS = [
 ];
 
 export const MANAGER_ONE_ON_ONES = [
-  { id: 1, with: 'Sari Wijaya', date: 'Rabu, 25 Apr', time: '14:00', topic: 'Career growth & Q2 goals', done: false },
-  { id: 2, with: 'Dian Kusuma', date: 'Kamis, 26 Apr', time: '10:00', topic: 'Check-in wellbeing & workload', done: false, urgent: true },
-  { id: 3, with: 'Rizky Hidayat', date: 'Jumat, 27 Apr', time: '15:00', topic: 'DS Migration update & blockers', done: false },
+  { id: 1, with: 'Sari Wijaya', date: 'Rabu, 25 Apr', time: '14:00', topic: 'Career growth & Q2 goals', done: false, meetLink: 'https://meet.google.com/abc-defg-hij' },
+  { id: 2, with: 'Dian Kusuma', date: 'Kamis, 26 Apr', time: '10:00', topic: 'Check-in wellbeing & workload', done: false, urgent: true, meetLink: 'https://meet.google.com/xyz-pdqr-mno' },
+  { id: 3, with: 'Rizky Hidayat', date: 'Jumat, 27 Apr', time: '15:00', topic: 'DS Migration update & blockers', done: false, meetLink: 'https://meet.google.com/uvw-stuv-wxyz' },
 ];
 
 export const MANAGER_TEAM_FEED = [

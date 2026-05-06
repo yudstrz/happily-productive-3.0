@@ -50,6 +50,7 @@ interface OneOnOneSession {
   time: string;
   topic: string;
   urgent?: boolean;
+  meetLink?: string;
 }
 
 export default function ManagerHomeScreen({ openModal }: Props) {
@@ -231,13 +232,21 @@ export default function ManagerHomeScreen({ openModal }: Props) {
                     <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, marginTop: 2 }}>{s.date} · {s.time}</div>
                     <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.blue, marginTop: 3 }}>{s.topic}</div>
                   </div>
-                  <button className="hp-tap" style={{
-                    padding: '8px 14px', borderRadius: 12, border: 'none',
-                    background: s.urgent ? HP_TOKENS.coral : HP_TOKENS.blue,
-                    color: '#fff', fontFamily: HP_FONT, fontWeight: 800, fontSize: 12, cursor: 'pointer',
-                  }}>
-                    Buka
+                  <button 
+                    onClick={() => s.meetLink && window.open(s.meetLink, '_blank')}
+                    className="hp-tap" 
+                    style={{
+                      padding: '8px 14px', borderRadius: 12, border: 'none',
+                      background: s.urgent ? HP_TOKENS.coral : HP_TOKENS.blue,
+                      color: '#fff', fontFamily: HP_FONT, fontWeight: 800, fontSize: 12, cursor: 'pointer',
+                      display: 'flex', alignItems: 'center', gap: 6,
+                      opacity: s.meetLink ? 1 : 0.5
+                    }}
+                  >
+                    <HPGlyph name="video" size={14} color="#fff" />
+                    Join
                   </button>
+
                 </div>
               </HPCard>
             ))}

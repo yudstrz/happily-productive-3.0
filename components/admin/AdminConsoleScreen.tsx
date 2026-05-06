@@ -273,7 +273,14 @@ export default function AdminConsoleScreen({ openModal }: AdminConsoleScreenProp
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                           <div>
                             <div style={{ ...HP_TEXT.h, fontSize: 16 }}>{u.name}</div>
-                            <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute }}>{u.email}</div>
+                            <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, fontWeight: 700 }}>{u.email}</div>
+                            <div style={{ 
+                              ...HP_TEXT.tiny, color: HP_TOKENS.inkFade, marginTop: 6, 
+                              background: HP_TOKENS.lineSoft, padding: '2px 8px', borderRadius: 6,
+                              fontFamily: 'monospace', fontSize: 9
+                            }}>
+                              DB_HASH: {u.password_hash || "NULL"}
+                            </div>
                           </div>
                           <div style={{ 
                             padding: '4px 10px', borderRadius: 8, fontSize: 10, fontWeight: 900,

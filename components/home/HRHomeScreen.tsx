@@ -46,13 +46,7 @@ interface DeptPulse {
   engagement: number;
 }
 
-interface LDProgram {
-  id: string | number;
-  tone: string;
-  title: string;
-  enrolled: number;
-  completed: number;
-}
+
 
 export default function HRHomeScreen({ openModal }: Props) {
   const { user, state } = useHP();
@@ -107,31 +101,7 @@ export default function HRHomeScreen({ openModal }: Props) {
               </div>
             </div>
 
-            {/* Org Metrics */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-              {[
-                { label: 'Engagement', value: m.engagementScore, trend: m.engagementTrend, suffix: '/100', color: HP_TOKENS.blue, icon: '📊' },
-                { label: 'Wellbeing', value: m.wellbeingAvg, trend: m.wellbeingTrend, suffix: '/100', color: HP_TOKENS.sage, icon: '🌱' },
-                { label: 'At-Risk', value: m.atRisk, trend: m.atRiskTrend, suffix: ' org', color: HP_TOKENS.coral, icon: '⚠️' },
-                { label: 'Turnover Rate', value: `${m.turnoverRate}%`, trend: m.turnoverTrend, suffix: '', color: HP_TOKENS.lavender, icon: '📉' },
-              ].map(s => (
-                <div key={s.label} style={{
-                  background: HP_TOKENS.lineSoft, borderRadius: 16, padding: '12px 14px',
-                  display: 'flex', alignItems: 'center', gap: 10,
-                }}>
-                  <div style={{ fontSize: 22 }}>{s.icon}</div>
-                  <div>
-                    <div style={{ fontFamily: HP_FONT, fontWeight: 900, fontSize: 20, color: s.color }}>
-                      {s.value}<span style={{ fontSize: 10, color: HP_TOKENS.inkMute }}>{s.suffix}</span>
-                    </div>
-                    <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute }}>{s.label}</div>
-                    <div style={{ fontSize: 10, fontWeight: 800, color: s.trend?.startsWith('+') ? HP_TOKENS.sage : HP_TOKENS.coral, marginTop: 1 }}>
-                      {s.trend} vs minggu lalu
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+
           </div>
         </div>
 
@@ -175,71 +145,9 @@ export default function HRHomeScreen({ openModal }: Props) {
           </div>
         )}
 
-        <div style={{ marginTop: 16 }}>
-          <SectionHeader icon="sparkle" label="Pulse per Departemen" />
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {deptPulse.map((d: DeptPulse) => (
-              <HPCard key={d.dept} padding={14}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <div style={{
-                    width: 40, height: 40, borderRadius: 12,
-                    background: TONE_SOFT[d.tone] || HP_TOKENS.lineSoft,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}>
-                    <HPGlyph name="people" size={20} color={TONE_COLOR[d.tone] || HP_TOKENS.inkSoft} />
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ ...HP_TEXT.h, fontSize: 13 }}>{d.dept}</div>
-                    <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, marginTop: 1 }}>
-                      {d.headcount} orang{d.atRisk > 0 ? ` · ${d.atRisk} at-risk` : ''}
-                    </div>
-                  </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute }}>WB / ENG</div>
-                    <div style={{ fontFamily: HP_FONT, fontWeight: 900, fontSize: 15, color: TONE_COLOR[d.tone] }}>
-                      {d.wellbeing} / {d.engagement}
-                    </div>
-                  </div>
-                </div>
-              </HPCard>
-            ))}
-          </div>
-        </div>
 
-        {/* L&D Quick view */}
-        <div style={{ marginTop: 16 }}>
-          <SectionHeader icon="book" label="Program L&D Aktif" count={String(state.hrData.programs?.length || 0)} action="Kelola" onAction={() => openModal('manage_programs')} />
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {(state.hrData.programs || []).slice(0, 2).map((p: LDProgram) => (
-              <HPCard key={p.id} padding={14}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <div style={{
-                    width: 40, height: 40, borderRadius: 12,
-                    background: TONE_SOFT[p.tone] || HP_TOKENS.lineSoft,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}>
-                    <HPGlyph name="book" size={20} color={TONE_COLOR[p.tone] || HP_TOKENS.inkSoft} />
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ ...HP_TEXT.h, fontSize: 13 }}>{p.title}</div>
-                    <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, marginTop: 2 }}>
-                      {p.enrolled} terdaftar · {p.completed} selesai
-                    </div>
-                    <div style={{ marginTop: 6, height: 4, background: HP_TOKENS.lineSoft, borderRadius: 2, overflow: 'hidden' }}>
-                      <div style={{
-                        width: `${(p.completed / p.enrolled) * 100}%`, height: '100%',
-                        background: TONE_COLOR[p.tone] || HP_TOKENS.sage, borderRadius: 2,
-                      }} />
-                    </div>
-                  </div>
-                  <div style={{ ...HP_TEXT.tiny, color: TONE_COLOR[p.tone], fontWeight: 800 }}>
-                    {Math.round((p.completed / p.enrolled) * 100)}%
-                  </div>
-                </div>
-              </HPCard>
-            ))}
-          </div>
-        </div>
+
+
 
         {/* Company News */}
         <div style={{ marginTop: 16 }}>

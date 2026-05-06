@@ -25,6 +25,13 @@ interface HPState {
   lastActivityDate: string | null;
   penaltyActive: boolean;
   penaltyThresholdDays: number;
+  workSchedule: {
+    start: string;
+    end: string;
+    breakStart: string;
+    breakEnd: string;
+  };
+  contacts: Array<{ id: string; name: string; role: string; email: string; phone: string }>;
   hrData?: any;
   managerData?: any;
 }
@@ -75,11 +82,19 @@ export function HPProvider({ children }: { children: React.ReactNode }) {
         setState({
           mood: null, energy: null, tag: null, intention: "",
           priorities: [], feed: [], goals: [], habits: [], weeklyPriorities: [],
-          surveys: [], skills: [], learning: [], coaching: {}, wellbeing: { dims: [], programs: [] },
+          surveys: [], skills: [], learning: [], coaching: { coachName: "Dewi Lestari", role: "Sr. Coach", time: "Jumat, 10:00", meetLink: "https://meet.google.com/abc-defg-hij" }, wellbeing: { dims: [], programs: [] },
+
           points: data.user?.points || 0, notifications: 0, rewards: [], rewardHistory: [],
           logbook: [], lastActivityDate: new Date().toISOString(),
-          penaltyActive: false, penaltyThresholdDays: 3
+          penaltyActive: false, penaltyThresholdDays: 3,
+          workSchedule: { start: "08:00", end: "17:00", breakStart: "12:00", breakEnd: "13:00" },
+          contacts: [
+            { id: '1', name: 'HR Helpdesk', role: 'Support & Admin', email: 'hr@company.com', phone: '021-1234567' },
+            { id: '2', name: 'IT Support', role: 'Technical Issues', email: 'it@company.com', phone: '0812-3456-7890' },
+            { id: '3', name: 'Security Office', role: 'Safety & Emergency', email: 'security@company.com', phone: '021-9876543' }
+          ]
         });
+
       }
       if (data.user) {
         setUser(data.user);

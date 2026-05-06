@@ -30,7 +30,7 @@ export default function HRPeopleScreen({ openModal }: Props) {
   const { state, user: currentUser } = useHP();
   const isAdmin = currentUser?.role === 'admin';
   const isAdminOrHR = isAdmin || currentUser?.role === 'hr';
-  const [activeTab, setActiveTab] = useState<'goals' | 'people' | 'dept' | 'surveys' | 'users' | 'attendance' | 'office'>(isAdmin ? 'users' : 'goals');
+  const [activeTab, setActiveTab] = useState<'goals' | 'people' | 'dept' | 'surveys' | 'users' | 'attendance' | 'office' | 'schedule' | 'contacts'>(isAdmin ? 'users' : 'goals');
   const [search, setSearch] = useState('');
   const [dbUsers, setDbUsers] = useState<any[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
@@ -91,9 +91,9 @@ export default function HRPeopleScreen({ openModal }: Props) {
           isAdmin && { key: 'users', label: 'Users & Roles' },
           { key: 'attendance', label: 'Attendance' },
           { key: 'office', label: 'Office' },
-          { key: 'goals',   label: 'Org Goals' },
+          { key: 'schedule', label: 'Work Hours' },
+          { key: 'contacts', label: 'Contacts' },
           { key: 'people',  label: 'Directory' },
-          { key: 'dept',    label: 'Pulse' },
           { key: 'surveys', label: 'Surveys' },
         ].filter(Boolean).map((t: any) => (
           <button key={t.key} onClick={() => setActiveTab(t.key)} className="hp-tap" style={{
@@ -241,43 +241,121 @@ export default function HRPeopleScreen({ openModal }: Props) {
         </>
       )}
 
-      {/* ── Org Goals ── */}
-      {activeTab === 'goals' && (
+      {/* ── Work Hours Settings ── */}
+      {activeTab === 'schedule' && (
         <>
-          <HPCard style={{ background: HP_TOKENS.lavenderSoft, border: 'none', marginBottom: 14 }} padding={16}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{ width: 36, height: 36, borderRadius: 10, background: HP_TOKENS.lavender, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <HPGlyph name="sparkle" size={18} color="#fff" />
+          <HPCard style={{ background: HP_TOKENS.sageSoft, border: 'none', marginBottom: 16 }} padding={16}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ width: 44, height: 44, borderRadius: 12, background: HP_TOKENS.sage, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <HPGlyph name="calendar" size={24} color="#fff" />
               </div>
               <div>
-                <div style={{ ...HP_TEXT.h, fontSize: 14, color: HP_TOKENS.lavender }}>4 Org-Wide Goals Aktif</div>
-                <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkSoft, fontWeight: 600, marginTop: 2 }}>
-                  Progress dipantau secara real-time
-                </div>
+                <div style={{ ...HP_TEXT.h, fontSize: 16 }}>Jam Kerja Organisasi</div>
+                <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkSoft }}>Set jam operasional & waktu istirahat</div>
               </div>
             </div>
           </HPCard>
 
-          <SectionHeader icon="target" label="Tujuan Organisasi" count={String(HR_ORG_GOALS.length)} action="+ Baru" onAction={() => openModal('new_goal')} />
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {HR_ORG_GOALS.map(g => (
-              <HPCard key={g.id} padding={16}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 10 }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ ...HP_TEXT.h, fontSize: 14 }}>{g.title}</div>
-                    <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, marginTop: 3 }}>
-                      {g.metric} · Due {g.due}
-                    </div>
-                  </div>
-                  <div style={{
-                    padding: '4px 10px', borderRadius: 10, fontSize: 11, fontWeight: 800, fontFamily: HP_FONT,
-                    background: TONE_SOFT[g.tone] || HP_TOKENS.lineSoft,
-                    color: TONE_COLOR[g.tone] || HP_TOKENS.inkSoft,
-                  }}>
-                    {g.progress}%
-                  </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <HPCard padding={16}>
+              <div style={{ ...HP_TEXT.h, fontSize: 14, marginBottom: 16 }}>Jam Operasional</div>
+              <div style={{ display: 'flex', gap: 12 }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, fontWeight: 700, marginBottom: 6 }}>JAM MULAI</div>
+                  <input 
+                    type="time" 
+                    value={state?.workSchedule?.start || "08:00"}
+                    onChange={(e) => updateState({ workSchedule: { ...(state?.workSchedule || {}), start: e.target.value } })}
+                    style={inputStyle}
+                  />
                 </div>
-                <HPBar value={g.progress} tone={g.tone as any} />
+                <div style={{ flex: 1 }}>
+                  <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, fontWeight: 700, marginBottom: 6 }}>JAM SELESAI</div>
+                  <input 
+                    type="time" 
+                    value={state?.workSchedule?.end || "17:00"}
+                    onChange={(e) => updateState({ workSchedule: { ...(state?.workSchedule || {}), end: e.target.value } })}
+                    style={inputStyle}
+                  />
+                </div>
+              </div>
+            </HPCard>
+
+            <HPCard padding={16}>
+              <div style={{ ...HP_TEXT.h, fontSize: 14, marginBottom: 16 }}>Waktu Istirahat</div>
+              <div style={{ display: 'flex', gap: 12 }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, fontWeight: 700, marginBottom: 6 }}>MULAI ISTIRAHAT</div>
+                  <input 
+                    type="time" 
+                    value={state?.workSchedule?.breakStart || "12:00"}
+                    onChange={(e) => updateState({ workSchedule: { ...(state?.workSchedule || {}), breakStart: e.target.value } })}
+                    style={inputStyle}
+                  />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, fontWeight: 700, marginBottom: 6 }}>SELESAI ISTIRAHAT</div>
+                  <input 
+                    type="time" 
+                    value={state?.workSchedule?.breakEnd || "13:00"}
+                    onChange={(e) => updateState({ workSchedule: { ...(state?.workSchedule || {}), breakEnd: e.target.value } })}
+                    style={inputStyle}
+                  />
+                </div>
+              </div>
+            </HPCard>
+          </div>
+          
+          <div style={{ marginTop: 20, padding: 16, borderRadius: 14, background: HP_TOKENS.paper, border: `1px solid ${HP_TOKENS.line}` }}>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <HPGlyph name="sparkle" size={18} color={HP_TOKENS.sage} />
+              <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkSoft }}>
+                Pengaturan ini akan muncul di dashboard setiap karyawan untuk membantu mereka mengatur ritme kerja & istirahat.
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+
+      {/* ── Contacts Management ── */}
+      {activeTab === 'contacts' && (
+        <>
+          <SectionHeader icon="phone" label="Kontak Organisasi" action="+ Tambah" onAction={() => {
+            const name = prompt("Nama Kontak:");
+            const role = prompt("Divisi/Peran:");
+            const email = prompt("Email:");
+            const phone = prompt("No Telepon:");
+            if (name && phone) {
+              updateState({ contacts: [...(state?.contacts || []), { id: Date.now().toString(), name, role: role || '', email: email || '', phone }] });
+            }
+          }} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {(state?.contacts || []).map(contact => (
+              <HPCard key={contact.id} padding={14}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 12, background: HP_TOKENS.blueSoft, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <HPGlyph name="people" size={20} color={HP_TOKENS.blue} />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ ...HP_TEXT.h, fontSize: 14 }}>{contact.name}</div>
+                    <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute }}>{contact.role}</div>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ ...HP_TEXT.small, fontWeight: 700 }}>{contact.phone}</div>
+                    <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.blue }}>{contact.email}</div>
+                  </div>
+                  <button 
+                    onClick={() => {
+                      if (confirm("Hapus kontak ini?")) {
+                        updateState({ contacts: (state?.contacts || []).filter(c => c.id !== contact.id) });
+                      }
+                    }}
+                    style={{ background: 'none', border: 'none', padding: 4, cursor: 'pointer' }}
+                  >
+                    <HPGlyph name="close" size={16} color={HP_TOKENS.coral} />
+                  </button>
+                </div>
               </HPCard>
             ))}
           </div>
@@ -351,47 +429,14 @@ export default function HRPeopleScreen({ openModal }: Props) {
         </>
       )}
 
-      {/* ── Departemen ── */}
-      {activeTab === 'dept' && (
-        <>
-          <SectionHeader icon="people" label="Health per Departemen" />
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {HR_DEPT_PULSE.map(d => (
-              <HPCard key={d.dept} padding={16}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-                  <div style={{
-                    width: 40, height: 40, borderRadius: 12,
-                    background: TONE_SOFT[d.tone] || HP_TOKENS.lineSoft,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  }}>
-                    <HPGlyph name="people" size={20} color={TONE_COLOR[d.tone] || HP_TOKENS.inkSoft} />
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ ...HP_TEXT.h, fontSize: 15 }}>{d.dept}</div>
-                    <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute }}>
-                      {d.headcount} karyawan{d.atRisk > 0 ? ` · ⚠️ ${d.atRisk} at-risk` : ' · ✅ All clear'}
-                    </div>
-                  </div>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  {[
-                    { label: 'Wellbeing', value: d.wellbeing, tone: d.tone },
-                    { label: 'Engagement', value: d.engagement, tone: d.tone },
-                  ].map(bar => (
-                    <div key={bar.label}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                        <span style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute }}>{bar.label}</span>
-                        <span style={{ ...HP_TEXT.tiny, color: TONE_COLOR[d.tone], fontWeight: 800 }}>{bar.value}/100</span>
-                      </div>
-                      <HPBar value={bar.value} tone={d.tone as any} />
-                    </div>
-                  ))}
-                </div>
-              </HPCard>
-            ))}
-          </div>
-        </>
-      )}
+
     </div>
   );
 }
+
+const inputStyle: React.CSSProperties = {
+  width: '100%', marginTop: 8, padding: 12, borderRadius: 12,
+  border: `1.5px solid ${HP_TOKENS.line}`, fontFamily: HP_FONT, fontSize: 14,
+  outline: 'none', background: '#fff', color: HP_TOKENS.ink,
+  boxSizing: 'border-box',
+};

@@ -29,8 +29,7 @@ import ManagerWellbeingScreen from "@/components/wellbeing/ManagerWellbeingScree
 import HRHomeScreen from "@/components/home/HRHomeScreen";
 import HRPeopleScreen from "@/components/goals/HRPeopleScreen";
 import HRRecognizeScreen from "@/components/recognize/HRRecognizeScreen";
-import HRAnalyticsScreen from "@/components/growth/HRAnalyticsScreen";
-import HRWellbeingScreen from "@/components/wellbeing/HRWellbeingScreen";
+
 
 // ── Admin Screens ──
 import AdminConsoleScreen from "@/components/admin/AdminConsoleScreen";
@@ -46,6 +45,7 @@ import CoachModal from "@/components/modals/CoachModal";
 import NotificationsModal from "@/components/modals/NotificationsModal";
 
 import GoalModal from "@/components/modals/GoalModal";
+import WorkCheckInModal from "@/components/modals/WorkCheckInModal";
 import ManagePrioritiesModal from "@/components/modals/ManagePrioritiesModal";
 import ManageHabitsModal from "@/components/modals/ManageHabitsModal";
 import ManageWeeklyModal from "@/components/modals/ManageWeeklyModal";
@@ -125,8 +125,6 @@ function AppContent() {
       if (tab === 'home')      return <div style={pad}><HRHomeScreen openModal={openModal} /></div>;
       if (tab === 'goals')     return <div style={pad}><HRPeopleScreen openModal={openModal} /></div>;
       if (tab === 'recognize') return <div style={pad}><HRRecognizeScreen openModal={openModal} /></div>;
-      if (tab === 'growth')    return <div style={pad}><HRAnalyticsScreen openModal={openModal} /></div>;
-      if (tab === 'wellbeing') return <div style={pad}><HRWellbeingScreen openModal={openModal} /></div>;
     }
     return null;
   };
@@ -197,6 +195,7 @@ function AppContent() {
       {modal?.name === 'notifications'    && <NotificationsModal onClose={closeModal} />}
 
       {modal?.name === 'new_goal'         && <GoalModal onClose={closeModal} {...modal.props} />}
+      {modal?.name === 'work_checkin'     && <WorkCheckInModal onClose={closeModal} {...modal.props} />}
       {modal?.name === 'manage_priorities'&& <ManagePrioritiesModal onClose={closeModal} />}
       {modal?.name === 'manage_habits'    && <ManageHabitsModal onClose={closeModal} />}
       {modal?.name === 'manage_weekly'    && <ManageWeeklyModal onClose={closeModal} />}

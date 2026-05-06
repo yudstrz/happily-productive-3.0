@@ -2,7 +2,7 @@
 
 import React from "react";
 import { HP_TOKENS, HP_FONT, HP_TEXT } from "@/lib/constants";
-import { MANAGER_TEAM_MEMBERS, MANAGER_TEAM_WELLBEING, MANAGER_PROGRAMS_CATALOG } from "@/lib/mockData";
+import { MANAGER_TEAM_MEMBERS, MANAGER_TEAM_WELLBEING } from "@/lib/mockData";
 import HPGlyph from "@/components/ui/HPGlyph";
 import HPCard from "@/components/ui/HPCard";
 import HPBar from "@/components/ui/HPBar";
@@ -23,12 +23,7 @@ const TONE_SOFT: Record<string, string> = {
 };
 
 export default function ManagerWellbeingScreen({ openModal }: Props) {
-  const [programs, setPrograms] = React.useState(MANAGER_PROGRAMS_CATALOG);
   const avgWellbeing = Math.round(MANAGER_TEAM_MEMBERS.reduce((a, b) => a + b.wellbeing, 0) / MANAGER_TEAM_MEMBERS.length);
-
-  const toggleProgram = (id: number) => {
-    setPrograms(prev => prev.map(p => p.id === id ? { ...p, assignedToTeam: !p.assignedToTeam } : p));
-  };
 
   const moodDist = [
     { label: 'Bahagia 😊', count: MANAGER_TEAM_MEMBERS.filter(m => m.mood === 'joy').length, tone: 'yellow' },
@@ -129,56 +124,7 @@ export default function ManagerWellbeingScreen({ openModal }: Props) {
         ))}
       </div>
 
-      {/* Team Programs Management */}
-      <div style={{ marginTop: 16 }}>
-        <SectionHeader icon="calendar" label="Kelola Program & Tantangan Tim" action="+ Tantangan" onAction={() => openModal('manage_programs')} />
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {programs.map(p => (
-            <HPCard key={p.id} padding={14} style={{ 
-              border: p.assignedToTeam ? `1.5px solid ${TONE_COLOR[p.tone] || HP_TOKENS.sage}40` : `1.5px solid ${HP_TOKENS.line}`,
-              opacity: p.assignedToTeam ? 1 : 0.7,
-              background: p.assignedToTeam ? `${TONE_SOFT[p.tone] || '#F0F7F2'}44` : '#fff',
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <div style={{
-                  width: 40, height: 40, borderRadius: 12,
-                  background: TONE_SOFT[p.tone] || HP_TOKENS.lineSoft,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center'
-                }}>
-                  <HPGlyph name={p.glyph || 'star'} size={20} color={TONE_COLOR[p.tone] || HP_TOKENS.ink} />
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <div style={{ ...HP_TEXT.h, fontSize: 13 }}>{p.title}</div>
-                    <div style={{
-                      fontSize: 9, fontWeight: 800, padding: '1px 6px', borderRadius: 4,
-                      background: p.source === 'hr' ? HP_TOKENS.lavenderSoft : HP_TOKENS.blueSoft,
-                      color: p.source === 'hr' ? HP_TOKENS.lavender : HP_TOKENS.blue,
-                    }}>
-                      {p.source === 'hr' ? 'ORG' : 'TEAM'}
-                    </div>
-                  </div>
-                  <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, marginTop: 2 }}>
-                    {p.enrolledTeam} anggota join · {p.duration}
-                  </div>
-                </div>
-                <button 
-                  onClick={() => toggleProgram(p.id)}
-                  className="hp-tap"
-                  style={{
-                    padding: '6px 12px', borderRadius: 10, border: 'none',
-                    background: p.assignedToTeam ? HP_TOKENS.coralSoft : HP_TOKENS.sageSoft,
-                    color: p.assignedToTeam ? HP_TOKENS.coral : HP_TOKENS.sage,
-                    fontFamily: HP_FONT, fontWeight: 800, fontSize: 11, cursor: 'pointer',
-                  }}
-                >
-                  {p.assignedToTeam ? 'Matikan' : 'Aktifkan'}
-                </button>
-              </div>
-            </HPCard>
-          ))}
-        </div>
-      </div>
+
 
       {/* Action items */}
       <div style={{ marginTop: 16 }}>

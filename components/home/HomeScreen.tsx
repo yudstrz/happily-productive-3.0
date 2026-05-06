@@ -15,6 +15,8 @@ import {
 } from "@/lib/mockData";
 import HPGlyph from "@/components/ui/HPGlyph";
 import HPAvatar from "@/components/ui/HPAvatar";
+import HPCard from "@/components/ui/HPCard";
+import HPBar from "@/components/ui/HPBar";
 import BlobBackground from "@/components/home/BlobBackground";
 import Confetti from "@/components/home/Confetti";
 import EmotionalHero from "@/components/home/EmotionalHero";
@@ -39,6 +41,12 @@ export default function HomeScreen({ openModal }: any) {
   const { state, updateState, updateUser, user, syncSkillProgress, awardXP } = useHP();
   const [greeting, setGreeting] = useState('');
   const [confetti, setConfetti] = useState(false);
+  const [reminder, setReminder] = useState<{ type: 'break' | 'clockout' | 'meeting', mins: number, sessionWith?: string } | null>(null);
+  const [coachNudge, setCoachNudge] = useState<{ text: string, type: 'support' | 'warning' | 'cheer' }>({ 
+    text: "Semangat ya! Kamu sudah melakukan yang terbaik hari ini. ✨", 
+    type: 'cheer' 
+  });
+
 
   useEffect(() => {
     const h = new Date().getHours();
@@ -46,7 +54,93 @@ export default function HomeScreen({ openModal }: any) {
     else if (h < 15) setGreeting('Selamat siang');
     else if (h < 19) setGreeting('Selamat sore');
     else setGreeting('Selamat malam');
-  }, []);
+
+    // Time Check for Reminders
+    const checkTime = () => {
+      if (!state?.workSchedule) return;
+      const now = new Date();
+      const currentMins = now.getHours() * 60 + now.getMinutes();
+
+      const parseTime = (t: string) => {
+        const [hh, mm] = t.split(':').map(Number);
+        return hh * 60 + mm;
+      };
+
+      const breakStart = parseTime(state.workSchedule.breakStart);
+      const workEnd = parseTime(state.workSchedule.end);
+
+      // Check break reminder (15 mins before)
+      if (currentMins >= breakStart - 15 && currentMins < breakStart) {
+        setReminder({ type: 'break', mins: breakStart - currentMins });
+      } else if (currentMins >= workEnd - 15 && currentMins < workEnd) {
+        setReminder({ type: 'clockout', mins: workEnd - currentMins });
+      } else {
+        // Check for 1-on-1 Meeting Reminder
+        const coaching = state?.coaching;
+        if (coaching?.time) {
+          // Simplistic parsing for the prototype (matches "Kamis, 10:00")
+          const timeMatch = coaching.time.match(/(\d{2}):(\d{2})/);
+          if (timeMatch) {
+            const meetMins = parseInt(timeMatch[1]) * 60 + parseInt(timeMatch[2]);
+            if (currentMins >= meetMins - 10 && currentMins < meetMins) {
+              setReminder({ type: 'meeting', mins: meetMins - currentMins, sessionWith: coaching.coachName });
+              return;
+            }
+          }
+        }
+        setReminder(null);
+      }
+    };
+
+
+    checkTime();
+    const interval = setInterval(checkTime, 60000);
+
+    // AI Nudge Logic (Duolingo Style)
+    const generateNudge = () => {
+      if (!state) return;
+      
+      const now = new Date();
+      const lastAct = state.lastActivityDate ? new Date(state.lastActivityDate) : now;
+      const hoursInactive = (now.getTime() - lastAct.getTime()) / (1000 * 60 * 60);
+
+      // 1. Inactivity Check (> 3 hours)
+      if (hoursInactive >= 3) {
+        setCoachNudge({
+          text: "Hai! Aku lihat kamu belum update task selama 3 jam. Ada kendala yang bisa aku bantu? 🤔",
+          type: 'warning'
+        });
+        return;
+      }
+
+      // 2. Fatigue/Stress Check
+      if (state.mood === 'tired' || state.mood === 'stress') {
+        setCoachNudge({
+          text: "Kamu terlihat lelah. Coba istirahat 5 menit atau minum air putih dulu yuk. Kesehatanmu prioritas utama! 💧",
+          type: 'support'
+        });
+        return;
+      }
+
+      // 3. Positive Reinforcement
+      const cheerMessages = [
+        "Progress OKR kamu keren hari ini! Pertahankan ritmenya. ✨",
+        "Kecil tapi rutin itu lebih baik. Terus melangkah ya! 🌱",
+        "Kamu luar biasa! Sudah 12 hari streak check-in tanpa putus. 🔥",
+        "Jangan lupa bernapas dalam-dalam. Kamu memegang kendali hari ini. 🧘‍♂️"
+      ];
+      setCoachNudge({
+        text: cheerMessages[Math.floor(Math.random() * cheerMessages.length)],
+        type: 'cheer'
+      });
+    };
+
+    generateNudge();
+    
+    return () => clearInterval(interval);
+  }, [state?.workSchedule, state?.mood, state?.lastActivityDate]);
+
+
 
   if (!state || !user) return null;
 
@@ -213,6 +307,59 @@ export default function HomeScreen({ openModal }: any) {
             </div>
           </div>
 
+          {/* AI Coach Nudge (Duolingo Style) */}
+        <div style={{ marginBottom: 20 }}>
+          <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+            <div style={{ 
+              width: 50, height: 50, borderRadius: 25, 
+              background: HP_TOKENS.blueSoft, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 24, border: `2px solid ${HP_TOKENS.blue}`
+            }}>
+              🤖
+            </div>
+            <div style={{ 
+              flex: 1, padding: '14px 16px', borderRadius: '4px 20px 20px 20px', 
+              background: coachNudge.type === 'warning' ? HP_TOKENS.coralSoft : coachNudge.type === 'support' ? HP_TOKENS.yellowSoft : HP_TOKENS.blueWash,
+              border: `1px solid ${coachNudge.type === 'warning' ? HP_TOKENS.coral : coachNudge.type === 'support' ? HP_TOKENS.yellow : HP_TOKENS.blue}`,
+              position: 'relative'
+            }}>
+              <div style={{ ...HP_TEXT.body, fontSize: 13, fontWeight: 700, lineHeight: 1.5 }}>
+                {coachNudge.text}
+              </div>
+              {/* Little tail for the speech bubble */}
+              <div style={{ 
+                position: 'absolute', left: -8, top: 12, width: 0, height: 0,
+                borderTop: '8px solid transparent',
+                borderBottom: '8px solid transparent',
+                borderRight: `8px solid ${coachNudge.type === 'warning' ? HP_TOKENS.coral : coachNudge.type === 'support' ? HP_TOKENS.yellow : HP_TOKENS.blue}`
+              }} />
+            </div>
+          </div>
+        </div>
+
+        {/* Level & Points Card */}
+
+          <div style={{ 
+            display: 'flex', gap: 12, padding: '12px 16px', borderRadius: 16, 
+            background: HP_TOKENS.paper, border: `1px solid ${HP_TOKENS.line}`,
+            marginBottom: 16
+          }}>
+            <div style={{ flex: 1 }}>
+              <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, fontWeight: 700, marginBottom: 2 }}>JAM KERJA</div>
+              <div style={{ ...HP_TEXT.body, fontSize: 13, fontWeight: 800 }}>
+                {state.workSchedule?.start} - {state.workSchedule?.end}
+              </div>
+            </div>
+            <div style={{ width: 1, background: HP_TOKENS.line }} />
+            <div style={{ flex: 1 }}>
+              <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, fontWeight: 700, marginBottom: 2 }}>ISTIRAHAT</div>
+              <div style={{ ...HP_TEXT.body, fontSize: 13, fontWeight: 800 }}>
+                {state.workSchedule?.breakStart} - {state.workSchedule?.breakEnd}
+              </div>
+            </div>
+          </div>
+
+
           {/* Check-in Button */}
           <button 
             onClick={() => openModal('attendance_scanner')}
@@ -238,9 +385,111 @@ export default function HomeScreen({ openModal }: any) {
           />
         </div>
 
+        {/* Smart Reminders */}
+        {reminder && (
+          <div style={{ marginTop: 16 }}>
+            <HPCard padding={16} style={{ 
+              background: reminder.type === 'break' ? HP_TOKENS.yellowWash : HP_TOKENS.sageWash, 
+              border: `1.5px solid ${reminder.type === 'break' ? HP_TOKENS.yellow : HP_TOKENS.sage}`,
+              animation: 'hpBounce 1s infinite'
+            }}>
+              <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
+                <div style={{ 
+                  width: 44, height: 44, borderRadius: 14, 
+                  background: reminder.type === 'break' ? HP_TOKENS.yellow : reminder.type === 'meeting' ? HP_TOKENS.blue : HP_TOKENS.sage,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20
+                }}>
+                  {reminder.type === 'break' ? '🥪' : reminder.type === 'meeting' ? '🎥' : '🌙'}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ ...HP_TEXT.h, fontSize: 15 }}>
+                    {reminder.type === 'break' ? 'Waktunya Istirahat!' : reminder.type === 'meeting' ? 'Meeting 1-on-1!' : 'Bentar lagi Pulang!'}
+                  </div>
+                  <div style={{ ...HP_TEXT.body, fontSize: 13, marginTop: 2 }}>
+                    {reminder.type === 'break' && `${reminder.mins} menit lagi istirahat. Yuk, siap-siap rehat sejenak! 🌿`}
+                    {reminder.type === 'meeting' && `${reminder.mins} menit lagi meeting dengan ${reminder.sessionWith}. Link Meet sudah siap! 🚀`}
+                    {reminder.type === 'clockout' && `${reminder.mins} menit lagi jam kerja selesai. Yuk, persiapkan refleksi Tutup Hari kamu! ✨`}
+                  </div>
+                </div>
+
+                {reminder.type === 'clockout' && (
+                  <button 
+                    onClick={() => openModal('reflect')}
+                    className="hp-tap"
+                    style={{ 
+                      padding: '8px 14px', borderRadius: 10, border: 'none', 
+                      background: HP_TOKENS.sage, color: '#fff', 
+                      fontFamily: HP_FONT, fontWeight: 800, fontSize: 12, cursor: 'pointer'
+                    }}
+                  >
+                    Tutup Hari
+                  </button>
+                )}
+                {reminder.type === 'meeting' && (
+                  <button 
+                    onClick={() => state.coaching?.meetLink && window.open(state.coaching.meetLink, '_blank')}
+                    className="hp-tap"
+                    style={{ 
+                      padding: '8px 14px', borderRadius: 10, border: 'none', 
+                      background: HP_TOKENS.blue, color: '#fff', 
+                      fontFamily: HP_FONT, fontWeight: 800, fontSize: 12, cursor: 'pointer',
+                      display: 'flex', alignItems: 'center', gap: 6
+                    }}
+                  >
+                    <HPGlyph name="video" size={12} color="#fff" />
+                    Join Meet
+                  </button>
+                )}
+              </div>
+            </HPCard>
+          </div>
+        )}
+
+
         {/* Intention */}
+
         <div style={{ marginTop: 12 }}>
           <IntentionCard state={state} setState={updateState}/>
+        </div>
+
+        {/* Company Contacts */}
+        <div style={{ marginTop: 20 }}>
+          <SectionHeader icon="phone" label="Kontak Penting" count={String(state.contacts?.length || 0)} />
+          <div style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 10, scrollbarWidth: 'none' }}>
+            {(state.contacts || []).map(contact => (
+              <HPCard 
+                key={contact.id} 
+                padding={12} 
+                style={{ minWidth: 200, flexShrink: 0, background: '#fff', border: `1px solid ${HP_TOKENS.line}` }}
+              >
+                <div style={{ ...HP_TEXT.h, fontSize: 13 }}>{contact.name}</div>
+                <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, marginBottom: 8 }}>{contact.role}</div>
+                
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <a 
+                    href={`tel:${contact.phone}`} 
+                    style={{ 
+                      flex: 1, textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      background: HP_TOKENS.blueSoft, color: HP_TOKENS.blue, padding: '6px 0', borderRadius: 8,
+                      fontFamily: HP_FONT, fontSize: 11, fontWeight: 800
+                    }}
+                  >
+                    Hubungi
+                  </a>
+                  <a 
+                    href={`mailto:${contact.email}`} 
+                    style={{ 
+                      flex: 1, textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      background: HP_TOKENS.sageSoft, color: HP_TOKENS.sage, padding: '6px 0', borderRadius: 8,
+                      fontFamily: HP_FONT, fontSize: 11, fontWeight: 800
+                    }}
+                  >
+                    Email
+                  </a>
+                </div>
+              </HPCard>
+            ))}
+          </div>
         </div>
 
         {/* Company News */}
@@ -248,15 +497,38 @@ export default function HomeScreen({ openModal }: any) {
           <AnnouncementFeed />
         </div>
 
-        {/* LAYER 2 — Priorities as Daily Quests */}
+        {/* LAYER 2 — Task Management & Realization */}
         <div style={{ marginTop: 24 }}>
           <SectionHeader 
             icon="target" 
-            label="Daily Quests" 
+            label="Task Management (Realisasi)" 
             count={`${done}/${total}`} 
             action="Manage"
             onAction={() => openModal('manage_priorities')}
           />
+          
+          {/* Realization Progress Card */}
+          <HPCard padding={16} style={{ marginBottom: 16, background: HP_TOKENS.sageWash, border: 'none' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <div style={{ ...HP_TEXT.h, fontSize: 14, color: HP_TOKENS.sage }}>Target Realization</div>
+              <div style={{ ...HP_TEXT.h, fontSize: 16, color: HP_TOKENS.sage }}>{total > 0 ? Math.round((done / total) * 100) : 0}%</div>
+            </div>
+            <HPBar value={total > 0 ? (done / total) * 100 : 0} tone="sage" height={8} />
+            <button 
+              onClick={() => openModal('work_checkin')}
+              className="hp-tap"
+              style={{ 
+                marginTop: 16, width: '100%', padding: '10px', borderRadius: 12,
+                background: '#fff', border: `1px solid ${HP_TOKENS.sage}`, color: HP_TOKENS.sage,
+                fontFamily: HP_FONT, fontWeight: 800, fontSize: 13, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8
+              }}
+            >
+              <HPGlyph name="sparkle" size={16} color={HP_TOKENS.sage} />
+              Cek Realisasi & Tips Fokus
+            </button>
+          </HPCard>
+
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {priorities.map((p: any) => (
               <PriorityCard key={p.id} p={p} onToggle={() => togglePriority(p.id)}/>
@@ -273,6 +545,7 @@ export default function HomeScreen({ openModal }: any) {
             </button>
           </div>
         </div>
+
 
         {/* Energy-based suggestion */}
         {energy && (

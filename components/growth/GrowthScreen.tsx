@@ -155,12 +155,19 @@ export default function GrowthScreen({ openModal }: GrowthScreenProps) {
             <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, marginTop: 2 }}>{state.coaching?.role} · {state.coaching?.time}</div>
           </div>
           <button 
-            onClick={() => openModal('grow_coaching', { role: 'employee', topic: state.coaching?.aiTopic })} 
-            style={{ ...primaryBtn, background: HP_TOKENS.blue }} 
+            onClick={() => state.coaching?.meetLink ? window.open(state.coaching.meetLink, '_blank') : openModal('grow_coaching', { role: 'employee', topic: state.coaching?.aiTopic })} 
+            style={{ 
+              ...primaryBtn, 
+              background: state.coaching?.meetLink ? HP_TOKENS.blue : HP_TOKENS.blueSoft,
+              color: state.coaching?.meetLink ? '#fff' : HP_TOKENS.blue,
+              display: 'flex', alignItems: 'center', gap: 6
+            }} 
             className="hp-tap"
           >
-            Buka
+            <HPGlyph name="video" size={14} color={state.coaching?.meetLink ? '#fff' : HP_TOKENS.blue} />
+            {state.coaching?.meetLink ? 'Join Meet' : 'Buka'}
           </button>
+
         </div>
         <div style={{ 
           marginTop: 12, 

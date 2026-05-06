@@ -17,11 +17,12 @@ export default function ScheduleCoachingModal({ onClose }: ScheduleCoachingModal
   const { state, updateState } = useHP();
   const [coach, setCoach] = useState(state?.coaching?.coachName || "");
   const [time, setTime] = useState(state?.coaching?.time || "");
+  const [meetLink, setMeetLink] = useState(state?.coaching?.meetLink || "");
 
   const save = () => {
     updateState((s: any) => ({
       ...s,
-      coaching: { ...s.coaching, coachName: coach, time }
+      coaching: { ...s.coaching, coachName: coach, time, meetLink }
     }));
     onClose();
   };
@@ -54,6 +55,20 @@ export default function ScheduleCoachingModal({ onClose }: ScheduleCoachingModal
             color: HP_TOKENS.ink, outline: 'none', background: HP_TOKENS.card, boxSizing: 'border-box',
           }}
         />
+
+        <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, fontWeight: 700, marginTop: 20 }}>GOOGLE MEET LINK</div>
+        <input 
+          type="text" 
+          value={meetLink} 
+          onChange={e => setMeetLink(e.target.value)}
+          placeholder="https://meet.google.com/..."
+          style={{
+            width: '100%', marginTop: 10, padding: 14, borderRadius: 14,
+            border: `1.5px solid ${HP_TOKENS.line}`, fontFamily: HP_FONT, fontSize: 14,
+            color: HP_TOKENS.ink, outline: 'none', background: HP_TOKENS.card, boxSizing: 'border-box',
+          }}
+        />
+
 
         <button 
           onClick={save} 

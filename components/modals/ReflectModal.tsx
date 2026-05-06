@@ -10,6 +10,7 @@ import { HP_MOODS } from "@/lib/mockData";
 import { useHP } from "@/lib/HPContext";
 import Modal from "@/components/ui/Modal";
 import HPGlyph from "@/components/ui/HPGlyph";
+import HPCard from "@/components/ui/HPCard";
 
 interface ReflectModalProps {
   onClose: () => void;
@@ -35,7 +36,6 @@ export default function ReflectModal({ onClose }: ReflectModalProps) {
   ];
 
   const handleFinish = async () => {
-    // Combine choices into a notes summary
     const prodLabel = PRODUCTIVITY_OPTS.find(p => p.key === productivity)?.label;
     const wlLabel = WORKLIFE_OPTS.find(w => w.key === workLife)?.label;
     const moodLabel = HP_MOODS.find(m => m.key === mood)?.label;
@@ -49,10 +49,8 @@ export default function ReflectModal({ onClose }: ReflectModalProps) {
       time: now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
     };
 
-    // Award 100 points
     updateUser((u: any) => ({ ...u, points: u.points + 100 }));
     
-    // Create logbook entry in DB
     try {
       await fetch("/api/logbook", {
         method: "POST",
@@ -71,7 +69,6 @@ export default function ReflectModal({ onClose }: ReflectModalProps) {
         })
       });
 
-      // Update local state for immediate feedback
       updateState((s: any) => ({
         ...s,
         logbook: [
@@ -118,10 +115,40 @@ export default function ReflectModal({ onClose }: ReflectModalProps) {
     </div>
   );
 
+  const priorities = state?.priorities || [];
+  const done = priorities.filter((p: any) => p.done);
+  const totalCount = priorities.length;
+
   return (
     <Modal onClose={onClose} title="Tutup Hari (Clock Out)">
       <div style={{ ...HP_TEXT.body, fontSize: 13, marginBottom: 20, color: HP_TOKENS.inkSoft }}>
         Refleksi singkat membantu menjernihkan pikiran sebelum istirahat.
+      </div>
+
+      {/* Target vs Realization Summary */}
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ ...HP_TEXT.h, fontSize: 14, marginBottom: 12 }}>Target vs Realisasi Hari Ini</div>
+        <HPCard padding={16} style={{ background: HP_TOKENS.sageWash, border: 'none' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+            <div style={{ ...HP_TEXT.small, fontWeight: 800, color: HP_TOKENS.sage }}>{done.length} / {totalCount} Selesai</div>
+            <div style={{ ...HP_TEXT.h, fontSize: 16, color: HP_TOKENS.sage }}>{totalCount > 0 ? Math.round((done.length / totalCount) * 100) : 0}%</div>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {priorities.slice(0, 3).map((p: any) => (
+              <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <HPGlyph name={p.done ? "check" : "close"} size={12} color={p.done ? HP_TOKENS.sage : HP_TOKENS.inkFade} />
+                <div style={{ 
+                  ...HP_TEXT.small, fontSize: 12, 
+                  textDecoration: p.done ? 'line-through' : 'none',
+                  color: p.done ? HP_TOKENS.inkFade : HP_TOKENS.ink
+                }}>
+                  {p.title}
+                </div>
+              </div>
+            ))}
+            {totalCount > 3 && <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute }}>+ {totalCount - 3} lainnya</div>}
+          </div>
+        </HPCard>
       </div>
 
       {renderSelector("Bagaimana perasaanmu saat ini?", HP_MOODS, mood, setMood)}
