@@ -55,7 +55,7 @@ export async function GET(request: Request) {
 
     // Fetch Goals with Sub-goals
     const goalsRes = await db.execute({
-      sql: "SELECT * FROM goals WHERE owner_id = ?",
+      sql: "SELECT * FROM goals WHERE owner_id = ? OR scope IN ('company', 'team')",
       args: [userId]
     });
     const goals = await Promise.all(goalsRes.rows.map(async (r) => {
@@ -109,6 +109,19 @@ export async function GET(request: Request) {
       name: r.name, current: r.current_level, target: r.target_level
     }));
 
+    // Fetch Global Settings
+    const settingsRes = await db.execute("SELECT * FROM global_settings");
+    let contacts = [
+      { id: '1', name: 'HR Helpdesk', role: 'Support & Admin', email: 'hr@company.com', phone: '021-1234567' },
+      { id: '2', name: 'IT Support', role: 'Technical Issues', email: 'it@company.com', phone: '0812-3456-7890' },
+      { id: '3', name: 'Security Office', role: 'Safety & Emergency', email: 'security@company.com', phone: '021-9876543' }
+    ];
+    let workSchedule = { start: "08:00", end: "17:00", breakStart: "12:00", breakEnd: "13:00" };
+    settingsRes.rows.forEach(r => {
+      if (r.key === 'contacts') contacts = JSON.parse(r.value as string);
+      if (r.key === 'work_schedule') workSchedule = JSON.parse(r.value as string);
+    });
+
     // Fetch Today's Attendance
     const todayAttRes = await db.execute({
       sql: "SELECT created_at FROM attendance WHERE user_id = ? AND date(created_at, 'localtime') = date('now', 'localtime') ORDER BY created_at ASC LIMIT 1",
@@ -144,18 +157,14 @@ export async function GET(request: Request) {
       lastActivityDate: userRow.last_activity_at,
       penaltyActive: false,
       penaltyThresholdDays: 3,
-      workSchedule: { start: "08:00", end: "17:00", breakStart: "12:00", breakEnd: "13:00" },
+      workSchedule,
       todayAttendance: {
         checkIn: checkIn ? new Date(checkIn).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : undefined,
         checkOut: checkOut ? new Date(checkOut).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : undefined,
       },
       personalWellbeingGoal: (userRow.personal_wellbeing_goal as string) || "",
       wellbeingRoutine: userRow.wellbeing_routine ? JSON.parse(userRow.wellbeing_routine as string) : [],
-      contacts: [
-        { id: '1', name: 'HR Helpdesk', role: 'Support & Admin', email: 'hr@company.com', phone: '021-1234567' },
-        { id: '2', name: 'IT Support', role: 'Technical Issues', email: 'it@company.com', phone: '0812-3456-7890' },
-        { id: '3', name: 'Security Office', role: 'Safety & Emergency', email: 'security@company.com', phone: '021-9876543' }
-      ]
+      contacts
     };
 
     return NextResponse.json({ state, user });
@@ -228,6 +237,44 @@ export async function POST(request: Request) {
                 due_date=excluded.due_date, tone=excluded.tone, metric=excluded.metric, 
                 scope=excluded.scope, parent_id=excluded.parent_id`,
           args: [String(g.id), userId, g.title, g.progress, g.alignment, g.due, g.tone, g.metric, g.scope, g.parent_id || null]
+        });
+        
+        // Sync Sub-goals
+        if (g.subGoals) {
+          await db.execute({ sql: "DELETE FROM sub_goals WHERE goal_id = ?", args: [String(g.id)] });
+          for (const sg of g.subGoals) {
+            await db.execute({
+              sql: `INSERT INTO sub_goals (goal_id, title, is_done) VALUES (?, ?, ?)`,
+              args: [String(g.id), sg.title, sg.done ? 1 : 0]
+            });
+          }
+        }
+      }
+    }
+
+    // Sync Skills
+    if (state.skills) {
+      await db.execute({ sql: "DELETE FROM user_skills WHERE user_id = ?", args: [userId] });
+      for (const sk of state.skills) {
+        await db.execute({
+          sql: `INSERT INTO user_skills (user_id, name, current_level, target_level) VALUES (?, ?, ?, ?)`,
+          args: [userId, sk.name, sk.current || 0, sk.target || 100]
+        });
+      }
+    }
+
+    // Sync Global Settings (Contacts, Work Schedule) - Admin/HR only
+    if (user.role === 'hr' || user.role === 'admin') {
+      if (state.contacts) {
+        await db.execute({
+          sql: `INSERT INTO global_settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value`,
+          args: ["contacts", JSON.stringify(state.contacts)]
+        });
+      }
+      if (state.workSchedule) {
+        await db.execute({
+          sql: `INSERT INTO global_settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value`,
+          args: ["work_schedule", JSON.stringify(state.workSchedule)]
         });
       }
     }
