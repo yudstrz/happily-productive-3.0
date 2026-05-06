@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS users (
     email TEXT UNIQUE NOT NULL,
     name TEXT NOT NULL,
     role TEXT NOT NULL, -- 'employee', 'manager', 'hr'
+    password_hash TEXT, -- Added for authentication
     job_title TEXT,
     team_id TEXT,
     streak INTEGER DEFAULT 0,

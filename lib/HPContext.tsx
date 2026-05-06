@@ -24,7 +24,9 @@ interface HPState {
   logbook: any[];
   lastActivityDate: string | null;
   penaltyActive: boolean;
-  penaltyThresholdDays: number; // How many days of inactivity before penalty triggers
+  penaltyThresholdDays: number;
+  hrData?: any;
+  managerData?: any;
 }
 
 export type UserRole = 'admin' | 'hr' | 'manager' | 'employee';
@@ -109,6 +111,29 @@ export function HPProvider({ children }: { children: React.ReactNode }) {
     setState(null);
     localStorage.removeItem("hp_user_id");
   };
+
+  const fetchDashboards = useCallback(async (userId: string, role: string) => {
+    try {
+      if (role === 'hr' || role === 'admin') {
+        const res = await fetch('/api/hr/dashboard');
+        const data = await res.json();
+        setState(prev => prev ? { ...prev, hrData: data } : null);
+      }
+      if (role === 'manager') {
+        const res = await fetch(`/api/manager/dashboard?userId=${userId}`);
+        const data = await res.json();
+        setState(prev => prev ? { ...prev, managerData: data } : null);
+      }
+    } catch (e) {
+      console.error("Dashboard fetch error:", e);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (user && (user.role === 'hr' || user.role === 'admin' || user.role === 'manager')) {
+      fetchDashboards(user.id, user.role);
+    }
+  }, [user, fetchDashboards]);
 
   useEffect(() => {
     if (!loading && user && state) {

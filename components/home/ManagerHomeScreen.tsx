@@ -25,15 +25,18 @@ const MOOD_COLOR: Record<string, string> = {
 };
 
 export default function ManagerHomeScreen({ openModal }: Props) {
-  const { user } = useHP();
-  const [approvals, setApprovals] = useState(MANAGER_APPROVAL_TASKS);
+  const { user, state } = useHP();
+  const [approvals, setApprovals] = useState([]); // In a real app, fetch these from DB too
 
-  const teamAtRisk = MANAGER_TEAM_MEMBERS.filter(m => m.status === 'Needs check-in' || m.status === 'At risk');
-  const avgWellbeing = Math.round(MANAGER_TEAM_MEMBERS.reduce((a, b) => a + b.wellbeing, 0) / MANAGER_TEAM_MEMBERS.length);
+  if (!user || !state?.managerData) return (
+    <div style={{ padding: 40, textAlign: 'center', opacity: 0.5 }}>Memuat data Tim...</div>
+  );
+
+  const { members, goals } = state.managerData;
+  const teamAtRisk = members.filter(m => m.status === 'Needs check-in' || m.status === 'At risk');
+  const avgWellbeing = members.length > 0 ? Math.round(members.reduce((a, b) => a + b.wellbeing, 0) / members.length) : 0;
 
   const handleApprove = (id: number) => setApprovals(prev => prev.filter(a => a.id !== id));
-
-  if (!user) return null;
 
   return (
     <div style={{ position: 'relative', minHeight: '100%', paddingBottom: 120, fontFamily: HP_FONT }}>
@@ -67,7 +70,7 @@ export default function ManagerHomeScreen({ openModal }: Props) {
                     </div>
                   </div>
                   <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, marginTop: 2 }}>
-                    {user.role} · {MANAGER_TEAM_MEMBERS.length} anggota tim
+                    {user.role} · {members.length} anggota tim
                   </div>
                 </div>
               </div>
@@ -108,12 +111,11 @@ export default function ManagerHomeScreen({ openModal }: Props) {
           </div>
         </div>
 
-        {/* Team mood snapshot */}
         <div style={{ marginTop: 16 }}>
-          <SectionHeader icon="people" label="Status Tim Hari Ini" count={`${MANAGER_TEAM_MEMBERS.length} orang`} action="Lihat semua" onAction={() => {}} />
+          <SectionHeader icon="people" label="Status Tim Hari Ini" count={`${members.length} orang`} action="Lihat semua" onAction={() => {}} />
           <HPCard padding={14}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-              {MANAGER_TEAM_MEMBERS.map((m, i) => (
+              {members.map((m, i) => (
                 <div key={m.id} style={{
                   display: 'flex', alignItems: 'center', gap: 12,
                   padding: '10px 0',

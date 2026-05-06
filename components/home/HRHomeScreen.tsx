@@ -3,12 +3,7 @@
 import React, { useState } from "react";
 import { useHP } from "@/lib/HPContext";
 import { HP_TOKENS, HP_FONT, HP_TEXT } from "@/lib/constants";
-import {
-  HR_ALL_EMPLOYEES,
-  HR_ORG_METRICS,
-  HR_DEPT_PULSE,
-  HR_LD_PROGRAMS,
-} from "@/lib/mockData";
+import { HP_MOODS } from "@/lib/mockData";
 import HPGlyph from "@/components/ui/HPGlyph";
 import HPCard from "@/components/ui/HPCard";
 import HPAvatar from "@/components/ui/HPAvatar";
@@ -33,13 +28,23 @@ const TONE_SOFT: Record<string, string> = {
   lavender: HP_TOKENS.lavenderSoft,
 };
 
+interface AtRiskEmployee {
+  id: string | number;
+  name: string;
+  role: string;
+  dept: string;
+  mood: string;
+  wellbeing: number;
+}
+
 export default function HRHomeScreen({ openModal }: Props) {
-  const { user } = useHP();
-  const atRiskEmployees = HR_ALL_EMPLOYEES.filter(e => e.risk === 'high');
+  const { user, state } = useHP();
+  
+  if (!user || !state?.hrData) return (
+    <div style={{ padding: 40, textAlign: 'center', opacity: 0.5 }}>Memuat data HR...</div>
+  );
 
-  if (!user) return null;
-
-  const m = HR_ORG_METRICS;
+  const { metrics: m, atRiskEmployees, deptPulse } = state.hrData;
 
   return (
     <div style={{ position: 'relative', minHeight: '100%', paddingBottom: 120, fontFamily: HP_FONT }}>
@@ -133,7 +138,7 @@ export default function HRHomeScreen({ openModal }: Props) {
               </div>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {atRiskEmployees.map(e => (
+              {atRiskEmployees.map((e: AtRiskEmployee) => (
                 <div key={e.id} style={{
                   display: 'flex', alignItems: 'center', gap: 10,
                   background: '#fff', borderRadius: 12, padding: '10px 12px',
@@ -153,11 +158,10 @@ export default function HRHomeScreen({ openModal }: Props) {
           </div>
         )}
 
-        {/* Department Pulse */}
         <div style={{ marginTop: 16 }}>
           <SectionHeader icon="sparkle" label="Pulse per Departemen" />
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {HR_DEPT_PULSE.map(d => (
+            {deptPulse.map(d => (
               <HPCard key={d.dept} padding={14}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <div style={{
@@ -187,9 +191,9 @@ export default function HRHomeScreen({ openModal }: Props) {
 
         {/* L&D Quick view */}
         <div style={{ marginTop: 16 }}>
-          <SectionHeader icon="book" label="Program L&D Aktif" count={String(HR_LD_PROGRAMS.length)} action="Kelola" onAction={() => openModal('manage_programs')} />
+          <SectionHeader icon="book" label="Program L&D Aktif" count={String(state.hrData.programs?.length || 0)} action="Kelola" onAction={() => openModal('manage_programs')} />
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {HR_LD_PROGRAMS.slice(0, 2).map(p => (
+            {(state.hrData.programs || []).slice(0, 2).map(p => (
               <HPCard key={p.id} padding={14}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <div style={{

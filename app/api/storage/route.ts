@@ -53,12 +53,27 @@ export async function GET(request: Request) {
       name: r.name, streak: r.streak, target: r.target_days, done: !!r.is_done_today, glyph: r.glyph
     }));
 
+    // Fetch Goals with Sub-goals
     const goalsRes = await db.execute({
       sql: "SELECT * FROM goals WHERE owner_id = ?",
       args: [userId]
     });
-    const goals = goalsRes.rows.map(r => ({
-      id: r.id, title: r.title, progress: r.progress, alignment: r.alignment, due: r.due_date, tone: r.tone, metric: r.metric, scope: r.scope, parent_id: r.parent_id
+    const goals = await Promise.all(goalsRes.rows.map(async (r) => {
+      const subGoalsRes = await db.execute({
+        sql: "SELECT * FROM sub_goals WHERE goal_id = ?",
+        args: [String(r.id)]
+      });
+      return {
+        id: r.id, 
+        title: r.title, 
+        progress: r.progress, 
+        alignment: r.alignment, 
+        due: r.due_date, 
+        tone: r.tone, 
+        metric: r.metric, 
+        scope: r.scope,
+        subGoals: subGoalsRes.rows.map(sr => ({ id: sr.id, title: sr.title, done: !!sr.is_done }))
+      };
     }));
 
     const surveysRes = await db.execute("SELECT * FROM surveys WHERE status = 'active'");
@@ -66,17 +81,45 @@ export async function GET(request: Request) {
       id: r.id, title: r.title, url: r.url, publishedAt: r.published_at, status: r.status
     }));
 
-    // Mock other state parts for now to maintain UI compatibility
+    // Fetch Latest Mood Checkin
+    const moodRes = await db.execute({
+      sql: "SELECT mood_key, energy_key, tag FROM mood_checkins WHERE user_id = ? ORDER BY created_at DESC LIMIT 1",
+      args: [userId]
+    });
+    const latestMood = moodRes.rows[0];
+
+    // Fetch Kudos for Feed (Correlated)
+    const kudosRes = await db.execute({
+      sql: `SELECT k.*, s.name as sender_name, r.name as receiver_name 
+            FROM kudos k 
+            JOIN users s ON k.sender_id = s.id 
+            JOIN users r ON k.receiver_id = r.id 
+            ORDER BY k.created_at DESC LIMIT 10`,
+    });
+    const feed = kudosRes.rows.map(r => ({
+      id: r.id, from: r.sender_name, to: r.receiver_name, value: r.value_tag, msg: r.message, likes: r.likes_count, time: 'Baru saja'
+    }));
+
+    // Fetch Skills
+    const skillsRes = await db.execute({
+      sql: "SELECT * FROM user_skills WHERE user_id = ?",
+      args: [userId]
+    });
+    const skills = skillsRes.rows.map(r => ({
+      name: r.name, current: r.current_level, target: r.target_level
+    }));
+
     const state = {
-      mood: 'calm',
-      energy: 'mid',
+      mood: latestMood?.mood_key || 'calm',
+      energy: latestMood?.energy_key || 'mid',
+      tag: latestMood?.tag || null,
       priorities,
       weeklyPriorities,
       habits,
       goals,
       surveys,
-      feed: [],
-      skills: [],
+      feed,
+      skills,
       learning: [],
       wellbeing: { dims: [], programs: [], dailyPrompt: "" },
       points: user.points,
