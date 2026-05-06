@@ -37,6 +37,23 @@ interface AtRiskEmployee {
   wellbeing: number;
 }
 
+interface DeptPulse {
+  dept: string;
+  tone: string;
+  headcount: number;
+  atRisk: number;
+  wellbeing: number;
+  engagement: number;
+}
+
+interface LDProgram {
+  id: string | number;
+  tone: string;
+  title: string;
+  enrolled: number;
+  completed: number;
+}
+
 export default function HRHomeScreen({ openModal }: Props) {
   const { user, state } = useHP();
   
@@ -161,7 +178,7 @@ export default function HRHomeScreen({ openModal }: Props) {
         <div style={{ marginTop: 16 }}>
           <SectionHeader icon="sparkle" label="Pulse per Departemen" />
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {deptPulse.map(d => (
+            {deptPulse.map((d: DeptPulse) => (
               <HPCard key={d.dept} padding={14}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <div style={{
@@ -193,7 +210,7 @@ export default function HRHomeScreen({ openModal }: Props) {
         <div style={{ marginTop: 16 }}>
           <SectionHeader icon="book" label="Program L&D Aktif" count={String(state.hrData.programs?.length || 0)} action="Kelola" onAction={() => openModal('manage_programs')} />
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {(state.hrData.programs || []).slice(0, 2).map(p => (
+            {(state.hrData.programs || []).slice(0, 2).map((p: LDProgram) => (
               <HPCard key={p.id} padding={14}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <div style={{

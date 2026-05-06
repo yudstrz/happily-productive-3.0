@@ -24,19 +24,47 @@ const MOOD_COLOR: Record<string, string> = {
   neutral: HP_TOKENS.inkMute,
 };
 
+interface TeamMember {
+  id: string | number;
+  name: string;
+  role: string;
+  status: string;
+  wellbeing: number;
+  statusTone: string;
+  glyph?: string;
+  tasks: { done: number; total: number };
+}
+
+interface ApprovalTask {
+  id: number | string;
+  type: string;
+  from: string;
+  desc: string;
+  urgent?: boolean;
+}
+
+interface OneOnOneSession {
+  id: number | string;
+  with: string;
+  date: string;
+  time: string;
+  topic: string;
+  urgent?: boolean;
+}
+
 export default function ManagerHomeScreen({ openModal }: Props) {
   const { user, state } = useHP();
-  const [approvals, setApprovals] = useState([]); // In a real app, fetch these from DB too
+  const [approvals, setApprovals] = useState<ApprovalTask[]>([]); // In a real app, fetch these from DB too
 
   if (!user || !state?.managerData) return (
     <div style={{ padding: 40, textAlign: 'center', opacity: 0.5 }}>Memuat data Tim...</div>
   );
 
   const { members, goals } = state.managerData;
-  const teamAtRisk = members.filter(m => m.status === 'Needs check-in' || m.status === 'At risk');
-  const avgWellbeing = members.length > 0 ? Math.round(members.reduce((a, b) => a + b.wellbeing, 0) / members.length) : 0;
+  const teamAtRisk = members.filter((m: TeamMember) => m.status === 'Needs check-in' || m.status === 'At risk');
+  const avgWellbeing = members.length > 0 ? Math.round(members.reduce((a: number, b: TeamMember) => a + b.wellbeing, 0) / members.length) : 0;
 
-  const handleApprove = (id: number) => setApprovals(prev => prev.filter(a => a.id !== id));
+  const handleApprove = (id: number | string) => setApprovals(prev => prev.filter(a => a.id !== id));
 
   return (
     <div style={{ position: 'relative', minHeight: '100%', paddingBottom: 120, fontFamily: HP_FONT }}>
@@ -115,7 +143,7 @@ export default function ManagerHomeScreen({ openModal }: Props) {
           <SectionHeader icon="people" label="Status Tim Hari Ini" count={`${members.length} orang`} action="Lihat semua" onAction={() => {}} />
           <HPCard padding={14}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-              {members.map((m, i) => (
+              {members.map((m: TeamMember, i: number) => (
                 <div key={m.id} style={{
                   display: 'flex', alignItems: 'center', gap: 12,
                   padding: '10px 0',
@@ -193,7 +221,7 @@ export default function ManagerHomeScreen({ openModal }: Props) {
         <div style={{ marginTop: 16 }}>
           <SectionHeader icon="chat" label="1-on-1 Mendatang" action="Atur" onAction={() => openModal('schedule_coaching')} />
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {MANAGER_ONE_ON_ONES.map(s => (
+            {MANAGER_ONE_ON_ONES.map((s: OneOnOneSession) => (
               <HPCard key={s.id} padding={14} style={{ border: s.urgent ? `1.5px solid ${HP_TOKENS.coral}` : undefined }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <HPAvatar name={s.with} size={38} color={s.urgent ? HP_TOKENS.coral : HP_TOKENS.blue} />
