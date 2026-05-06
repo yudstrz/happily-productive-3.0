@@ -76,7 +76,7 @@ export default function GoalModal({ onClose, goal }: { onClose: () => void; goal
       });
       const data = await res.json();
       if (data.text) {
-        const jsonMatch = data.text.match(/\[.*\]/s);
+        const jsonMatch = data.text.match(/\[[\s\S]*\]/);
         if (jsonMatch) {
           const tasks = JSON.parse(jsonMatch[0]);
           setSubGoals(tasks);
