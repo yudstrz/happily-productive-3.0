@@ -2,6 +2,7 @@
 
 import React from "react";
 import Modal from "@/components/ui/Modal";
+import HPGlyph from "@/components/ui/HPGlyph";
 import { HP_TOKENS, HP_FONT } from "@/lib/constants";
 
 interface TakeSurveyModalProps {
