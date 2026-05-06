@@ -46,8 +46,10 @@ export default function LeafletMap({ offices, onAddOffice, onDeleteOffice, onUpd
   const [draftRadius, setDraftRadius] = useState(100);
   
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const mapRef = useRef<L.Map | null>(null);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Focus on the first office, or a default location
   const center: [number, number] = offices.length > 0 ? [offices[0].lat, offices[0].lng] : [-6.2088, 106.8456]; // Default to Jakarta
@@ -65,36 +67,54 @@ export default function LeafletMap({ offices, onAddOffice, onDeleteOffice, onUpd
     setDraftRadius(100);
   };
 
-  const handleSearch = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    if (!searchQuery) return;
-    
+  const fetchRecommendations = async (query: string) => {
+    if (!query || query.length < 3) {
+      setSearchResults([]);
+      return;
+    }
     setIsSearching(true);
     try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}`);
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`);
       const data = await res.json();
-      if (data && data.length > 0) {
-        const { lat, lon } = data[0];
-        if (mapRef.current) {
-          mapRef.current.flyTo([parseFloat(lat), parseFloat(lon)], 16);
-        }
-      } else {
-        alert("Lokasi tidak ditemukan");
-      }
+      setSearchResults(data || []);
     } catch (error) {
       console.error(error);
-      alert("Gagal mencari lokasi");
     } finally {
       setIsSearching(false);
     }
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setSearchQuery(val);
+    
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    
+    searchTimeoutRef.current = setTimeout(() => {
+      fetchRecommendations(val);
+    }, 800);
+  };
+
+  const handleSearchSubmit = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    fetchRecommendations(searchQuery);
+  };
+
+  const handleSelectResult = (result: any) => {
+    const { lat, lon } = result;
+    if (mapRef.current) {
+      mapRef.current.flyTo([parseFloat(lat), parseFloat(lon)], 17);
+    }
+    setSearchQuery(result.name || result.display_name.split(',')[0]); 
+    setSearchResults([]); 
   };
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '500px', background: '#fff', borderRadius: 20, overflow: 'hidden', border: `1px solid ${HP_TOKENS.line}`, fontFamily: HP_FONT }}>
       
       {/* Search Bar Overlay */}
-      <div style={{ position: 'absolute', top: 16, left: 56, zIndex: 1000, display: 'flex', gap: 8 }}>
-        <form onSubmit={handleSearch} style={{ display: 'flex', gap: 8 }}>
+      <div style={{ position: 'absolute', top: 16, left: 56, zIndex: 1000, display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <form onSubmit={handleSearchSubmit} style={{ display: 'flex', gap: 8 }}>
           <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
             <div style={{ position: 'absolute', left: 12 }}>
               <HPGlyph name="search" size={16} color={HP_TOKENS.inkMute} />
@@ -102,7 +122,7 @@ export default function LeafletMap({ offices, onAddOffice, onDeleteOffice, onUpd
             <input 
               type="text" 
               value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
+              onChange={handleSearchChange}
               placeholder="Cari nama tempat / kota..."
               style={{
                 padding: '10px 10px 10px 36px', borderRadius: 12, border: `1px solid ${HP_TOKENS.line}`,
@@ -111,19 +131,35 @@ export default function LeafletMap({ offices, onAddOffice, onDeleteOffice, onUpd
               }}
             />
           </div>
-          <button 
-            type="submit"
-            disabled={isSearching || !searchQuery}
-            style={{
-              padding: '10px 16px', background: HP_TOKENS.ink, color: '#fff', 
-              borderRadius: 12, border: 'none', fontFamily: HP_FONT, fontWeight: 800, cursor: 'pointer',
-              opacity: (isSearching || !searchQuery) ? 0.6 : 1,
-              boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
-            }}
-          >
-            {isSearching ? 'Mencari...' : 'Cari'}
-          </button>
         </form>
+
+        {/* Dropdown Recommendations */}
+        {searchResults.length > 0 && (
+          <div style={{
+            background: '#fff', borderRadius: 12, border: `1px solid ${HP_TOKENS.line}`,
+            boxShadow: '0 8px 24px rgba(0,0,0,0.12)', overflow: 'hidden', width: 320,
+            display: 'flex', flexDirection: 'column'
+          }}>
+            {searchResults.map((result, idx) => (
+              <button
+                key={idx}
+                onClick={() => handleSelectResult(result)}
+                style={{
+                  padding: '10px 12px', background: 'transparent', border: 'none', borderBottom: idx !== searchResults.length - 1 ? `1px solid ${HP_TOKENS.lineSoft}` : 'none',
+                  textAlign: 'left', fontFamily: HP_FONT, cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 2
+                }}
+                className="hp-tap"
+              >
+                <span style={{ ...HP_TEXT.h, fontSize: 13, color: HP_TOKENS.ink }}>
+                  {result.name || result.display_name.split(',')[0]}
+                </span>
+                <span style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {result.display_name}
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Map Container Needs Explicit Height */}
