@@ -7,6 +7,9 @@ import L from "leaflet";
 import { HP_TOKENS, HP_FONT, HP_TEXT } from "@/lib/constants";
 import HPGlyph from "@/components/ui/HPGlyph";
 import HPCard from "@/components/ui/HPCard";
+import { OpenLocationCode } from "open-location-code";
+
+const olc = new OpenLocationCode();
 
 // Fix Leaflet icons
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -72,10 +75,58 @@ export default function LeafletMap({ offices, onAddOffice, onDeleteOffice, onUpd
       setSearchResults([]);
       return;
     }
+    
+    // Check if it's a full plus code (e.g. 6P58QRHJ+GJ)
+    const fullCodeMatch = query.match(/^[2-9C-FGHJ-MP-R-VWX]{8}\+[2-9C-FGHJ-MP-R-VWX]{2,3}$/i);
+    if (fullCodeMatch) {
+      try {
+        const decoded = olc.decode(query.toUpperCase());
+        setSearchResults([{
+          lat: decoded.latitudeCenter,
+          lon: decoded.longitudeCenter,
+          name: query.toUpperCase(),
+          display_name: "Google Plus Code (Lokasi Spesifik)"
+        }]);
+        return;
+      } catch(e) {}
+    }
+
+    // Check if it's a short plus code with reference (e.g. QRHJ+GJ Karet Kuningan)
+    let searchString = query;
+    let isShortPlusCode = false;
+    let shortCode = "";
+    const shortCodeMatch = query.match(/^([2-9C-FGHJ-MP-R-VWX]{4}\+[2-9C-FGHJ-MP-R-VWX]{2,3})\s+(.*)$/i);
+    if (shortCodeMatch) {
+      isShortPlusCode = true;
+      shortCode = shortCodeMatch[1].toUpperCase();
+      searchString = shortCodeMatch[2]; // we only search the address part to get reference lat/lng
+    }
+
     setIsSearching(true);
     try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`);
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchString)}&limit=5`);
       const data = await res.json();
+      
+      if (isShortPlusCode && data && data.length > 0) {
+         // Recover the short plus code using the first search result as reference
+         try {
+           const refLat = parseFloat(data[0].lat);
+           const refLon = parseFloat(data[0].lon);
+           const fullCode = olc.recoverNearest(shortCode, refLat, refLon);
+           const decoded = olc.decode(fullCode);
+           setSearchResults([{
+             lat: decoded.latitudeCenter,
+             lon: decoded.longitudeCenter,
+             name: `${shortCode} ${data[0].name}`,
+             display_name: `Google Plus Code di sekitar ${data[0].display_name}`
+           }]);
+           setIsSearching(false);
+           return;
+         } catch(e) {
+           console.error("Failed to decode short plus code", e);
+         }
+      }
+
       setSearchResults(data || []);
     } catch (error) {
       console.error(error);

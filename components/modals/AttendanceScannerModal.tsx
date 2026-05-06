@@ -230,67 +230,63 @@ export default function AttendanceScannerModal({ onClose }: AttendanceScannerMod
           </div>
         ) : (
           <>
-            <div style={{ 
-              width: '100%', aspectRatio: '1/1', background: '#f8f8f8', 
-              borderRadius: 24, overflow: 'hidden', position: 'relative',
-              border: `2px dashed ${HP_TOKENS.line}`
-            }}>
-              <div id="reader" style={{ width: '100%', height: '100%' }}></div>
-              
-              {status === 'idle' && (
-                <div style={{ 
-                  position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column',
-                  alignItems: 'center', justifyContent: 'center', gap: 16, textAlign: 'center', padding: 20
-                }}>
-                  <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 12, textAlign: 'left' }}>
-                    <div>
-                      <label style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, fontWeight: 700 }}>Tipe Kehadiran</label>
-                      <select 
-                        value={checkInType} onChange={e => setCheckInType(e.target.value)}
-                        style={{ width: '100%', padding: '10px', borderRadius: 12, border: `1px solid ${HP_TOKENS.line}`, fontFamily: HP_FONT, outline: 'none' }}
-                      >
-                        <option value="WFO">Work From Office</option>
-                        <option value="WFA">Work From Anywhere</option>
-                        <option value="DINAS">Perjalanan Dinas</option>
-                      </select>
-                    </div>
+            {status === 'idle' && (
+              <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 12, textAlign: 'left', marginBottom: 24 }}>
+                <div>
+                  <label style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, fontWeight: 700 }}>Tipe Kehadiran</label>
+                  <select 
+                    value={checkInType} onChange={e => setCheckInType(e.target.value)}
+                    style={{ width: '100%', padding: '10px', borderRadius: 12, border: `1px solid ${HP_TOKENS.line}`, fontFamily: HP_FONT, outline: 'none', background: '#fff' }}
+                  >
+                    <option value="WFO">Work From Office</option>
+                    <option value="WFA">Work From Anywhere</option>
+                    <option value="DINAS">Perjalanan Dinas</option>
+                  </select>
+                </div>
 
-                    {checkInType === 'WFO' && (
-                      <div>
-                        <label style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, fontWeight: 700 }}>Lokasi Kantor</label>
-                        <select 
-                          value={officeId} onChange={e => setOfficeId(e.target.value)}
-                          style={{ width: '100%', padding: '10px', borderRadius: 12, border: `1px solid ${HP_TOKENS.line}`, fontFamily: HP_FONT, outline: 'none' }}
-                        >
-                          {offices.map(off => (
-                            <option key={off.id} value={off.id}>{off.name}</option>
-                          ))}
-                        </select>
-                      </div>
-                    )}
-
-                    {checkInType !== 'WFO' && (
-                      <div>
-                        <label style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, fontWeight: 700 }}>Catatan/Alasan</label>
-                        <input 
-                          type="text" value={notes} onChange={e => setNotes(e.target.value)}
-                          placeholder="Misal: Bekerja dari cafe..."
-                          style={{ width: '100%', padding: '10px', borderRadius: 12, border: `1px solid ${HP_TOKENS.line}`, fontFamily: HP_FONT, outline: 'none' }}
-                        />
-                      </div>
-                    )}
+                {checkInType === 'WFO' && (
+                  <div>
+                    <label style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, fontWeight: 700 }}>Lokasi Kantor</label>
+                    <select 
+                      value={officeId} onChange={e => setOfficeId(e.target.value)}
+                      style={{ width: '100%', padding: '10px', borderRadius: 12, border: `1px solid ${HP_TOKENS.line}`, fontFamily: HP_FONT, outline: 'none', background: '#fff' }}
+                    >
+                      {offices.map(off => (
+                        <option key={off.id} value={off.id}>{off.name}</option>
+                      ))}
+                    </select>
                   </div>
-                </div>
-              )}
+                )}
 
-              {status === 'verifying' && (
-                <div style={{ 
-                  position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column',
-                  alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.8)'
-                }}>
-                  <div style={{ ...HP_TEXT.h, fontSize: 14 }}>Memverifikasi...</div>
-                </div>
-              )}
+                {checkInType !== 'WFO' && (
+                  <div>
+                    <label style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, fontWeight: 700 }}>Catatan/Alasan</label>
+                    <input 
+                      type="text" value={notes} onChange={e => setNotes(e.target.value)}
+                      placeholder="Misal: Bekerja dari cafe..."
+                      style={{ width: '100%', padding: '10px', borderRadius: 12, border: `1px solid ${HP_TOKENS.line}`, fontFamily: HP_FONT, outline: 'none' }}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+
+            {status !== 'idle' && (
+              <div style={{ 
+                width: '100%', maxWidth: 400, margin: '0 auto', aspectRatio: '1/1', background: '#f8f8f8', 
+                borderRadius: 24, overflow: 'hidden', position: 'relative',
+                border: `2px dashed ${HP_TOKENS.line}`
+              }}>
+                <div id="reader" style={{ width: '100%', height: '100%' }}></div>
+
+                {status === 'verifying' && (
+                  <div style={{ 
+                    position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column',
+                    alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.8)'
+                  }}>
+                    <div style={{ ...HP_TEXT.h, fontSize: 14 }}>Memverifikasi...</div>
+                  </div>
+                )}
 
               {status === 'show_qr' && (
                 <div style={{ 
