@@ -22,24 +22,4 @@ export async function generateCoachingTopic(goals: any[] | null | undefined, ski
   }
 }
 
-export async function generateDailyPrompt(mood: string | null | undefined, goals: any[] | null | undefined) {
-  const safeMood = mood ?? 'calm';
-  const safeGoals = goals ?? [];
-  const prompt = `User is currently feeling "${safeMood}". Their active goals are: ${safeGoals.map((g: any) => g.title).join(', ')}.
-  Suggest one thoughtful, empathetic, and humanist reflection prompt for their daily journal. 
-  Keep it short, deep, and avoiding corporate jargon. One question only.`;
 
-  try {
-    const response = await fetch('/api/ai', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt })
-    });
-    
-    const data = await response.json();
-    return data.text || "Apa satu hal kecil yang bikin kamu bangga hari ini?";
-  } catch (error) {
-    console.error("AI Prompt Gen failed:", error);
-    return "Apa satu hal kecil yang bikin kamu bangga hari ini?";
-  }
-}

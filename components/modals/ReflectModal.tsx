@@ -18,10 +18,37 @@ interface ReflectModalProps {
 export default function ReflectModal({ onClose }: ReflectModalProps) {
   const { state, updateState, updateUser, user } = useHP();
   const [mood, setMood] = useState('calm');
+  const [productivity, setProductivity] = useState('mid');
+  const [workLife, setWorkLife] = useState('ok');
   const [blockers, setBlockers] = useState('');
-  const [notes, setNotes] = useState('');
 
-    const handleFinish = async () => {
+  const PRODUCTIVITY_OPTS = [
+    { key: 'high', label: 'Tinggi', emoji: '🤩' },
+    { key: 'mid', label: 'Sedang', emoji: '🙂' },
+    { key: 'low', label: 'Rendah', emoji: '🥱' },
+  ];
+
+  const WORKLIFE_OPTS = [
+    { key: 'balanced', label: 'Seimbang', emoji: '😎' },
+    { key: 'ok', label: 'Lumayan', emoji: '😐' },
+    { key: 'burnout', label: 'Kewalahan', emoji: '😵‍💫' },
+  ];
+
+  const handleFinish = async () => {
+    // Combine choices into a notes summary
+    const prodLabel = PRODUCTIVITY_OPTS.find(p => p.key === productivity)?.label;
+    const wlLabel = WORKLIFE_OPTS.find(w => w.key === workLife)?.label;
+    const moodLabel = HP_MOODS.find(m => m.key === mood)?.label;
+    
+    const summary = `Mood: ${moodLabel}\nProduktivitas: ${prodLabel}\nWork-Life Balance: ${wlLabel}`;
+
+    const now = new Date();
+    const timestamp = {
+      date: now.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
+      day: now.toLocaleDateString('id-ID', { weekday: 'long' }),
+      time: now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+    };
+
     // Award 100 points
     updateUser((u: any) => ({ ...u, points: u.points + 100 }));
     
@@ -33,12 +60,33 @@ export default function ReflectModal({ onClose }: ReflectModalProps) {
         body: JSON.stringify({
           userId: user?.id,
           type: 'daily_reflection',
-          title: 'Refleksi Akhir Hari',
-          content: notes,
+          title: 'Tutup Hari (Clock Out)',
+          content: summary,
           points: 100,
-          metadata: { mood, blockers, taskCount: state?.priorities.filter((p: any) => p.done).length || 0 }
+          metadata: { 
+            mood, productivity, workLife, blockers, 
+            ...timestamp,
+            taskCount: state?.priorities.filter((p: any) => p.done).length || 0 
+          }
         })
       });
+
+      // Update local state for immediate feedback
+      updateState((s: any) => ({
+        ...s,
+        logbook: [
+          {
+            id: Date.now(),
+            type: 'daily_reflection',
+            title: 'Tutup Hari (Clock Out)',
+            content: summary,
+            points: 100,
+            metadata_json: JSON.stringify({ mood, productivity, workLife, blockers, ...timestamp }),
+            created_at: now.toISOString()
+          },
+          ...(s.logbook || [])
+        ]
+      }));
     } catch (e) {
       console.error(e);
     }
@@ -46,37 +94,42 @@ export default function ReflectModal({ onClose }: ReflectModalProps) {
     onClose();
   };
 
+  const renderSelector = (title: string, options: any[], value: string, onChange: (k: string) => void) => (
+    <div style={{ marginBottom: 20 }}>
+      <div style={{ ...HP_TEXT.h, fontSize: 14, marginBottom: 12 }}>{title}</div>
+      <div style={{ display: 'flex', gap: 10 }}>
+        {options.map(opt => (
+          <button
+            key={opt.key}
+            onClick={() => onChange(opt.key)}
+            style={{
+              flex: 1, padding: '16px 8px', borderRadius: 16,
+              background: value === opt.key ? HP_TOKENS.sageWash : HP_TOKENS.card,
+              border: `1.5px solid ${value === opt.key ? HP_TOKENS.sage : HP_TOKENS.lineSoft}`,
+              cursor: 'pointer', transition: '0.2s', textAlign: 'center',
+              boxShadow: value === opt.key ? `0 4px 12px ${HP_TOKENS.sageSoft}` : 'none'
+            }}
+          >
+            <div style={{ fontSize: 28, marginBottom: 6 }}>{opt.emoji || <HPGlyph name={opt.glyph} size={24} color={value === opt.key ? HP_TOKENS.sage : HP_TOKENS.inkFade}/>}</div>
+            <div style={{ ...HP_TEXT.small, fontSize: 11, fontWeight: 700, color: value === opt.key ? HP_TOKENS.sage : HP_TOKENS.inkMute }}>{opt.label}</div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
   return (
-    <Modal onClose={onClose} title="Tutup Hari">
+    <Modal onClose={onClose} title="Tutup Hari (Clock Out)">
       <div style={{ ...HP_TEXT.body, fontSize: 13, marginBottom: 20, color: HP_TOKENS.inkSoft }}>
         Refleksi singkat membantu menjernihkan pikiran sebelum istirahat.
       </div>
-      
-      <div style={{ marginBottom: 20 }}>
-        <div style={{ ...HP_TEXT.h, fontSize: 14, marginBottom: 12 }}>Bagaimana perasaanmu saat ini?</div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
-          {HP_MOODS.map(m => (
-            <button
-              key={m.key}
-              onClick={() => setMood(m.key)}
-              style={{
-                flex: 1, padding: '12px 4px', borderRadius: 12,
-                background: mood === m.key ? HP_TOKENS.sageWash : 'transparent',
-                border: `1.5px solid ${mood === m.key ? HP_TOKENS.sage : 'transparent'}`,
-                cursor: 'pointer', transition: '0.2s', textAlign: 'center'
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 6 }}>
-                <HPGlyph name={m.glyph} size={24} color={mood === m.key ? HP_TOKENS.sage : HP_TOKENS.inkFade} />
-              </div>
-              <div style={{ ...HP_TEXT.small, fontSize: 10, fontWeight: 700, opacity: mood === m.key ? 1 : 0.6 }}>{m.label}</div>
-            </button>
-          ))}
-        </div>
-      </div>
 
-      <div style={{ marginBottom: 16 }}>
-        <div style={{ ...HP_TEXT.h, fontSize: 14 }}>Ada hambatan hari ini?</div>
+      {renderSelector("Bagaimana perasaanmu saat ini?", HP_MOODS, mood, setMood)}
+      {renderSelector("Seberapa produktif kamu hari ini?", PRODUCTIVITY_OPTS, productivity, setProductivity)}
+      {renderSelector("Bagaimana keseimbangan kerjamu?", WORKLIFE_OPTS, workLife, setWorkLife)}
+      
+      <div style={{ marginBottom: 24 }}>
+        <div style={{ ...HP_TEXT.h, fontSize: 14 }}>Ada hambatan hari ini? <span style={{ fontWeight: 400, fontSize: 12, color: HP_TOKENS.inkMute }}>(Opsional)</span></div>
         <textarea
           value={blockers} 
           onChange={e => setBlockers(e.target.value)} 
@@ -86,24 +139,13 @@ export default function ReflectModal({ onClose }: ReflectModalProps) {
         />
       </div>
 
-      <div style={{ marginBottom: 24 }}>
-        <div style={{ ...HP_TEXT.h, fontSize: 14 }}>Catatan untuk hari ini</div>
-        <textarea
-          value={notes} 
-          onChange={e => setNotes(e.target.value)} 
-          rows={2}
-          placeholder="Momen berharga, pembelajaran, atau syukur..."
-          style={inputStyle}
-        />
-      </div>
-
       <button 
         onClick={handleFinish} 
         style={{
-          width: '100%', padding: 16, borderRadius: 99,
+          width: '100%', padding: 18, borderRadius: 99,
           background: HP_TOKENS.sage, color: '#fff', border: 'none',
           fontFamily: HP_FONT, fontWeight: 800, fontSize: 15, cursor: 'pointer',
-          boxShadow: `0 8px 20px ${HP_TOKENS.sageSoft}`,
+          boxShadow: `0 8px 24px ${HP_TOKENS.sageSoft}`,
         }}
         className="hp-tap"
       >

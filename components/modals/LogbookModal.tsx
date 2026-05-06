@@ -99,37 +99,39 @@ export default function LogbookModal({ onClose }: LogbookModalProps) {
               );
             }
 
-            if (entry.type === 'journal_entry') {
-              const isGratitude = entry.journalType === 'gratitude';
+
+
+            if (entry.type === 'coaching_reflection') {
               return (
                 <div key={entry.id} style={{
-                  padding: 18, borderRadius: 24, background: isGratitude ? HP_TOKENS.coralSoft : HP_TOKENS.blueWash,
-                  border: `1.5px solid ${isGratitude ? HP_TOKENS.coral + '30' : HP_TOKENS.blueSoft}`,
+                  padding: 18, borderRadius: 24, background: HP_TOKENS.blueWash,
+                  border: `1.5px solid ${HP_TOKENS.blueSoft}`,
                 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <HPGlyph name={isGratitude ? 'heart' : 'book'} size={24} color={isGratitude ? HP_TOKENS.coral : HP_TOKENS.blue} />
+                        <HPGlyph name="people" size={24} color={HP_TOKENS.blue} />
                       </div>
                       <div>
-                        <div style={{ ...HP_TEXT.h, fontSize: 13 }}>{isGratitude ? 'Gratitude Log' : 'Reflection Journal'}</div>
+                        <div style={{ ...HP_TEXT.h, fontSize: 13 }}>GROW Coaching Session</div>
                         <div style={{ ...HP_TEXT.small, fontSize: 11, color: HP_TOKENS.inkMute }}>
                           {entry.day}, {entry.date} · {entry.time}
                         </div>
                       </div>
                     </div>
                     <div style={{ 
-                      padding: '4px 10px', borderRadius: 8, background: '#fff', 
-                      color: isGratitude ? HP_TOKENS.coral : HP_TOKENS.sage, fontSize: 10, fontWeight: 900, border: '1px solid currentColor'
+                      padding: '4px 10px', borderRadius: 8, background: HP_TOKENS.blue, 
+                      color: '#fff', fontSize: 10, fontWeight: 900
                     }}>
                       +{entry.points} Poin
                     </div>
                   </div>
                   <div style={{ 
-                    ...HP_TEXT.body, fontSize: 14, fontStyle: 'italic', color: HP_TOKENS.ink, 
-                    lineHeight: 1.5, background: 'rgba(255,255,255,0.5)', padding: 12, borderRadius: 12
+                    ...HP_TEXT.body, fontSize: 13, color: HP_TOKENS.ink, 
+                    lineHeight: 1.5, background: 'rgba(255,255,255,0.5)', padding: 12, borderRadius: 12,
+                    whiteSpace: 'pre-wrap'
                   }}>
-                    "{entry.content}"
+                    {entry.content}
                   </div>
                 </div>
               );

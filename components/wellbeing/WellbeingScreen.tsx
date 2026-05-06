@@ -11,7 +11,7 @@ import SectionHeader from "@/components/home/SectionHeader";
 import ReadinessRing from "@/components/growth/ReadinessRing";
 import DimensionCard from "@/components/wellbeing/DimensionCard";
 import ProgramCardInteractive from "@/components/wellbeing/ProgramCardInteractive";
-import { generateDailyPrompt } from "@/lib/aiService";
+
 
 interface WellbeingScreenProps {
   openModal: (name: string, props?: any) => void;
@@ -32,15 +32,7 @@ export default function WellbeingScreen({ openModal }: WellbeingScreenProps) {
   const { wellbeing } = state;
   const avg = Math.round((wellbeing.dims || []).reduce((a: number, b: any) => a + b.score, 0) / (wellbeing.dims?.length || 1));
   
-  const refreshPrompt = async () => {
-    setRefreshing(true);
-    const prompt = await generateDailyPrompt(state.mood, state.goals);
-    updateState((s: any) => ({
-      ...s,
-      wellbeing: { ...s.wellbeing, dailyPrompt: prompt }
-    }));
-    setRefreshing(false);
-  };
+
 
   const user = ctxUser || { name: "User" };
 
@@ -195,42 +187,7 @@ export default function WellbeingScreen({ openModal }: WellbeingScreenProps) {
         </>
       )}
 
-      <SectionHeader 
-        icon="book" 
-        label="Jurnal & refleksi"
-        action="Riwayat"
-        onAction={() => openModal('journal_history')}
-      />
-      <HPCard padding={14}>
-        <div style={{ display: 'flex', gap: 12 }}>
-          <button onClick={() => openModal('journal', { type: 'reflection' })} style={{ ...softBtn, flex: 1 }} className="hp-tap">
-            <HPGlyph name="book" size={18} color={HP_TOKENS.blue}/>
-            <div>Reflection journal</div>
-          </button>
-          <button onClick={() => openModal('journal', { type: 'gratitude' })} style={{ ...softBtn, flex: 1 }} className="hp-tap">
-            <HPGlyph name="heart" size={18} color={HP_TOKENS.coral}/>
-            <div>Gratitude log</div>
-          </button>
-        </div>
-        <div style={{ marginTop: 12, padding: 12, background: HP_TOKENS.lineSoft, borderRadius: 12 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ ...HP_TEXT.small, color: HP_TOKENS.blue, fontWeight: 700 }}>PROMPT HARI INI</div>
-            <button 
-              onClick={refreshPrompt} 
-              className="hp-tap"
-              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex', opacity: refreshing ? 0.5 : 1 }}
-            >
-              <HPGlyph name="refresh" size={12} color={HP_TOKENS.blue}/>
-            </button>
-          </div>
-          <div style={{ ...HP_TEXT.h, fontSize: 15, marginTop: 4, fontStyle: refreshing ? 'italic' : 'normal', opacity: refreshing ? 0.6 : 1 }}>
-            {refreshing ? "Mencari inspirasi..." : (wellbeing.dailyPrompt || "Tulis apa saja yang ada di pikiranmu.")}
-          </div>
-          <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, marginTop: 6, fontStyle: 'italic' }}>
-            🔒 Private — tidak bisa diakses siapapun, termasuk HR.
-          </div>
-        </div>
-      </HPCard>
+
     </div>
   );
 }

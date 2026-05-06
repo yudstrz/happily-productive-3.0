@@ -97,8 +97,7 @@ export default function GROWCoachingModal({ onClose, roleContext = 'employee', t
     const now = new Date();
     const newLog = {
       id: Date.now(),
-      type: 'journal_entry',
-      journalType: 'reflection',
+      type: 'coaching_reflection',
       content: `GROW Coaching Session:\n\nCatatan 1-on-1: ${finalAnswers.summary}\n\nGoal: ${finalAnswers.goal}\nReality: ${finalAnswers.reality}\nOptions: ${finalAnswers.options}\nWill: ${finalAnswers.will}`,
       points: 25,
       date: now.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),

@@ -79,8 +79,7 @@
 
       { "name": "Tidur 7+ jam", "streak": 8, "target": 7, "done": true, "emoji": "🌙" },
       { "name": "Jalan kaki 15 menit", "streak": 3, "target": 7, "done": false, "emoji": "🚶" },
-      { "name": "Meditasi pagi", "streak": 12, "target": 7, "done": true, "emoji": "🧘" },
-      { "name": "Jurnal syukur", "streak": 5, "target": 7, "done": false, "emoji": "📓" }
+      { "name": "Meditasi pagi", "streak": 12, "target": 7, "done": true, "emoji": "🧘" }
     ],
     "wellbeing": {
       "score": 78,
@@ -94,9 +93,7 @@
         { "id": 1, "title": "21 Hari Meditasi", "desc": "Mulai hari dengan meditasi terpandu 10 menit setiap pagi.", "emoji": "🧘", "tone": "lavender", "duration": "21 hari", "enrolledTeam": 3, "totalTeam": 5, "joinedByMe": true, "source": "hr" },
         { "id": 2, "title": "Step Challenge Bulanan", "desc": "Target 8.000 langkah per hari selama satu bulan.", "emoji": "🚶", "tone": "sage", "duration": "30 hari", "enrolledTeam": 4, "totalTeam": 5, "joinedByMe": true, "source": "hr" },
         { "id": 4, "title": "Tim Challenge: No Meeting Friday", "desc": "Satu hari dalam seminggu tanpa meeting — deep work time.", "emoji": "🎯", "tone": "blue", "duration": "Weekly", "enrolledTeam": 5, "totalTeam": 5, "joinedByMe": false, "source": "manager" }
-      ],
-      "journals": [],
-      "dailyPrompt": "Apa satu hal kecil yang bikin kamu bangga hari ini?"
+      ]
     },
 
     "skills": [

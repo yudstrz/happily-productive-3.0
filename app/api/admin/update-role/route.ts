@@ -3,7 +3,7 @@ import { db } from "@/lib/turso";
 
 export async function POST(request: Request) {
   try {
-    const { requesterId, targetUserId, newRole, managerId, jobTitle, department } = await request.json();
+    const { requesterId, targetUserId, newRole, managerId, jobTitle, department, name } = await request.json();
 
     if (!requesterId || !targetUserId) {
       return NextResponse.json({ error: "Data tidak lengkap" }, { status: 400 });
@@ -21,6 +21,13 @@ export async function POST(request: Request) {
     }
 
     // Update fields
+    if (name !== undefined) {
+      await db.execute({
+        sql: "UPDATE users SET name = ? WHERE id = ?",
+        args: [name, targetUserId]
+      });
+    }
+
     if (newRole) {
       await db.execute({
         sql: "UPDATE users SET role = ?, user_role_context = ? WHERE id = ?",

@@ -32,6 +32,10 @@ import HRRecognizeScreen from "@/components/recognize/HRRecognizeScreen";
 import HRAnalyticsScreen from "@/components/growth/HRAnalyticsScreen";
 import HRWellbeingScreen from "@/components/wellbeing/HRWellbeingScreen";
 
+// ── Admin Screens ──
+import AdminConsoleScreen from "@/components/admin/AdminConsoleScreen";
+
+
 // Modals
 import CheckInModal from "@/components/modals/CheckInModal";
 import FocusModal from "@/components/modals/FocusModal";
@@ -40,7 +44,7 @@ import PauseModal from "@/components/modals/PauseModal";
 import ReflectModal from "@/components/modals/ReflectModal";
 import CoachModal from "@/components/modals/CoachModal";
 import NotificationsModal from "@/components/modals/NotificationsModal";
-import JournalModal from "@/components/modals/JournalModal";
+
 import GoalModal from "@/components/modals/GoalModal";
 import ManagePrioritiesModal from "@/components/modals/ManagePrioritiesModal";
 import ManageHabitsModal from "@/components/modals/ManageHabitsModal";
@@ -51,7 +55,7 @@ import GROWCoachingModal from "@/components/modals/GROWCoachingModal";
 import LearningDetailModal from "@/components/modals/LearningDetailModal";
 import ManageProgramsModal from "@/components/modals/ManageProgramsModal";
 import AllRewardsModal from "@/components/modals/AllRewardsModal";
-import JournalHistoryModal from "@/components/modals/JournalHistoryModal";
+
 import LogbookModal from "@/components/modals/LogbookModal";
 import SystemGuideModal from "@/components/modals/SystemGuideModal";
 import SkillAssessmentModal from "@/components/modals/SkillAssessmentModal";
@@ -98,11 +102,7 @@ function AppContent() {
   const renderScreen = () => {
     // Admin
     if (currentRole === 'admin') {
-      if (tab === 'home')      return <div style={pad}><HRHomeScreen openModal={openModal} /></div>;
-      if (tab === 'goals')     return <div style={pad}><HRPeopleScreen openModal={openModal} /></div>;
-      if (tab === 'recognize') return <div style={pad}><HRRecognizeScreen openModal={openModal} /></div>;
-      if (tab === 'growth')    return <div style={pad}><HRAnalyticsScreen openModal={openModal} /></div>;
-      if (tab === 'wellbeing') return <div style={pad}><HRWellbeingScreen openModal={openModal} /></div>;
+      return <div style={pad}><AdminConsoleScreen openModal={openModal} /></div>;
     }
     // Employee
     if (currentRole === 'employee') {
@@ -162,28 +162,30 @@ function AppContent() {
       </div>
 
       {/* Floating AI Coach button */}
-      <button
-        onClick={() => openModal('coach')}
-        style={{
-          position: 'absolute', right: 18, bottom: 106, zIndex: 30,
-          width: 56, height: 56, borderRadius: 28, border: 'none',
-          background: currentRole === 'manager' ? HP_TOKENS.blue :
-                     currentRole === 'hr' ? '#7B6BB5' :
-                     HP_TOKENS.yellow,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          cursor: 'pointer',
-          boxShadow: `0 8px 24px ${
-            currentRole === 'manager' ? 'rgba(59,111,160,0.2)' :
-            currentRole === 'hr' ? 'rgba(123,107,181,0.2)' :
-            'rgba(253,185,19,0.2)'
-          }`,
-        }}
-        className="hp-tap"
-      >
-        <HPGlyph name="sparkle" size={26} color={currentRole === 'employee' ? HP_TOKENS.ink : "#fff"} />
-      </button>
+      {currentRole !== 'admin' && (
+        <button
+          onClick={() => openModal('coach')}
+          style={{
+            position: 'absolute', right: 18, bottom: 106, zIndex: 30,
+            width: 56, height: 56, borderRadius: 28, border: 'none',
+            background: currentRole === 'manager' ? HP_TOKENS.blue :
+                       currentRole === 'hr' ? '#7B6BB5' :
+                       HP_TOKENS.yellow,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer',
+            boxShadow: `0 8px 24px ${
+              currentRole === 'manager' ? 'rgba(59,111,160,0.2)' :
+              currentRole === 'hr' ? 'rgba(123,107,181,0.2)' :
+              'rgba(253,185,19,0.2)'
+            }`,
+          }}
+          className="hp-tap"
+        >
+          <HPGlyph name="sparkle" size={26} color={currentRole === 'employee' ? HP_TOKENS.ink : "#fff"} />
+        </button>
+      )}
 
-      <TabNav tab={tab} setTab={setTab} userRole={currentRole} />
+      {currentRole !== 'admin' && <TabNav tab={tab} setTab={setTab} userRole={currentRole} />}
 
       {/* Modal Renderer */}
       {modal?.name === 'checkin'          && <CheckInModal onClose={closeModal} />}
@@ -193,7 +195,7 @@ function AppContent() {
       {modal?.name === 'reflect'          && <ReflectModal onClose={closeModal} />}
       {modal?.name === 'coach'            && <CoachModal onClose={closeModal} />}
       {modal?.name === 'notifications'    && <NotificationsModal onClose={closeModal} />}
-      {modal?.name === 'journal'          && <JournalModal onClose={closeModal} {...modal.props} />}
+
       {modal?.name === 'new_goal'         && <GoalModal onClose={closeModal} {...modal.props} />}
       {modal?.name === 'manage_priorities'&& <ManagePrioritiesModal onClose={closeModal} />}
       {modal?.name === 'manage_habits'    && <ManageHabitsModal onClose={closeModal} />}

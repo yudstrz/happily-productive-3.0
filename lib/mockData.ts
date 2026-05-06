@@ -1,11 +1,11 @@
 // ─── SHARED ─────────────────────────────────────────────────────────────────
 
 export const HP_MOODS = [
-  { key: 'joy', label: 'Bahagia', glyph: 'sparkle', tone: 'yellow', value: 5 },
-  { key: 'calm', label: 'Tenang', glyph: 'check', tone: 'sage', value: 4 },
-  { key: 'neutral', label: 'Biasa', glyph: 'activity', tone: 'neutral', value: 3 },
-  { key: 'tired', label: 'Lelah', glyph: 'moon', tone: 'blue', value: 2 },
-  { key: 'stress', label: 'Stress', glyph: 'zap', tone: 'coral', value: 1 },
+  { key: 'joy', label: 'Bahagia', glyph: 'sparkle', emoji: '😊', tone: 'yellow', value: 5 },
+  { key: 'calm', label: 'Tenang', glyph: 'check', emoji: '😌', tone: 'sage', value: 4 },
+  { key: 'neutral', label: 'Biasa', glyph: 'activity', emoji: '😐', tone: 'neutral', value: 3 },
+  { key: 'tired', label: 'Lelah', glyph: 'moon', emoji: '😫', tone: 'blue', value: 2 },
+  { key: 'stress', label: 'Stress', glyph: 'zap', emoji: '🤯', tone: 'coral', value: 1 },
 ];
 
 export const HP_ENERGY = [
@@ -112,7 +112,7 @@ export const HP_HABITS = [
   { name: 'Tidur 7+ jam', streak: 8, target: 7, done: true, glyph: 'moon', history: [true, true, false, true, true, true, true] },
   { name: 'Jalan kaki 15 menit', streak: 3, target: 7, done: false, glyph: 'activity', history: [false, true, true, false, false, true, false] },
   { name: 'Meditasi pagi', streak: 12, target: 7, done: true, glyph: 'sparkle', history: [true, true, true, true, true, true, true] },
-  { name: 'Jurnal syukur', streak: 5, target: 7, done: false, glyph: 'book', history: [true, false, true, true, false, true, false] },
+
 ];
 
 export const HP_WELLBEING_DIMS = [
@@ -187,7 +187,7 @@ export const MANAGER_TEAM_WELLBEING = [
 export const MANAGER_PROGRAMS_CATALOG = [
   { id: 1, title: '21 Hari Meditasi', desc: 'Mulai hari dengan meditasi terpandu 10 menit setiap pagi.', glyph: 'sparkle', tone: 'lavender', category: 'Mental', duration: '21 hari', enrolledTeam: 3, totalTeam: 5, assignedToTeam: true, source: 'hr' },
   { id: 2, title: 'Step Challenge Bulanan', desc: 'Target 8.000 langkah per hari selama satu bulan.', glyph: 'activity', tone: 'sage', category: 'Fisik', duration: '30 hari', enrolledTeam: 4, totalTeam: 5, assignedToTeam: true, source: 'hr' },
-  { id: 3, title: 'Gratitude Week', desc: 'Tulis 3 hal yang kamu syukuri setiap hari selama seminggu.', glyph: 'book', tone: 'yellow', category: 'Mental', duration: '7 hari', enrolledTeam: 2, totalTeam: 5, assignedToTeam: false, source: 'hr' },
+
   { id: 4, title: 'Tim Challenge: No Meeting Friday', desc: 'Satu hari dalam seminggu tanpa meeting — deep work time.', glyph: 'target', tone: 'blue', category: 'Produktivitas', duration: 'Weekly', enrolledTeam: 5, totalTeam: 5, assignedToTeam: true, source: 'manager' },
   { id: 5, title: 'Tim Challenge: Lunch Together', desc: 'Makan siang bareng minimal 2x seminggu untuk bonding tim.', glyph: 'heart', tone: 'coral', category: 'Sosial', duration: 'Weekly', enrolledTeam: 3, totalTeam: 5, assignedToTeam: true, source: 'manager' },
   { id: 6, title: 'Financial Wellness Talk', desc: 'Webinar perencanaan keuangan pribadi bersama advisor.', glyph: 'zap', tone: 'yellow', category: 'Finansial', duration: '1 sesi', enrolledTeam: 0, totalTeam: 5, assignedToTeam: false, source: 'hr' },
