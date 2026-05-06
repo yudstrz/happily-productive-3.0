@@ -49,7 +49,7 @@ interface DeptPulse {
 
 
 export default function HRHomeScreen({ openModal }: Props) {
-  const { user, state } = useHP();
+  const { user, state, awardXP } = useHP();
   
   if (!user || !state?.hrData) return (
     <div style={{ padding: 40, textAlign: 'center', opacity: 0.5 }}>Memuat data HR...</div>
@@ -167,7 +167,10 @@ export default function HRHomeScreen({ openModal }: Props) {
                 <HPCard 
                   key={sr.id} 
                   padding={16} 
-                  onClick={() => openModal('take_survey', { survey: sr })}
+                  onClick={() => {
+                    window.open(sr.url, '_blank');
+                    awardXP('survey_complete', `Selesaikan survey: ${sr.title}`);
+                  }}
                   style={{ cursor: 'pointer', border: `1.5px solid ${HP_TOKENS.blue}40` }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>

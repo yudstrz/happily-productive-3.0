@@ -54,7 +54,7 @@ interface OneOnOneSession {
 }
 
 export default function ManagerHomeScreen({ openModal }: Props) {
-  const { user, state } = useHP();
+  const { user, state, awardXP } = useHP();
   const [approvals, setApprovals] = useState<ApprovalTask[]>([]); // In a real app, fetch these from DB too
 
   if (!user || !state?.managerData) return (
@@ -266,7 +266,10 @@ export default function ManagerHomeScreen({ openModal }: Props) {
                 <HPCard 
                   key={sr.id} 
                   padding={16} 
-                  onClick={() => openModal('take_survey', { survey: sr })}
+                  onClick={() => {
+                    window.open(sr.url, '_blank');
+                    awardXP('survey_complete', `Selesaikan survey: ${sr.title}`);
+                  }}
                   style={{ cursor: 'pointer', border: `1.5px solid ${HP_TOKENS.blue}40` }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>

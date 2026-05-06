@@ -579,7 +579,10 @@ export default function HomeScreen({ openModal }: any) {
                 <HPCard 
                   key={sr.id} 
                   padding={16} 
-                  onClick={() => openModal('take_survey', { survey: sr })}
+                  onClick={() => {
+                    window.open(sr.url, '_blank');
+                    awardXP('survey_complete', `Selesaikan survey: ${sr.title}`);
+                  }}
                   style={{ cursor: 'pointer', border: `1.5px solid ${HP_TOKENS.blue}40` }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
