@@ -124,7 +124,7 @@ export async function GET(request: Request) {
 
     // Fetch Today's Attendance
     const todayAttRes = await db.execute({
-      sql: "SELECT created_at FROM attendance WHERE user_id = ? AND date(created_at, 'localtime') = date('now', 'localtime') ORDER BY created_at ASC LIMIT 1",
+      sql: "SELECT check_in_at as created_at FROM attendance WHERE user_id = ? AND date(check_in_at, 'localtime') = date('now', 'localtime') ORDER BY check_in_at ASC LIMIT 1",
       args: [userId]
     });
     const checkIn = todayAttRes.rows[0]?.created_at as string;
