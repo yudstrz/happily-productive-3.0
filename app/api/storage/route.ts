@@ -126,6 +126,7 @@ export async function GET(request: Request) {
       mood: latestMood?.mood_key || 'calm',
       energy: latestMood?.energy_key || 'mid',
       tag: latestMood?.tag || null,
+      intention: "",
       priorities,
       weeklyPriorities,
       habits,
@@ -137,16 +138,24 @@ export async function GET(request: Request) {
       wellbeing: { dims: [], programs: [], dailyPrompt: "" },
       points: user.points,
       notifications: 0,
+      rewards: [],
+      rewardHistory: [],
       logbook: [],
       lastActivityDate: userRow.last_activity_at,
       penaltyActive: false,
+      penaltyThresholdDays: 3,
       workSchedule: { start: "08:00", end: "17:00", breakStart: "12:00", breakEnd: "13:00" },
       todayAttendance: {
         checkIn: checkIn ? new Date(checkIn).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : undefined,
         checkOut: checkOut ? new Date(checkOut).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : undefined,
       },
       personalWellbeingGoal: (userRow.personal_wellbeing_goal as string) || "",
-      wellbeingRoutine: userRow.wellbeing_routine ? JSON.parse(userRow.wellbeing_routine as string) : []
+      wellbeingRoutine: userRow.wellbeing_routine ? JSON.parse(userRow.wellbeing_routine as string) : [],
+      contacts: [
+        { id: '1', name: 'HR Helpdesk', role: 'Support & Admin', email: 'hr@company.com', phone: '021-1234567' },
+        { id: '2', name: 'IT Support', role: 'Technical Issues', email: 'it@company.com', phone: '0812-3456-7890' },
+        { id: '3', name: 'Security Office', role: 'Safety & Emergency', email: 'security@company.com', phone: '021-9876543' }
+      ]
     };
 
     return NextResponse.json({ state, user });

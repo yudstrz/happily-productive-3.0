@@ -67,6 +67,7 @@ interface HPContextType {
   logout: () => void;
   loading: boolean;
   refresh: () => Promise<void>;
+  refreshSurveys: () => Promise<void>;
   resetData: () => Promise<void>;
   syncSkillProgress: (source: string, amount: number) => void;
   awardXP: (actionType: string, description?: string) => Promise<void>;
@@ -259,6 +260,19 @@ export function HPProvider({ children }: { children: React.ReactNode }) {
     window.location.reload();
   };
 
+  // Refresh ONLY surveys without resetting other state fields
+  const refreshSurveys = useCallback(async () => {
+    try {
+      const res = await fetch('/api/hr/surveys');
+      const data = await res.json();
+      if (data.surveys) {
+        setState(prev => prev ? { ...prev, surveys: data.surveys } : null);
+      }
+    } catch (e) {
+      console.error("Failed to refresh surveys:", e);
+    }
+  }, []);
+
   const awardXP = async (actionType: string, description?: string) => {
     if (!user) return;
     try {
@@ -279,7 +293,8 @@ export function HPProvider({ children }: { children: React.ReactNode }) {
   return (
     <HPContext.Provider value={{ 
       state, user, updateState, updateUser, setUserRole, login, logout, awardXP,
-      loading, refresh: async () => { if (user?.id) await fetchData(user.id); }, resetData, syncSkillProgress 
+      loading, refresh: async () => { if (user?.id) await fetchData(user.id); },
+      refreshSurveys, resetData, syncSkillProgress 
     }}>
       {children}
     </HPContext.Provider>

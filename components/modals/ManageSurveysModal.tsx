@@ -12,7 +12,7 @@ interface ManageSurveysModalProps {
 }
 
 export default function ManageSurveysModal({ onClose, editId }: ManageSurveysModalProps) {
-  const { state, refresh } = useHP();
+  const { state, refreshSurveys } = useHP();
   
   // Find the survey if editId is provided
   const initialSurvey = editId ? state?.surveys?.find((s: any) => s.id === editId) : null;
@@ -36,7 +36,7 @@ export default function ManageSurveysModal({ onClose, editId }: ManageSurveysMod
         setTitle("");
         setUrl("");
         setEditingId(null);
-        await refresh(); // Sync global state
+        await refreshSurveys();
       }
     } catch (e) {
       console.error(e);
@@ -50,7 +50,7 @@ export default function ManageSurveysModal({ onClose, editId }: ManageSurveysMod
     try {
       const res = await fetch(`/api/hr/surveys?id=${id}`, { method: 'DELETE' });
       if (res.ok) {
-        await refresh();
+        await refreshSurveys();
       }
     } catch (e) {
       console.error(e);
@@ -63,14 +63,14 @@ export default function ManageSurveysModal({ onClose, editId }: ManageSurveysMod
     setUrl(sr.url);
   };
 
-  if (!state || !state.surveys) return null;
+  const surveys = state?.surveys ?? [];
 
   return (
     <Modal onClose={onClose} title="Kelola HR Surveys 📋">
       <div style={{ marginTop: 4 }}>
         <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, fontWeight: 800, marginBottom: 12, letterSpacing: '0.05em' }}>SURVEY AKTIF</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
-          {state.surveys.map((sr: any) => (
+          {surveys.map((sr: any) => (
             <div 
               key={sr.id} 
               style={{
@@ -106,7 +106,7 @@ export default function ManageSurveysModal({ onClose, editId }: ManageSurveysMod
               </div>
             </div>
           ))}
-          {state.surveys.length === 0 && (
+          {surveys.length === 0 && (
             <div style={{ textAlign: 'center', padding: '30px 20px', background: HP_TOKENS.lineSoft, borderRadius: 18, border: `1.5px dashed ${HP_TOKENS.line}` }}>
               <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute }}>Belum ada survey yang diterbitkan.</div>
             </div>
