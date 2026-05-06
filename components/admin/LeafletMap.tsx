@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { MapContainer, TileLayer, Marker, Circle, useMapEvents, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
@@ -44,6 +44,10 @@ export default function LeafletMap({ offices, onAddOffice, onDeleteOffice, onUpd
   const [draftLocation, setDraftLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [draftName, setDraftName] = useState("");
   const [draftRadius, setDraftRadius] = useState(100);
+  
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+  const mapRef = useRef<L.Map | null>(null);
 
   // Focus on the first office, or a default location
   const center: [number, number] = offices.length > 0 ? [offices[0].lat, offices[0].lng] : [-6.2088, 106.8456]; // Default to Jakarta
@@ -61,10 +65,69 @@ export default function LeafletMap({ offices, onAddOffice, onDeleteOffice, onUpd
     setDraftRadius(100);
   };
 
+  const handleSearch = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!searchQuery) return;
+    
+    setIsSearching(true);
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}`);
+      const data = await res.json();
+      if (data && data.length > 0) {
+        const { lat, lon } = data[0];
+        if (mapRef.current) {
+          mapRef.current.flyTo([parseFloat(lat), parseFloat(lon)], 16);
+        }
+      } else {
+        alert("Lokasi tidak ditemukan");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Gagal mencari lokasi");
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
   return (
     <div style={{ position: 'relative', width: '100%', height: '500px', background: '#fff', borderRadius: 20, overflow: 'hidden', border: `1px solid ${HP_TOKENS.line}`, fontFamily: HP_FONT }}>
+      
+      {/* Search Bar Overlay */}
+      <div style={{ position: 'absolute', top: 16, left: 56, zIndex: 1000, display: 'flex', gap: 8 }}>
+        <form onSubmit={handleSearch} style={{ display: 'flex', gap: 8 }}>
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+            <div style={{ position: 'absolute', left: 12 }}>
+              <HPGlyph name="search" size={16} color={HP_TOKENS.inkMute} />
+            </div>
+            <input 
+              type="text" 
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Cari nama tempat / kota..."
+              style={{
+                padding: '10px 10px 10px 36px', borderRadius: 12, border: `1px solid ${HP_TOKENS.line}`,
+                fontFamily: HP_FONT, outline: 'none', width: 260, fontSize: 13,
+                boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
+              }}
+            />
+          </div>
+          <button 
+            type="submit"
+            disabled={isSearching || !searchQuery}
+            style={{
+              padding: '10px 16px', background: HP_TOKENS.ink, color: '#fff', 
+              borderRadius: 12, border: 'none', fontFamily: HP_FONT, fontWeight: 800, cursor: 'pointer',
+              opacity: (isSearching || !searchQuery) ? 0.6 : 1,
+              boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
+            }}
+          >
+            {isSearching ? 'Mencari...' : 'Cari'}
+          </button>
+        </form>
+      </div>
+
       {/* Map Container Needs Explicit Height */}
-      <MapContainer center={center} zoom={13} style={{ height: "100%", width: "100%", zIndex: 1 }}>
+      <MapContainer center={center} zoom={13} style={{ height: "100%", width: "100%", zIndex: 1 }} ref={mapRef}>
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
