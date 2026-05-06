@@ -223,6 +223,19 @@ export async function POST(request: Request) {
       }
     }
 
+    // Sync Surveys (Global) - Only if provided in state
+    if (state.surveys) {
+      // For simplicity, we clear and re-insert active surveys
+      // In a real production app, you might want more granular control
+      await db.execute("DELETE FROM surveys");
+      for (const s of state.surveys) {
+        await db.execute({
+          sql: "INSERT INTO surveys (title, url, published_at, status) VALUES (?, ?, ?, ?)",
+          args: [s.title, s.url, s.publishedAt || new Date().toISOString(), s.status || 'active']
+        });
+      }
+    }
+
     return NextResponse.json({ success: true, message: 'Updated Turso successfully' });
   } catch (error) {
     console.error("Turso Save Error:", error);
