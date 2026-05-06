@@ -24,12 +24,13 @@ const TONE_SOFT: Record<string, string> = {
 import { useHP } from "@/lib/HPContext";
 import { useEffect } from "react";
 import HRAttendanceView from "@/components/goals/HRAttendanceView";
+import OfficeSettingsMap from "@/components/admin/OfficeSettingsMap";
 
 export default function HRPeopleScreen({ openModal }: Props) {
   const { state, user: currentUser } = useHP();
   const isAdmin = currentUser?.role === 'admin';
   const isAdminOrHR = isAdmin || currentUser?.role === 'hr';
-  const [activeTab, setActiveTab] = useState<'goals' | 'people' | 'dept' | 'surveys' | 'users' | 'attendance'>(isAdmin ? 'users' : 'goals');
+  const [activeTab, setActiveTab] = useState<'goals' | 'people' | 'dept' | 'surveys' | 'users' | 'attendance' | 'office'>(isAdmin ? 'users' : 'goals');
   const [search, setSearch] = useState('');
   const [dbUsers, setDbUsers] = useState<any[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
@@ -89,6 +90,7 @@ export default function HRPeopleScreen({ openModal }: Props) {
         {[
           isAdmin && { key: 'users', label: 'Users & Roles' },
           { key: 'attendance', label: 'Attendance' },
+          { key: 'office', label: 'Office' },
           { key: 'goals',   label: 'Org Goals' },
           { key: 'people',  label: 'Directory' },
           { key: 'dept',    label: 'Pulse' },
@@ -176,6 +178,11 @@ export default function HRPeopleScreen({ openModal }: Props) {
       {/* ── Attendance ── */}
       {activeTab === 'attendance' && (
         <HRAttendanceView currentUser={currentUser} />
+      )}
+
+      {/* ── Office Settings ── */}
+      {activeTab === 'office' && (
+        <OfficeSettingsMap />
       )}
 
       {/* ── Surveys ── */}

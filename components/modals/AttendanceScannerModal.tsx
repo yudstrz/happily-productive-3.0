@@ -24,6 +24,11 @@ export default function AttendanceScannerModal({ onClose }: AttendanceScannerMod
   const [qrTimeLeft, setQrTimeLeft] = useState<string>("");
   const [qrLoading, setQrLoading] = useState(false);
   
+  const [checkInType, setCheckInType] = useState('WFO');
+  const [officeId, setOfficeId] = useState('');
+  const [notes, setNotes] = useState('');
+  const [offices, setOffices] = useState<any[]>([]);
+  
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const autoRefreshRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -36,6 +41,14 @@ export default function AttendanceScannerModal({ onClose }: AttendanceScannerMod
         (err) => console.warn("Location error:", err)
       );
     }
+    
+    // Fetch offices
+    fetch("/api/settings/office").then(res => res.json()).then(data => {
+      if (data.offices) {
+        setOffices(data.offices);
+        if (data.offices.length > 0) setOfficeId(data.offices[0].id);
+      }
+    }).catch(e => console.error(e));
   }, []);
 
   // Fetch a new token from API
@@ -157,6 +170,9 @@ export default function AttendanceScannerModal({ onClose }: AttendanceScannerMod
           token,
           lat: location?.lat,
           lng: location?.lng,
+          checkInType,
+          officeId,
+          notes
         })
       });
       
@@ -226,9 +242,43 @@ export default function AttendanceScannerModal({ onClose }: AttendanceScannerMod
                   position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column',
                   alignItems: 'center', justifyContent: 'center', gap: 16, textAlign: 'center', padding: 20
                 }}>
-                  <HPGlyph name="target" size={48} color={HP_TOKENS.line} />
-                  <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute }}>
-                    Pilih metode absen di bawah ini
+                  <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 12, textAlign: 'left' }}>
+                    <div>
+                      <label style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, fontWeight: 700 }}>Tipe Kehadiran</label>
+                      <select 
+                        value={checkInType} onChange={e => setCheckInType(e.target.value)}
+                        style={{ width: '100%', padding: '10px', borderRadius: 12, border: `1px solid ${HP_TOKENS.line}`, fontFamily: HP_FONT, outline: 'none' }}
+                      >
+                        <option value="WFO">Work From Office</option>
+                        <option value="WFA">Work From Anywhere</option>
+                        <option value="DINAS">Perjalanan Dinas</option>
+                      </select>
+                    </div>
+
+                    {checkInType === 'WFO' && (
+                      <div>
+                        <label style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, fontWeight: 700 }}>Lokasi Kantor</label>
+                        <select 
+                          value={officeId} onChange={e => setOfficeId(e.target.value)}
+                          style={{ width: '100%', padding: '10px', borderRadius: 12, border: `1px solid ${HP_TOKENS.line}`, fontFamily: HP_FONT, outline: 'none' }}
+                        >
+                          {offices.map(off => (
+                            <option key={off.id} value={off.id}>{off.name}</option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+
+                    {checkInType !== 'WFO' && (
+                      <div>
+                        <label style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, fontWeight: 700 }}>Catatan/Alasan</label>
+                        <input 
+                          type="text" value={notes} onChange={e => setNotes(e.target.value)}
+                          placeholder="Misal: Bekerja dari cafe..."
+                          style={{ width: '100%', padding: '10px', borderRadius: 12, border: `1px solid ${HP_TOKENS.line}`, fontFamily: HP_FONT, outline: 'none' }}
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

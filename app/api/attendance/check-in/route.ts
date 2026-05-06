@@ -1,12 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/turso";
 
-const OFFICE_LOCATION = {
-  lat: -6.9175, // Bandung center
-  lng: 107.6191
-};
-const MAX_DISTANCE_METERS = 1000000; // Testing: Allow 1000km radius
-
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number) {
   const R = 6371e3; // metres
   const φ1 = lat1 * Math.PI/180;
@@ -24,10 +18,18 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
 
 export async function POST(request: Request) {
   try {
-    const { userId, token, lat, lng, mood } = await request.json();
+    const { userId, token, lat, lng, mood, checkInType = 'WFO', officeId, notes } = await request.json();
 
     if (!userId || !token) {
       return NextResponse.json({ error: "Data tidak lengkap" }, { status: 400 });
+    }
+
+    if (checkInType !== 'WFO' && !notes) {
+      return NextResponse.json({ error: "Catatan/alasan wajib diisi untuk WFA atau Dinas" }, { status: 400 });
+    }
+
+    if (checkInType === 'WFO' && !officeId) {
+      return NextResponse.json({ error: "Pilih lokasi kantor untuk check-in WFO" }, { status: 400 });
     }
 
     // 1. Verify Token
@@ -45,19 +47,34 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "QR Code sudah kadaluarsa" }, { status: 400 });
     }
 
-    // 2. Verify Location (Geofencing)
-    if (lat && lng) {
-      const distance = calculateDistance(lat, lng, OFFICE_LOCATION.lat, OFFICE_LOCATION.lng);
-      if (distance > MAX_DISTANCE_METERS) {
-        return NextResponse.json({ error: "Anda berada di luar area kantor" }, { status: 403 });
+    // 2. Verify Location (Geofencing) only for WFO
+    if (checkInType === 'WFO') {
+      const officeCheck = await db.execute({
+        sql: "SELECT lat, lng, radius FROM office_locations WHERE id = ?",
+        args: [officeId]
+      });
+
+      if (officeCheck.rows.length === 0) {
+        return NextResponse.json({ error: "Lokasi kantor tidak valid" }, { status: 400 });
+      }
+
+      const office = officeCheck.rows[0] as unknown as { lat: number, lng: number, radius: number };
+
+      if (lat && lng) {
+        const distance = calculateDistance(lat, lng, office.lat, office.lng);
+        if (distance > office.radius) {
+          return NextResponse.json({ error: `Anda berada di luar area kantor. Jarak Anda: ${Math.round(distance)}m, Maksimal: ${office.radius}m` }, { status: 403 });
+        }
+      } else {
+         return NextResponse.json({ error: "Koordinat lokasi tidak ditemukan" }, { status: 400 });
       }
     }
 
     // 3. Record Attendance
     const id = "att_" + Math.random().toString(36).substring(2, 9);
     await db.execute({
-      sql: "INSERT INTO attendance (id, user_id, location_lat, location_lng, mood) VALUES (?, ?, ?, ?, ?)",
-      args: [id, userId, lat || null, lng || null, mood || null]
+      sql: "INSERT INTO attendance (id, user_id, location_lat, location_lng, mood, check_in_type, office_id, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      args: [id, userId, lat || null, lng || null, mood || null, checkInType, officeId || null, notes || null]
     });
 
     // 4. Delete Token (Single Use)
