@@ -27,7 +27,7 @@ import HRAttendanceView from "@/components/goals/HRAttendanceView";
 import OfficeSettingsMap from "@/components/admin/OfficeSettingsMap";
 
 export default function HRPeopleScreen({ openModal }: Props) {
-  const { state, user: currentUser, updateState } = useHP();
+  const { state, user: currentUser, updateState, refreshSurveys } = useHP();
   const isAdmin = currentUser?.role === 'admin';
   const isAdminOrHR = isAdmin || currentUser?.role === 'hr';
   const [activeTab, setActiveTab] = useState<'goals' | 'people' | 'dept' | 'surveys' | 'users' | 'attendance' | 'office' | 'schedule' | 'contacts'>(isAdmin ? 'users' : 'attendance');
@@ -38,6 +38,9 @@ export default function HRPeopleScreen({ openModal }: Props) {
   useEffect(() => {
     if (activeTab === 'users' && isAdmin) {
       fetchUsers();
+    }
+    if (activeTab === 'surveys') {
+      refreshSurveys();
     }
   }, [activeTab, isAdmin]);
 

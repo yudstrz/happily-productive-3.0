@@ -158,6 +158,20 @@ export function HPProvider({ children }: { children: React.ReactNode }) {
     }
   }, [user, fetchDashboards]);
 
+  // Auto-refresh surveys for ALL roles when user logs in
+  useEffect(() => {
+    if (user?.id && !loading) {
+      fetch('/api/hr/surveys')
+        .then(r => r.json())
+        .then(data => {
+          if (data.surveys) {
+            setState(prev => prev ? { ...prev, surveys: data.surveys } : null);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [user?.id, loading]);
+
   useEffect(() => {
     if (!loading && user && state) {
       fetch("/api/storage", {

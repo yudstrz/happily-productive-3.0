@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useHP } from "@/lib/HPContext";
 import { HP_TOKENS, HP_FONT, HP_TEXT } from "@/lib/constants";
 import Modal from "@/components/ui/Modal";
@@ -21,6 +21,9 @@ export default function ManageSurveysModal({ onClose, editId }: ManageSurveysMod
   const [url, setUrl] = useState(initialSurvey?.url || "");
   const [editingId, setEditingId] = useState<number | null>(editId || null);
   const [saving, setSaving] = useState(false);
+
+  // Always load fresh data from DB when modal opens
+  useEffect(() => { refreshSurveys(); }, []);
 
   const saveSurvey = async () => {
     if (!title || !url) return;
