@@ -109,6 +109,19 @@ export async function GET(request: Request) {
       name: r.name, current: r.current_level, target: r.target_level
     }));
 
+    // Fetch Today's Attendance
+    const todayAttRes = await db.execute({
+      sql: "SELECT created_at FROM attendance WHERE user_id = ? AND date(created_at, 'localtime') = date('now', 'localtime') ORDER BY created_at ASC LIMIT 1",
+      args: [userId]
+    });
+    const checkIn = todayAttRes.rows[0]?.created_at as string;
+
+    const todayReflectRes = await db.execute({
+      sql: "SELECT created_at FROM logbook_entries WHERE user_id = ? AND type = 'daily_reflection' AND date(created_at, 'localtime') = date('now', 'localtime') ORDER BY created_at DESC LIMIT 1",
+      args: [userId]
+    });
+    const checkOut = todayReflectRes.rows[0]?.created_at as string;
+
     const state = {
       mood: latestMood?.mood_key || 'calm',
       energy: latestMood?.energy_key || 'mid',
@@ -126,7 +139,14 @@ export async function GET(request: Request) {
       notifications: 0,
       logbook: [],
       lastActivityDate: userRow.last_activity_at,
-      penaltyActive: false
+      penaltyActive: false,
+      workSchedule: { start: "08:00", end: "17:00", breakStart: "12:00", breakEnd: "13:00" },
+      todayAttendance: {
+        checkIn: checkIn ? new Date(checkIn).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : undefined,
+        checkOut: checkOut ? new Date(checkOut).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : undefined,
+      },
+      personalWellbeingGoal: userRow.personal_wellbeing_goal || "",
+      wellbeingRoutine: userRow.wellbeing_routine ? JSON.parse(userRow.wellbeing_routine) : []
     };
 
     return NextResponse.json({ state, user });
@@ -143,11 +163,14 @@ export async function POST(request: Request) {
 
     // Update User
     await db.execute({
-      sql: `UPDATE users SET name = ?, streak = ?, points = ?, level = ?, rank = ?, avatar_image = ?, user_role_context = ?, last_activity_at = ? WHERE id = ?`,
+      sql: `UPDATE users SET name = ?, streak = ?, points = ?, level = ?, rank = ?, avatar_image = ?, user_role_context = ?, last_activity_at = ?, personal_wellbeing_goal = ?, wellbeing_routine = ? WHERE id = ?`,
       args: [
         user.name, user.streak, user.points, user.level, user.rank, 
         user.avatarImage || null, 
-        user.userRole || user.role, state.lastActivityDate, userId
+        user.userRole || user.role, state.lastActivityDate,
+        state.personalWellbeingGoal || "",
+        JSON.stringify(state.wellbeingRoutine || []),
+        userId
       ]
     });
 

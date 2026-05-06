@@ -11,6 +11,7 @@ import SectionHeader from "@/components/home/SectionHeader";
 import ReadinessRing from "@/components/growth/ReadinessRing";
 import DimensionCard from "@/components/wellbeing/DimensionCard";
 import ProgramCardInteractive from "@/components/wellbeing/ProgramCardInteractive";
+import HabitCell from "@/components/home/HabitCell";
 
 
 interface WellbeingScreenProps {
@@ -153,39 +154,110 @@ export default function WellbeingScreen({ openModal }: WellbeingScreenProps) {
         )}
       </div>
 
-      {/* Surveys Section */}
-      {state.surveys && state.surveys.length > 0 && (
-        <>
-          <SectionHeader 
-            icon="book" 
-            label="Survey untuk kamu" 
-            count={String(state.surveys.length)}
-          />
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {state.surveys.map((sr: any) => (
-              <HPCard 
-                key={sr.id} 
-                padding={16} 
-                onClick={() => openModal('take_survey', { survey: sr })}
-                style={{ cursor: 'pointer', border: `1.5px solid ${HP_TOKENS.blue}40` }}
+
+      {/* NEW: Personal Wellbeing Goal & Routine */}
+      <SectionHeader 
+        icon="sparkle" 
+        label="Personal Routine (AI)" 
+        action={state.personalWellbeingGoal ? "Ubah Goal" : "+ Set Goal"}
+        onAction={() => {
+          const g = prompt("Apa goal wellbeing personal kamu? (misal: Ingin lebih bugar, Ingin tidur lebih teratur, Ingin mengurangi stress)");
+          if (g) {
+            // AI Simulation: Generate tasks based on goal
+            let tasks = [];
+            if (g.toLowerCase().includes("tidur")) {
+              tasks = [
+                { id: 't1', title: "Matikan gadget 30 menit sebelum tidur", done: false },
+                { id: 't2', title: "Minum air putih hangat", done: false },
+                { id: 't3', title: "Baca buku 10 menit", done: false }
+              ];
+            } else if (g.toLowerCase().includes("bugar") || g.toLowerCase().includes("sehat")) {
+              tasks = [
+                { id: 't1', title: "Peregangan 5 menit", done: false },
+                { id: 't2', title: "Minum 2L air hari ini", done: false },
+                { id: 't3', title: "Berjalan 2000 langkah", done: false }
+              ];
+            } else {
+              tasks = [
+                { id: 't1', title: "Ambil nafas dalam 5x", done: false },
+                { id: 't2', title: "Tulis 1 hal yang disyukuri", done: false },
+                { id: 't3', title: "Istirahat sejenak setiap 2 jam", done: false }
+              ];
+            }
+            updateState({ personalWellbeingGoal: g, wellbeingRoutine: tasks });
+          }
+        }}
+      />
+      
+      {state.personalWellbeingGoal ? (
+        <div style={{ marginBottom: 24 }}>
+          <HPCard padding={16} style={{ background: HP_TOKENS.blueWash, border: 'none', marginBottom: 12 }}>
+            <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.blue, fontWeight: 900, textTransform: 'uppercase', marginBottom: 4 }}>GOAL KAMU</div>
+            <div style={{ ...HP_TEXT.h, fontSize: 16 }}>"{state.personalWellbeingGoal}"</div>
+          </HPCard>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {(state.wellbeingRoutine || []).map((t: any) => (
+              <div 
+                key={t.id} 
+                onClick={() => {
+                  updateState((s: any) => ({
+                    ...s,
+                    wellbeingRoutine: s.wellbeingRoutine.map((rt: any) => rt.id === t.id ? { ...rt, done: !rt.done } : rt)
+                  }));
+                }}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', borderRadius: 16,
+                  background: t.done ? HP_TOKENS.blueSoft : '#fff',
+                  border: `1px solid ${t.done ? HP_TOKENS.blue : HP_TOKENS.line}`,
+                  cursor: 'pointer'
+                }}
+                className="hp-tap"
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                  <div style={{ width: 44, height: 44, borderRadius: 12, background: HP_TOKENS.blueSoft, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <HPGlyph name="book" size={22} color={HP_TOKENS.blue} />
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ ...HP_TEXT.h, fontSize: 15 }}>{sr.title}</div>
-                    <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkSoft, fontWeight: 600, marginTop: 2 }}>
-                      Klik untuk isi survey (Google Forms)
-                    </div>
-                  </div>
-                  <HPGlyph name="arrow" size={18} color={HP_TOKENS.inkMute}/>
+                <div style={{ 
+                  width: 22, height: 22, borderRadius: 6, border: `2.5px solid ${t.done ? HP_TOKENS.blue : HP_TOKENS.line}`,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: t.done ? HP_TOKENS.blue : 'transparent'
+                }}>
+                  {t.done && <HPGlyph name="check" size={14} color="#fff" />}
                 </div>
-              </HPCard>
+                <div style={{ 
+                  ...HP_TEXT.body, fontSize: 14, fontWeight: 700,
+                  textDecoration: t.done ? 'line-through' : 'none',
+                  color: t.done ? HP_TOKENS.inkMute : HP_TOKENS.ink
+                }}>
+                  {t.title}
+                </div>
+              </div>
             ))}
           </div>
-        </>
+        </div>
+      ) : (
+        <HPCard padding={20} style={{ textAlign: 'center', background: HP_TOKENS.paper, border: `1.5px dashed ${HP_TOKENS.line}`, marginBottom: 24 }}>
+          <div style={{ fontSize: 32, marginBottom: 10 }}>🤖</div>
+          <div style={{ ...HP_TEXT.h, fontSize: 14, color: HP_TOKENS.inkSoft }}>Set goal wellbeing personal kamu dan AI akan membuatkan rutinitas harian untukmu!</div>
+        </HPCard>
       )}
+
+      {/* Moved Daily Training (Habits) */}
+      <SectionHeader 
+        icon="leaf" 
+        label="Daily Training" 
+        action="Settings"
+        onAction={() => openModal('manage_habits')}
+      />
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+        {(state.habits || []).map((h: any, i: number) => (
+          <HabitCell key={i} h={h} onToggle={() => {
+            updateState((s: any) => {
+              const hIndex = s.habits.findIndex((hb: any) => hb.name === h.name);
+              const newHabits = [...s.habits];
+              newHabits[hIndex] = { ...newHabits[hIndex], done: !newHabits[hIndex].done };
+              return { ...s, habits: newHabits };
+            });
+          }}/>
+        ))}
+      </div>
 
 
     </div>

@@ -30,6 +30,18 @@ export default function InsightCard({ ins, idx }: InsightCardProps) {
       fg: HP_TOKENS.ink, 
       glyph: 'target', 
     },
+    coral: {
+      bg: HP_TOKENS.coralSoft,
+      border: HP_TOKENS.coral,
+      fg: HP_TOKENS.coral,
+      glyph: 'zap',
+    },
+    lavender: {
+      bg: HP_TOKENS.lavenderSoft,
+      border: HP_TOKENS.lavender,
+      fg: HP_TOKENS.lavender,
+      glyph: 'sparkle',
+    },
   };
   
   const t = tones[ins.tone] || tones.sage;

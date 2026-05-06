@@ -154,6 +154,40 @@ export default function HRHomeScreen({ openModal }: Props) {
           <AnnouncementFeed />
         </div>
 
+        {/* Surveys Section */}
+        {state.surveys && state.surveys.length > 0 && (
+          <div style={{ marginTop: 24 }}>
+            <SectionHeader 
+              icon="book" 
+              label="Survey Aktif" 
+              count={String(state.surveys.length)}
+            />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {state.surveys.map((sr: any) => (
+                <HPCard 
+                  key={sr.id} 
+                  padding={16} 
+                  onClick={() => openModal('take_survey', { survey: sr })}
+                  style={{ cursor: 'pointer', border: `1.5px solid ${HP_TOKENS.blue}40` }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                    <div style={{ width: 44, height: 44, borderRadius: 12, background: HP_TOKENS.blueSoft, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <HPGlyph name="book" size={22} color={HP_TOKENS.blue} />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ ...HP_TEXT.h, fontSize: 15 }}>{sr.title}</div>
+                      <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkSoft, fontWeight: 600, marginTop: 2 }}>
+                        Klik untuk lihat survey
+                      </div>
+                    </div>
+                    <HPGlyph name="arrow" size={18} color={HP_TOKENS.inkMute}/>
+                  </div>
+                </HPCard>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* AI HR Coach */}
         <button onClick={() => openModal('coach')} className="hp-tap" style={{
           marginTop: 16, width: '100%', padding: '16px', borderRadius: 22,

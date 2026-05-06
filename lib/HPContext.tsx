@@ -31,6 +31,12 @@ interface HPState {
     breakStart: string;
     breakEnd: string;
   };
+  todayAttendance?: {
+    checkIn?: string;
+    checkOut?: string;
+  };
+  personalWellbeingGoal?: string;
+  wellbeingRoutine?: Array<{ id: string; title: string; done: boolean }>;
   contacts: Array<{ id: string; name: string; role: string; email: string; phone: string }>;
   hrData?: any;
   managerData?: any;

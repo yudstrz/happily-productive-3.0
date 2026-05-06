@@ -13,6 +13,7 @@ import {
   HP_AI_INSIGHTS, 
   HP_HABITS, 
 } from "@/lib/mockData";
+import { generateAIInsights } from "@/lib/aiInsights";
 import HPGlyph from "@/components/ui/HPGlyph";
 import HPAvatar from "@/components/ui/HPAvatar";
 import HPCard from "@/components/ui/HPCard";
@@ -347,7 +348,7 @@ export default function HomeScreen({ openModal }: any) {
             <div style={{ flex: 1 }}>
               <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, fontWeight: 700, marginBottom: 2 }}>JAM KERJA</div>
               <div style={{ ...HP_TEXT.body, fontSize: 13, fontWeight: 800 }}>
-                {state.workSchedule?.start} - {state.workSchedule?.end}
+                {state.todayAttendance?.checkIn || state.workSchedule?.start} - {state.todayAttendance?.checkOut || state.workSchedule?.end}
               </div>
             </div>
             <div style={{ width: 1, background: HP_TOKENS.line }} />
@@ -565,26 +566,62 @@ export default function HomeScreen({ openModal }: any) {
           </div>
         )}
 
-        {/* Habits */}
-        <div style={{ marginTop: 24 }}>
-          <SectionHeader 
-            icon="leaf" 
-            label="Daily Training" 
-            action="Settings"
-            onAction={() => openModal('manage_habits')}
-          />
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-            {state.habits.map((h: any, i: number) => (
-              <HabitCell key={i} h={h} onToggle={() => toggleHabit(h.name)}/>
-            ))}
+        {/* Surveys Section */}
+        {state.surveys && state.surveys.length > 0 && (
+          <div style={{ marginTop: 24 }}>
+            <SectionHeader 
+              icon="book" 
+              label="Survey untuk kamu" 
+              count={String(state.surveys.length)}
+            />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {state.surveys.map((sr: any) => (
+                <HPCard 
+                  key={sr.id} 
+                  padding={16} 
+                  onClick={() => openModal('take_survey', { survey: sr })}
+                  style={{ cursor: 'pointer', border: `1.5px solid ${HP_TOKENS.blue}40` }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                    <div style={{ width: 44, height: 44, borderRadius: 12, background: HP_TOKENS.blueSoft, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <HPGlyph name="book" size={22} color={HP_TOKENS.blue} />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ ...HP_TEXT.h, fontSize: 15 }}>{sr.title}</div>
+                      <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkSoft, fontWeight: 600, marginTop: 2 }}>
+                        Klik untuk isi survey
+                      </div>
+                    </div>
+                    <HPGlyph name="arrow" size={18} color={HP_TOKENS.inkMute}/>
+                  </div>
+                </HPCard>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* Habits - Moved to Wellbeing for Employee */}
+        {user.role !== 'employee' && (
+          <div style={{ marginTop: 24 }}>
+            <SectionHeader 
+              icon="leaf" 
+              label="Daily Training" 
+              action="Settings"
+              onAction={() => openModal('manage_habits')}
+            />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              {state.habits.map((h: any, i: number) => (
+                <HabitCell key={i} h={h} onToggle={() => toggleHabit(h.name)}/>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Professional Growth */}
         <div style={{ marginTop: 24 }}>
           <SectionHeader icon="heart" label="AI Coach Insights" action="Explore" onAction={() => openModal('coach')}/>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {HP_AI_INSIGHTS.map((ins, i) => (
+            {generateAIInsights(state, user).map((ins, i) => (
               <InsightCard key={i} ins={ins} idx={i}/>
             ))}
           </div>
