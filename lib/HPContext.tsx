@@ -40,6 +40,7 @@ export type UserRole = 'admin' | 'hr' | 'manager' | 'employee';
 
 interface HPUser {
   id: string;
+  email: string;
   name: string;
   role: UserRole;
   streak: number;
