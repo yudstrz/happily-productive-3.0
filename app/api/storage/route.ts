@@ -145,8 +145,8 @@ export async function GET(request: Request) {
         checkIn: checkIn ? new Date(checkIn).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : undefined,
         checkOut: checkOut ? new Date(checkOut).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : undefined,
       },
-      personalWellbeingGoal: userRow.personal_wellbeing_goal || "",
-      wellbeingRoutine: userRow.wellbeing_routine ? JSON.parse(userRow.wellbeing_routine) : []
+      personalWellbeingGoal: (userRow.personal_wellbeing_goal as string) || "",
+      wellbeingRoutine: userRow.wellbeing_routine ? JSON.parse(userRow.wellbeing_routine as string) : []
     };
 
     return NextResponse.json({ state, user });
