@@ -6,6 +6,7 @@ import HPCard from "@/components/ui/HPCard";
 import { HP_TOKENS, HP_FONT, HP_TEXT } from "@/lib/constants";
 import HPGlyph from "@/components/ui/HPGlyph";
 import HPAvatar from "@/components/ui/HPAvatar";
+import AttendanceDashboard from "@/components/admin/AttendanceDashboard";
 
 interface HRAttendanceViewProps {
   currentUser: any;
@@ -15,6 +16,7 @@ export default function HRAttendanceView({ currentUser }: HRAttendanceViewProps)
   const [qrToken, setQrToken] = useState("");
   const [expiresAt, setExpiresAt] = useState<Date | null>(null);
   const [logs, setLogs] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -27,6 +29,13 @@ export default function HRAttendanceView({ currentUser }: HRAttendanceViewProps)
       const res = await fetch(`/api/attendance/logs?userId=${currentUser?.id}`, { cache: 'no-store' });
       const data = await res.json();
       if (data.logs) setLogs(data.logs);
+
+      // Fetch users if HR/Admin/Manager to compute absences
+      if (['admin', 'hr', 'manager'].includes(currentUser?.role)) {
+        const uRes = await fetch(`/api/admin/users?adminId=${currentUser?.id}`);
+        const uData = await uRes.json();
+        if (uData.users) setUsers(uData.users);
+      }
     } catch (e) {
       console.error(e);
     } finally {
@@ -96,6 +105,10 @@ export default function HRAttendanceView({ currentUser }: HRAttendanceViewProps)
 
       {/* Logs Table/List */}
       <div>
+        {['admin', 'hr', 'manager'].includes(currentUser?.role) && (
+          <AttendanceDashboard logs={logs} users={users} />
+        )}
+
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
           <div style={{ ...HP_TEXT.h, fontSize: 15 }}>Log Absensi Terbaru</div>
           <button onClick={fetchLogs} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}>
@@ -119,6 +132,8 @@ export default function HRAttendanceView({ currentUser }: HRAttendanceViewProps)
                     <div style={{ ...HP_TEXT.h, fontSize: 14 }}>{log.user_name}</div>
                     <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, marginTop: 2 }}>
                       {new Date(log.check_in_at).toLocaleString('id-ID')}
+                      {log.check_in_type && ` • ${log.check_in_type}`}
+                      {log.notes && ` • "${log.notes}"`}
                     </div>
                     {log.location_lat && (
                       <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
