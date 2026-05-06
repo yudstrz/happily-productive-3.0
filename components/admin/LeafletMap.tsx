@@ -4,7 +4,9 @@ import { useState, useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Circle, useMapEvents, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
-import { Plus, Trash2, Save, MapPin } from "lucide-react";
+import { HP_TOKENS, HP_FONT, HP_TEXT } from "@/lib/constants";
+import HPGlyph from "@/components/ui/HPGlyph";
+import HPCard from "@/components/ui/HPCard";
 
 // Fix Leaflet icons
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -60,8 +62,9 @@ export default function LeafletMap({ offices, onAddOffice, onDeleteOffice, onUpd
   };
 
   return (
-    <div className="relative w-full h-[500px] bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-      <MapContainer center={center} zoom={13} style={{ height: "100%", width: "100%" }}>
+    <div style={{ position: 'relative', width: '100%', height: '500px', background: '#fff', borderRadius: 20, overflow: 'hidden', border: `1px solid ${HP_TOKENS.line}`, fontFamily: HP_FONT }}>
+      {/* Map Container Needs Explicit Height */}
+      <MapContainer center={center} zoom={13} style={{ height: "100%", width: "100%", zIndex: 1 }}>
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -72,14 +75,18 @@ export default function LeafletMap({ offices, onAddOffice, onDeleteOffice, onUpd
           <div key={office.id}>
             <Marker position={[office.lat, office.lng]}>
               <Popup>
-                <div className="p-1">
-                  <h3 className="font-semibold text-slate-800">{office.name}</h3>
-                  <p className="text-xs text-slate-500 mb-2">Radius: {office.radius}m</p>
+                <div style={{ padding: 4, fontFamily: HP_FONT }}>
+                  <h3 style={{ ...HP_TEXT.h, fontSize: 14 }}>{office.name}</h3>
+                  <p style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, marginBottom: 8 }}>Radius: {office.radius}m</p>
                   <button
                     onClick={() => onDeleteOffice(office.id)}
-                    className="flex items-center gap-1 px-2 py-1 bg-red-50 text-red-600 rounded text-xs font-medium hover:bg-red-100 transition-colors"
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 6, padding: '4px 8px',
+                      background: HP_TOKENS.coralSoft, color: HP_TOKENS.coral, borderRadius: 8,
+                      border: 'none', fontSize: 11, fontWeight: 800, cursor: 'pointer', fontFamily: HP_FONT
+                    }}
                   >
-                    <Trash2 className="w-3 h-3" /> Hapus
+                    <HPGlyph name="cross" size={12} color={HP_TOKENS.coral} /> Hapus
                   </button>
                 </div>
               </Popup>
@@ -87,7 +94,7 @@ export default function LeafletMap({ offices, onAddOffice, onDeleteOffice, onUpd
             <Circle 
               center={[office.lat, office.lng]} 
               radius={office.radius} 
-              pathOptions={{ fillColor: 'blue', fillOpacity: 0.1, color: 'blue', weight: 1 }} 
+              pathOptions={{ fillColor: HP_TOKENS.blue, fillOpacity: 0.1, color: HP_TOKENS.blue, weight: 1 }} 
             />
           </div>
         ))}
@@ -100,7 +107,7 @@ export default function LeafletMap({ offices, onAddOffice, onDeleteOffice, onUpd
             <Circle 
               center={[draftLocation.lat, draftLocation.lng]} 
               radius={draftRadius} 
-              pathOptions={{ fillColor: 'green', fillOpacity: 0.2, color: 'green', weight: 2 }} 
+              pathOptions={{ fillColor: HP_TOKENS.sage, fillOpacity: 0.2, color: HP_TOKENS.sage, weight: 2 }} 
             />
           </div>
         )}
@@ -108,47 +115,51 @@ export default function LeafletMap({ offices, onAddOffice, onDeleteOffice, onUpd
 
       {/* Draft Configuration Panel */}
       {draftLocation && (
-        <div className="absolute top-4 right-4 z-[1000] bg-white p-4 rounded-xl shadow-lg border border-slate-200 w-80">
-          <div className="flex items-center gap-2 mb-4">
-            <MapPin className="w-5 h-5 text-indigo-600" />
-            <h3 className="font-semibold text-slate-800">Tambah Lokasi Kantor</h3>
+        <div style={{
+          position: 'absolute', top: 16, right: 16, zIndex: 1000,
+          background: '#fff', padding: 16, borderRadius: 16, width: 300,
+          boxShadow: '0 8px 32px rgba(0,0,0,0.12)', border: `1px solid ${HP_TOKENS.line}`
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+            <HPGlyph name="target" size={18} color={HP_TOKENS.blue} />
+            <h3 style={{ ...HP_TEXT.h, fontSize: 14 }}>Tambah Lokasi Kantor</h3>
           </div>
           
-          <div className="space-y-3">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1">Nama Kantor</label>
+              <label style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, fontWeight: 700, marginBottom: 4, display: 'block' }}>Nama Kantor</label>
               <input 
                 type="text" 
                 value={draftName}
                 onChange={(e) => setDraftName(e.target.value)}
                 placeholder="mis. Kantor Pusat"
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                style={{ width: '100%', padding: '10px', borderRadius: 10, border: `1px solid ${HP_TOKENS.line}`, fontFamily: HP_FONT, outline: 'none' }}
               />
             </div>
             
             <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1">Radius Absensi (meter)</label>
+              <label style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, fontWeight: 700, marginBottom: 4, display: 'block' }}>Radius Absensi (meter)</label>
               <input 
                 type="number" 
                 value={draftRadius}
                 onChange={(e) => setDraftRadius(parseInt(e.target.value) || 0)}
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                style={{ width: '100%', padding: '10px', borderRadius: 10, border: `1px solid ${HP_TOKENS.line}`, fontFamily: HP_FONT, outline: 'none' }}
               />
             </div>
 
-            <div className="pt-2 flex gap-2">
+            <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
               <button 
                 onClick={() => setDraftLocation(null)}
-                className="flex-1 py-2 bg-slate-100 text-slate-600 rounded-lg text-sm font-medium hover:bg-slate-200 transition-colors"
+                style={{ flex: 1, padding: '10px', background: HP_TOKENS.lineSoft, color: HP_TOKENS.ink, borderRadius: 10, border: 'none', fontFamily: HP_FONT, fontWeight: 800, cursor: 'pointer' }}
               >
                 Batal
               </button>
               <button 
                 onClick={handleSaveDraft}
                 disabled={!draftName}
-                className="flex-1 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                style={{ flex: 1, padding: '10px', background: HP_TOKENS.blue, color: '#fff', borderRadius: 10, border: 'none', fontFamily: HP_FONT, fontWeight: 800, cursor: 'pointer', opacity: draftName ? 1 : 0.5 }}
               >
-                <Save className="w-4 h-4" /> Simpan
+                Simpan
               </button>
             </div>
           </div>
@@ -156,7 +167,12 @@ export default function LeafletMap({ offices, onAddOffice, onDeleteOffice, onUpd
       )}
       
       {!draftLocation && (
-        <div className="absolute top-4 right-4 z-[1000] bg-white/90 backdrop-blur px-4 py-2 rounded-lg shadow-sm border border-slate-200 text-sm font-medium text-slate-600">
+        <div style={{
+          position: 'absolute', top: 16, right: 16, zIndex: 1000,
+          background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(4px)', padding: '8px 16px',
+          borderRadius: 12, border: `1px solid ${HP_TOKENS.lineSoft}`,
+          ...HP_TEXT.small, color: HP_TOKENS.inkMute, fontWeight: 700
+        }}>
           Klik pada peta untuk menambah lokasi
         </div>
       )}

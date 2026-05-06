@@ -2,17 +2,25 @@
 
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
-import { Loader2 } from "lucide-react";
+import { HP_TOKENS, HP_FONT, HP_TEXT } from "@/lib/constants";
+import HPCard from "@/components/ui/HPCard";
+import HPGlyph from "@/components/ui/HPGlyph";
 
 // Dynamically import Leaflet map with no SSR
 const Map = dynamic(() => import("./LeafletMap"), { 
   ssr: false,
   loading: () => (
-    <div className="w-full h-[500px] bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-center">
-      <div className="flex flex-col items-center gap-2 text-slate-500">
-        <Loader2 className="w-6 h-6 animate-spin text-indigo-500" />
-        <p className="text-sm font-medium">Memuat Peta...</p>
-      </div>
+    <div style={{
+      width: '100%', height: '500px', background: HP_TOKENS.lineSoft, borderRadius: 20,
+      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12
+    }}>
+      <div style={{
+        width: 36, height: 36, border: `3px solid ${HP_TOKENS.line}`,
+        borderTopColor: HP_TOKENS.blue, borderRadius: '50%',
+        animation: 'spin 0.8s linear infinite'
+      }} />
+      <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute }}>Memuat Peta...</div>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   )
 });
@@ -99,20 +107,31 @@ export default function OfficeSettingsMap() {
 
   if (loading) {
     return (
-      <div className="p-8 flex justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-indigo-500" />
+      <div style={{ padding: 40, display: 'flex', justifyContent: 'center' }}>
+        <div style={{
+          width: 36, height: 36, border: `3px solid ${HP_TOKENS.line}`,
+          borderTopColor: HP_TOKENS.blue, borderRadius: '50%',
+          animation: 'spin 0.8s linear infinite'
+        }} />
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col gap-1">
-        <h2 className="text-xl font-bold text-slate-800">Pengaturan Lokasi Kantor</h2>
-        <p className="text-sm text-slate-500">
-          Klik pada peta untuk menetapkan lokasi kantor baru dan atur radius absensi yang diizinkan.
-        </p>
-      </div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <HPCard style={{ background: HP_TOKENS.blueSoft, border: 'none', marginBottom: 4 }} padding={16}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 36, height: 36, borderRadius: 10, background: HP_TOKENS.blue, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <HPGlyph name="target" size={18} color="#fff" />
+          </div>
+          <div>
+            <div style={{ ...HP_TEXT.h, fontSize: 14, color: HP_TOKENS.blue }}>Pengaturan Lokasi Kantor</div>
+            <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkSoft, fontWeight: 600, marginTop: 2 }}>
+              Klik pada peta untuk menetapkan lokasi kantor baru dan atur radius absensi yang diizinkan.
+            </div>
+          </div>
+        </div>
+      </HPCard>
 
       <Map 
         offices={offices} 
@@ -122,26 +141,28 @@ export default function OfficeSettingsMap() {
       />
       
       {/* Office List */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-6">
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: 12, marginTop: 12 }}>
         {offices.map((office) => (
-          <div key={office.id} className="p-4 bg-white border border-slate-200 rounded-xl shadow-sm flex flex-col">
-            <h3 className="font-semibold text-slate-800">{office.name}</h3>
-            <p className="text-xs text-slate-500 mt-1 mb-3">
+          <HPCard key={office.id} padding={16} style={{ display: 'flex', flexDirection: 'column' }}>
+            <h3 style={{ ...HP_TEXT.h, fontSize: 14 }}>{office.name}</h3>
+            <p style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, marginTop: 4, marginBottom: 12 }}>
               Radius: {office.radius}m • Lat: {office.lat.toFixed(4)} • Lng: {office.lng.toFixed(4)}
             </p>
-            <div className="mt-auto flex justify-end">
+            <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'flex-end' }}>
               <button 
                 onClick={() => handleDeleteOffice(office.id)}
-                className="text-xs font-medium text-red-600 hover:text-red-700"
+                style={{
+                  background: 'none', border: 'none', ...HP_TEXT.small, color: HP_TOKENS.coral, fontWeight: 800, cursor: 'pointer', fontFamily: HP_FONT
+                }}
               >
                 Hapus
               </button>
             </div>
-          </div>
+          </HPCard>
         ))}
         {offices.length === 0 && (
-          <div className="col-span-full p-8 text-center bg-slate-50 rounded-xl border border-slate-200 border-dashed">
-            <p className="text-sm text-slate-500">Belum ada lokasi kantor yang diatur.</p>
+          <div style={{ gridColumn: '1 / -1', padding: 40, textAlign: 'center', background: HP_TOKENS.lineSoft, borderRadius: 20, border: `1px dashed ${HP_TOKENS.line}` }}>
+            <p style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute }}>Belum ada lokasi kantor yang diatur.</p>
           </div>
         )}
       </div>
