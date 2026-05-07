@@ -20,7 +20,7 @@ export default function GoalModal({ onClose, goal }: { onClose: () => void; goal
   const { state, updateState, user } = useHP();
   const [title, setTitle] = useState(goal?.title || "");
   const [due, setDue] = useState(goal?.due || "");
-  const [scope, setScope] = useState(goal?.scope || "personal");
+  const [scope, setScope] = useState(goal?.scope === 'assigned' ? 'employee' : (goal?.scope || "personal"));
   const [parentId, setParentId] = useState(goal?.parent_id || "");
   const [progress, setProgress] = useState(goal?.progress || 0);
   const [subGoals, setSubGoals] = useState<any[]>(goal?.subGoals || []);

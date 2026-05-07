@@ -55,8 +55,8 @@ export async function GET(request: Request) {
 
     // Fetch Goals with Sub-goals
     const goalsRes = await db.execute({
-      sql: "SELECT * FROM goals WHERE owner_id = ? OR scope IN ('company', 'team')",
-      args: [userId]
+      sql: "SELECT * FROM goals WHERE owner_id = ? OR assigned_by_id = ? OR scope IN ('company', 'team')",
+      args: [userId, userId]
     });
     const goals = await Promise.all(goalsRes.rows.map(async (r) => {
       const subGoalsRes = await db.execute({
@@ -72,6 +72,9 @@ export async function GET(request: Request) {
         tone: r.tone, 
         metric: r.metric, 
         scope: r.scope,
+        ownerId: r.owner_id,
+        assignedById: r.assigned_by_id,
+        parent_id: r.parent_id,
         subGoals: subGoalsRes.rows.map(sr => ({ id: sr.id, title: sr.title, done: !!sr.is_done }))
       };
     }));
@@ -230,13 +233,13 @@ export async function POST(request: Request) {
       for (const g of state.goals) {
         // We use INSERT OR REPLACE (UPSERT) logic
         await db.execute({
-          sql: `INSERT INTO goals (id, owner_id, title, progress, alignment, due_date, tone, metric, scope, parent_id) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          sql: `INSERT INTO goals (id, owner_id, title, progress, alignment, due_date, tone, metric, scope, parent_id, assigned_by_id) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(id) DO UPDATE SET 
-                title=excluded.title, progress=excluded.progress, alignment=excluded.alignment, 
+                owner_id=excluded.owner_id, title=excluded.title, progress=excluded.progress, alignment=excluded.alignment, 
                 due_date=excluded.due_date, tone=excluded.tone, metric=excluded.metric, 
-                scope=excluded.scope, parent_id=excluded.parent_id`,
-          args: [String(g.id), userId, g.title, g.progress, g.alignment, g.due, g.tone, g.metric, g.scope, g.parent_id || null]
+                scope=excluded.scope, parent_id=excluded.parent_id, assigned_by_id=excluded.assigned_by_id`,
+          args: [String(g.id), String(g.ownerId || userId), g.title, g.progress, g.alignment, g.due, g.tone, g.metric, g.scope, g.parent_id || null, g.assignedById || null]
         });
         
         // Sync Sub-goals
