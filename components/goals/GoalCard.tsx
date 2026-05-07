@@ -24,14 +24,15 @@ export default function GoalCard({ g }: GoalCardProps) {
 
   const parentGoal = g.parent_id ? state?.goals.find((item: any) => String(item.id) === String(g.parent_id)) : null;
 
-  // Link to actual priorities in state
-  const linkedTasks = state?.priorities?.filter((p: any) => p.goal === g.title) || [];
+  // Link to actual priorities (tasks) in state that are connected to this goal
+  const linkedTasks = state?.priorities?.filter((p: any) => p.goal && p.goal === g.title) || [];
   const hasTasks = linkedTasks.length > 0;
+  const doneTaskCount = linkedTasks.filter((p: any) => p.done).length;
   
-  // Calculate progress based on tasks if available
+  // Always use task-based progress when tasks are linked; otherwise use stored progress
   const displayProgress = hasTasks 
-    ? Math.round((linkedTasks.filter(p => p.done).length / linkedTasks.length) * 100)
-    : g.progress;
+    ? Math.round((doneTaskCount / linkedTasks.length) * 100)
+    : (g.progress || 0);
 
   const deleteGoal = () => {
     if (confirm(`Hapus goal "${g.title}"?`)) {
@@ -79,7 +80,7 @@ export default function GoalCard({ g }: GoalCardProps) {
             </div>
           )}
           <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, marginTop: 6, marginLeft: 32, fontSize: 12 }}>
-             {g.metric || 'Realisasi'} · <span style={{ fontWeight: 700 }}>Due:</span> {g.due}
+             {hasTasks ? `${doneTaskCount}/${linkedTasks.length} task selesai` : (g.metric || 'Realisasi')} · <span style={{ fontWeight: 700 }}>Due:</span> {g.due}
           </div>
         </div>
         <HPChip tone={g.tone} size="sm">{g.alignment}% align</HPChip>
@@ -106,7 +107,7 @@ export default function GoalCard({ g }: GoalCardProps) {
           gap: 8
         }}>
           <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, fontWeight: 900, fontSize: 9, letterSpacing: 1, marginBottom: 4 }}>
-            LINKED QUESTS ({linkedTasks.filter(t => t.done).length}/{linkedTasks.length})
+            LINKED QUESTS ({doneTaskCount}/{linkedTasks.length})
           </div>
           {linkedTasks.map((sg: any) => (
             <div key={sg.id} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -133,6 +134,20 @@ export default function GoalCard({ g }: GoalCardProps) {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {!hasTasks && (
+        <div style={{ 
+          marginTop: 12, padding: '10px 14px', 
+          background: HP_TOKENS.yellowWash, borderRadius: 10,
+          border: `1px dashed ${HP_TOKENS.yellow}60`,
+          display: 'flex', alignItems: 'center', gap: 8
+        }}>
+          <HPGlyph name="info" size={12} color={HP_TOKENS.yellow} />
+          <div style={{ ...HP_TEXT.tiny, color: '#8A6814', fontWeight: 700, fontSize: 10 }}>
+            Tambahkan task di Task Management & hubungkan ke OKR ini untuk tracking progress otomatis.
+          </div>
         </div>
       )}
     </HPCard>

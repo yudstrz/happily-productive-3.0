@@ -108,7 +108,33 @@ export default function GoalModal({ onClose, goal }: { onClose: () => void; goal
     } catch (e) {}
 
     if (goal) {
-      // Update existing logic (already in context/API)
+      // Update existing goal
+      updateState((s: any) => ({
+        ...s,
+        goals: s.goals.map((g: any) => {
+          if (String(g.id) === String(goal.id)) {
+            // Recalculate progress from linked tasks
+            const tasksForGoal = s.priorities?.filter((p: any) => p.goal && p.goal === title) || [];
+            const doneCount = tasksForGoal.filter((p: any) => p.done).length;
+            const newProgress = tasksForGoal.length > 0 
+              ? Math.round((doneCount / tasksForGoal.length) * 100) 
+              : g.progress;
+
+            return {
+              ...g,
+              title,
+              due: displayDue,
+              dueISO: due,
+              scope: scope === 'employee' ? 'assigned' : scope,
+              parent_id: parentId || null,
+              progress: newProgress,
+              metric: tasksForGoal.length > 0 ? `${doneCount}/${tasksForGoal.length} task selesai` : g.metric,
+              subGoals: subGoals.length > 0 ? subGoals : g.subGoals,
+            };
+          }
+          return g;
+        })
+      }));
     } else {
       // Create new
       const creators = scope === 'employee' ? selectedOwnerIds : [user?.id];

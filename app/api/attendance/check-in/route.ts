@@ -78,9 +78,10 @@ export async function POST(request: Request) {
     // 3. Record Attendance
     console.log(`[Attendance] Recording attendance for user ${userId} (${checkInType})`);
     const id = "att_" + Math.random().toString(36).substring(2, 9);
+    const now = new Date().toISOString();
     await db.execute({
-      sql: "INSERT INTO attendance (id, user_id, location_lat, location_lng, mood, check_in_type, office_id, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-      args: [id, userId, lat || null, lng || null, mood || null, checkInType, officeId || null, notes || null]
+      sql: "INSERT INTO attendance (id, user_id, location_lat, location_lng, mood, check_in_type, office_id, notes, check_in_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      args: [id, userId, lat || null, lng || null, mood || null, checkInType, officeId || null, notes || null, now]
     });
 
     // 4. Delete Token (Single Use)

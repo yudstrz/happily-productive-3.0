@@ -46,6 +46,7 @@ async function run() {
         check_in_type TEXT DEFAULT 'WFO',
         office_id TEXT,
         notes TEXT,
+        check_in_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
     `);

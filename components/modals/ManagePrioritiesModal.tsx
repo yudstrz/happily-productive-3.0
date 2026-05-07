@@ -29,7 +29,7 @@ export default function ManagePrioritiesModal({ onClose }: ManagePrioritiesModal
     const newP = {
       id: Date.now(),
       title: newTitle,
-      goal: selectedGoal,
+      goal: selectedGoal === 'General' ? '' : selectedGoal,
       energy: energy,
       type: type,
       est: "30m",
@@ -37,19 +37,66 @@ export default function ManagePrioritiesModal({ onClose }: ManagePrioritiesModal
       points: Number(points) || 50,
       tone: energy === 'high' ? 'yellow' : energy === 'mid' ? 'sage' : 'blue',
     };
-    updateState((s: any) => ({
-      ...s,
-      priorities: [...s.priorities, newP]
-    }));
+    updateState((s: any) => {
+      const newPriorities = [...s.priorities, newP];
+      
+      // Recalculate goal progress with the new task included
+      let updatedGoals = s.goals;
+      if (newP.goal && s.goals) {
+        updatedGoals = s.goals.map((g: any) => {
+          if (g.title === newP.goal) {
+            const tasksForGoal = newPriorities.filter((p: any) => p.goal && p.goal === g.title);
+            const doneCount = tasksForGoal.filter((p: any) => p.done).length;
+            const newProgress = tasksForGoal.length > 0 
+              ? Math.round((doneCount / tasksForGoal.length) * 100) 
+              : g.progress;
+            return { ...g, progress: newProgress, metric: `${doneCount}/${tasksForGoal.length} task selesai` };
+          }
+          return g;
+        });
+      }
+
+      return {
+        ...s,
+        priorities: newPriorities,
+        goals: updatedGoals,
+      };
+    });
     setNewTitle("");
     setPoints(50);
   };
 
   const deletePriority = (id: number) => {
-    updateState((s: any) => ({
-      ...s,
-      priorities: s.priorities.filter((p: any) => p.id !== id)
-    }));
+    updateState((s: any) => {
+      const deletedTask = s.priorities.find((p: any) => p.id === id);
+      const newPriorities = s.priorities.filter((p: any) => p.id !== id);
+      
+      // Recalculate goal progress after removing the task
+      let updatedGoals = s.goals;
+      if (deletedTask?.goal && s.goals) {
+        updatedGoals = s.goals.map((g: any) => {
+          if (g.title === deletedTask.goal) {
+            const tasksForGoal = newPriorities.filter((p: any) => p.goal && p.goal === g.title);
+            const doneCount = tasksForGoal.filter((p: any) => p.done).length;
+            const newProgress = tasksForGoal.length > 0 
+              ? Math.round((doneCount / tasksForGoal.length) * 100) 
+              : 0;
+            return { 
+              ...g, 
+              progress: newProgress, 
+              metric: tasksForGoal.length > 0 ? `${doneCount}/${tasksForGoal.length} task selesai` : 'Realisasi' 
+            };
+          }
+          return g;
+        });
+      }
+
+      return {
+        ...s,
+        priorities: newPriorities,
+        goals: updatedGoals,
+      };
+    });
   };
 
   return (

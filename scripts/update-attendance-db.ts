@@ -54,6 +54,13 @@ async function run() {
       console.log("✅ Added notes column to attendance.");
     }
 
+    if (!columns.includes("check_in_at")) {
+      await db.execute("ALTER TABLE attendance ADD COLUMN check_in_at DATETIME DEFAULT CURRENT_TIMESTAMP");
+      // Backfill check_in_at from created_at for existing rows
+      await db.execute("UPDATE attendance SET check_in_at = created_at WHERE check_in_at IS NULL");
+      console.log("✅ Added check_in_at column to attendance and backfilled from created_at.");
+    }
+
     console.log("🎉 Database update complete!");
   } catch (error) {
     console.error("❌ Error updating database:", error);

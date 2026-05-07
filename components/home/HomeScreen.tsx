@@ -174,6 +174,23 @@ export default function HomeScreen({ openModal }: any) {
       newPriorities[pIndex] = { ...newPriorities[pIndex], done: !wasDone };
       
       const update: any = { priorities: newPriorities };
+
+      // Recalculate goal progress based on updated tasks
+      if (priority.goal && s.goals) {
+        const updatedGoals = s.goals.map((g: any) => {
+          if (g.title === priority.goal) {
+            const tasksForGoal = newPriorities.filter((p: any) => p.goal && p.goal === g.title);
+            const doneCount = tasksForGoal.filter((p: any) => p.done).length;
+            const newProgress = tasksForGoal.length > 0 
+              ? Math.round((doneCount / tasksForGoal.length) * 100) 
+              : g.progress;
+            return { ...g, progress: newProgress, metric: `${doneCount}/${tasksForGoal.length} task selesai` };
+          }
+          return g;
+        });
+        update.goals = updatedGoals;
+      }
+
       if (!wasDone) {
         const now = new Date();
         update.lastActivityDate = now.toISOString();

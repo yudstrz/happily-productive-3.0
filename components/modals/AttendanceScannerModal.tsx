@@ -118,26 +118,46 @@ export default function AttendanceScannerModal({ onClose }: AttendanceScannerMod
 
   const startScanner = () => {
     setStatus('scanning');
-    const scanner = new Html5Qrcode("reader");
-    scannerRef.current = scanner;
-    
-    scanner.start(
-      { facingMode: "environment" },
-      { fps: 10, qrbox: { width: 250, height: 250 } },
-      (decodedText) => {
-        handleCheckIn(decodedText);
-        stopScanner();
-      },
-      () => {} // silent on failure
-    ).catch(err => {
-      console.error(err);
-      setStatus('idle');
-    });
+    // Wait for React to render the #reader div before initializing Html5Qrcode
+    setTimeout(() => {
+      try {
+        const readerEl = document.getElementById("reader");
+        if (!readerEl) {
+          console.error("Reader element not found in DOM");
+          setStatus('error');
+          setErrorMsg("Gagal memulai kamera. Coba lagi.");
+          return;
+        }
+        const scanner = new Html5Qrcode("reader");
+        scannerRef.current = scanner;
+        
+        scanner.start(
+          { facingMode: "environment" },
+          { fps: 10, qrbox: { width: 250, height: 250 } },
+          (decodedText) => {
+            handleCheckIn(decodedText);
+            stopScanner();
+          },
+          () => {} // silent on failure
+        ).catch(err => {
+          console.error("Scanner start error:", err);
+          setStatus('error');
+          setErrorMsg("Gagal mengakses kamera. Pastikan izin kamera sudah diberikan.");
+        });
+      } catch (err) {
+        console.error("Scanner init error:", err);
+        setStatus('error');
+        setErrorMsg("Gagal memulai scanner. Coba lagi.");
+      }
+    }, 100);
   };
 
   const stopScanner = () => {
     if (scannerRef.current) {
       scannerRef.current.stop().then(() => {
+        scannerRef.current = null;
+      }).catch(err => {
+        console.warn("Scanner stop error:", err);
         scannerRef.current = null;
       });
     }
@@ -148,15 +168,38 @@ export default function AttendanceScannerModal({ onClose }: AttendanceScannerMod
     if (!file) return;
 
     setStatus('verifying');
-    const html5QrCode = new Html5Qrcode("reader");
-    html5QrCode.scanFile(file, true)
-      .then(decodedText => {
-        handleCheckIn(decodedText);
-      })
-      .catch(err => {
-        setStatus('error');
-        setErrorMsg("Tidak dapat menemukan QR Code di gambar ini.");
-      });
+    
+    // Use a temporary hidden div for file scanning so we don't depend on the
+    // #reader element existing yet (React may not have re-rendered).
+    try {
+      // Create a temporary container for Html5Qrcode
+      let tempDiv = document.getElementById("reader-temp");
+      if (!tempDiv) {
+        tempDiv = document.createElement("div");
+        tempDiv.id = "reader-temp";
+        tempDiv.style.display = "none";
+        document.body.appendChild(tempDiv);
+      }
+
+      const html5QrCode = new Html5Qrcode("reader-temp");
+      html5QrCode.scanFile(file, true)
+        .then(decodedText => {
+          handleCheckIn(decodedText);
+        })
+        .catch(err => {
+          console.error("QR scan file error:", err);
+          setStatus('error');
+          setErrorMsg("Tidak dapat menemukan QR Code di gambar ini.");
+        })
+        .finally(() => {
+          // Clean up temp div
+          tempDiv?.remove();
+        });
+    } catch (err) {
+      console.error("QR init error:", err);
+      setStatus('error');
+      setErrorMsg("Gagal memproses gambar. Coba lagi.");
+    }
   };
 
   const handleCheckIn = async (token: string) => {
@@ -296,9 +339,15 @@ export default function AttendanceScannerModal({ onClose }: AttendanceScannerMod
                 {status === 'verifying' && (
                   <div style={{ 
                     position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column',
-                    alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.8)'
+                    alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.9)', gap: 12
                   }}>
+                    <div style={{
+                      width: 36, height: 36, border: `3px solid ${HP_TOKENS.line}`,
+                      borderTopColor: HP_TOKENS.blue, borderRadius: '50%',
+                      animation: 'spin 0.8s linear infinite'
+                    }} />
                     <div style={{ ...HP_TEXT.h, fontSize: 14 }}>Memverifikasi...</div>
+                    <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
                   </div>
                 )}
 
