@@ -111,7 +111,7 @@ export default function GoalModal({ onClose, goal }: { onClose: () => void; goal
       // Update existing logic (already in context/API)
     } else {
       // Create new
-      const creators = scope === 'employee' ? selectedOwnerIds : [null];
+      const creators = scope === 'employee' ? selectedOwnerIds : [user?.id];
       
       const newEntries = creators.map((ownerId, idx) => {
         const emp = allEmployees.find((e: any) => String(e.id) === String(ownerId));
@@ -121,11 +121,13 @@ export default function GoalModal({ onClose, goal }: { onClose: () => void; goal
           progress: 0,
           alignment: 100,
           owner: emp?.name || user?.name || "You",
+          ownerId: ownerId,
+          assignedById: scope === 'employee' ? user?.id : null,
           due: displayDue,
           dueISO: due,
           tone: scope === 'personal' ? "sage" : scope === 'team' ? "blue" : scope === 'employee' ? "lavender" : "yellow",
           metric: "0% complete",
-          scope: scope === 'employee' ? 'personal' : scope,
+          scope: scope === 'employee' ? 'assigned' : scope,
           parent_id: parentId || null,
           subGoals: subGoals.length > 0 ? subGoals : undefined
         };

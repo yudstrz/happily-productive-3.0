@@ -15,13 +15,19 @@ interface GoalsScreenProps {
 }
 
 export default function GoalsScreen({ openModal }: GoalsScreenProps) {
-  const { state, updateState } = useHP();
+  const { state, updateState, user } = useHP();
   const [tab, setTab] = useState('personal');
   
-  if (!state) return null;
+  if (!state || !user) return null;
 
-  // Filter goals by scope
-  const filteredGoals = state.goals.filter((g: any) => g.scope === tab);
+  // Filter goals by scope and visibility rules
+  const filteredGoals = state.goals.filter((g: any) => {
+    if (tab === 'personal') return g.scope === 'personal' && String(g.ownerId) === String(user.id);
+    if (tab === 'assigned') return g.scope === 'assigned' && String(g.ownerId) === String(user.id);
+    if (tab === 'team') return g.scope === 'team';
+    if (tab === 'company') return g.scope === 'company';
+    return false;
+  });
 
   const toggleWeekly = (id: number) => {
     updateState((s: any) => ({
@@ -34,13 +40,38 @@ export default function GoalsScreen({ openModal }: GoalsScreenProps) {
 
   return (
     <div style={{ padding: '0 16px 120px', fontFamily: HP_FONT }}>
-      <ScreenHeader title="Goals" subtitle="OKR kamu & selarasnya dengan tim"/>
+      <ScreenHeader title="Strategy & OKR" subtitle="Pantau kemajuan target dan selaraskan dengan tim" />
       
       <TabBar options={[
-        { key: 'personal', label: 'Saya' },
-        { key: 'team', label: 'Tim' },
-        { key: 'company', label: 'Perusahaan' },
+        { key: 'personal', label: 'Personal' },
+        { key: 'assigned', label: 'Assigned' },
+        { key: 'team', label: 'Team' },
+        { key: 'company', label: 'Company' },
       ]} value={tab} onChange={setTab}/>
+
+      {/* Tab Context Info */}
+      <HPCard style={{ marginTop: 14, background: tab === 'personal' ? HP_TOKENS.sageWash : tab === 'assigned' ? HP_TOKENS.lavenderWash : HP_TOKENS.blueWash, border: 'none' }} padding={16}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ 
+            width: 36, height: 36, borderRadius: 10, 
+            background: tab === 'personal' ? HP_TOKENS.sage : tab === 'assigned' ? HP_TOKENS.lavender : HP_TOKENS.blue, 
+            display: 'flex', alignItems: 'center', justifyContent: 'center' 
+          }}>
+            <HPGlyph name={tab === 'personal' ? "sparkle" : tab === 'assigned' ? "target" : "people"} size={18} color="#fff"/>
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ ...HP_TEXT.h, fontSize: 14, color: tab === 'personal' ? HP_TOKENS.sage : tab === 'assigned' ? HP_TOKENS.lavender : HP_TOKENS.blue }}>
+              {tab === 'personal' ? 'Personal Focus' : tab === 'assigned' ? 'Assigned by Manager' : tab === 'team' ? 'Team Alignment' : 'Company Vision'}
+            </div>
+            <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkSoft, fontWeight: 600, marginTop: 2 }}>
+              {tab === 'personal' && 'Target yang kamu buat sendiri untuk pengembangan diri.'}
+              {tab === 'assigned' && 'Target penting yang diberikan oleh atasanmu.'}
+              {tab === 'team' && 'Prioritas utama yang dikerjakan bersama seluruh tim.'}
+              {tab === 'company' && 'Visi besar organisasi yang ingin kita capai bersama.'}
+            </div>
+          </div>
+        </div>
+      </HPCard>
 
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 12 }}>
         <button 
@@ -54,49 +85,32 @@ export default function GoalsScreen({ openModal }: GoalsScreenProps) {
           }}
         >
           <HPGlyph name="info" size={14} color={HP_TOKENS.blue} />
-          Kamus OKR
+          Panduan OKR
         </button>
       </div>
 
-      <HPCard style={{ marginTop: 14, background: HP_TOKENS.sageWash, border: 'none' }} padding={16}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ 
-            width: 36, 
-            height: 36, 
-            borderRadius: 10, 
-            background: HP_TOKENS.sage, 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center' 
-          }}>
-            <HPGlyph name="sparkle" size={18} color="#fff"/>
-          </div>
-          <div style={{ flex: 1 }}>
-            <div style={{ ...HP_TEXT.h, fontSize: 14, color: HP_TOKENS.sage }}>Alignment Score · 88%</div>
-            <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkSoft, fontWeight: 600, marginTop: 2 }}>
-              Goal kamu selaras dengan prioritas tim Q2 🌱
-            </div>
-          </div>
-        </div>
-      </HPCard>
-
       <SectionHeader 
         icon="target" 
-        label="OKR aktif" 
+        label={`${tab.toUpperCase()} OKR`}
         count={String(filteredGoals.length)} 
-        action="+ Baru"
-        onAction={() => openModal('new_goal')}
+        action={tab === 'personal' ? "+ Baru" : undefined}
+        onAction={tab === 'personal' ? () => openModal('new_goal') : undefined}
       />
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         {filteredGoals.map((g: any) => (
           <div key={g.id} onClick={() => openModal('new_goal', { goal: g })} className="hp-tap">
             <GoalCard g={g}/>
           </div>
         ))}
         {filteredGoals.length === 0 && (
-          <div style={{ textAlign: 'center', padding: '40px 20px', color: HP_TOKENS.inkMute }}>
+          <div style={{ 
+            textAlign: 'center', padding: '60px 20px', color: HP_TOKENS.inkMute, 
+            background: HP_TOKENS.card, borderRadius: 24, border: `1.5px solid ${HP_TOKENS.lineSoft}`
+          }}>
             <div style={{ fontSize: 32, marginBottom: 12 }}>🌱</div>
-            <div style={{ ...HP_TEXT.h, fontSize: 14 }}>Belum ada OKR di bagian ini.</div>
+            <div style={{ ...HP_TEXT.h, fontSize: 14 }}>Belum ada OKR {tab}.</div>
+            <div style={{ ...HP_TEXT.small, marginTop: 4 }}>Semangat! Teruslah tumbuh dan berkembang.</div>
           </div>
         )}
       </div>

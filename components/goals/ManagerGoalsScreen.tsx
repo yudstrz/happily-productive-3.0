@@ -16,6 +16,7 @@ import ScreenHeader from "@/components/ui/ScreenHeader";
 import SectionHeader from "@/components/home/SectionHeader";
 
 import HRAttendanceView from "@/components/goals/HRAttendanceView";
+import GoalCard from "@/components/goals/GoalCard";
 
 interface Props { openModal: (name: string, props?: any) => void; }
 
@@ -23,8 +24,16 @@ const TONE: Record<string, string> = { sage: HP_TOKENS.sage, blue: HP_TOKENS.blu
 const TONE_SOFT: Record<string, string> = { sage: HP_TOKENS.sageSoft, blue: HP_TOKENS.blueSoft, lavender: HP_TOKENS.lavenderSoft, yellow: HP_TOKENS.yellowSoft, coral: HP_TOKENS.coralSoft };
 
 export default function ManagerGoalsScreen({ openModal }: Props) {
-  const { user } = useHP();
+  const { state, user } = useHP();
   const [activeTab, setActiveTab] = useState<'okr' | 'members' | 'attendance' | 'schedule'>('okr');
+
+  if (!state || !user) return null;
+
+  // Filter for goals relevant to the manager
+  // 1. Team & Company goals (All managers see these)
+  // 2. Goals assigned by this manager to others (scope === 'assigned' && assignedById === user.id)
+  const teamGoals = state.goals.filter((g: any) => g.scope === 'team' || g.scope === 'company');
+  const assignedGoals = state.goals.filter((g: any) => g.scope === 'assigned' && String(g.assignedById) === String(user.id));
 
   return (
     <div style={{ padding: '0 16px 120px', fontFamily: HP_FONT }}>
@@ -53,47 +62,33 @@ export default function ManagerGoalsScreen({ openModal }: Props) {
       {/* ── OKR Tim ── */}
       {activeTab === 'okr' && (
         <>
-          {/* Alignment summary */}
-          <HPCard style={{ background: HP_TOKENS.blueWash, border: 'none', marginBottom: 14 }} padding={16}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{ width: 36, height: 36, borderRadius: 10, background: HP_TOKENS.blue, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <HPGlyph name="sparkle" size={18} color="#fff" />
+          {/* Team OKRs */}
+          <SectionHeader icon="target" label="Team & Company Goals" count={String(teamGoals.length)} action="+ Baru" onAction={() => openModal('new_goal')} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>
+            {teamGoals.map(g => (
+              <div key={g.id} onClick={() => openModal('new_goal', { goal: g })} className="hp-tap">
+                <GoalCard g={g} />
               </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ ...HP_TEXT.h, fontSize: 14, color: HP_TOKENS.blue }}>Team Alignment · 87%</div>
-                <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkSoft, fontWeight: 600, marginTop: 2 }}>
-                  Goal tim sudah selaras dengan strategi Q2 🌱
-                </div>
-              </div>
-            </div>
-          </HPCard>
-
-          <SectionHeader icon="target" label="OKR Aktif Tim" count={String(MANAGER_TEAM_GOALS.length)} action="+ Baru" onAction={() => openModal('new_goal')} />
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {MANAGER_TEAM_GOALS.map(g => (
-              <HPCard key={g.id} padding={16}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 10 }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ ...HP_TEXT.h, fontSize: 15 }}>{g.title}</div>
-                    <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, marginTop: 3 }}>
-                      {g.members} anggota · Due {g.due}
-                    </div>
-                  </div>
-                  <div style={{
-                    padding: '4px 10px', borderRadius: 10, fontSize: 11, fontWeight: 800,
-                    background: g.onTrack ? HP_TOKENS.sageSoft : HP_TOKENS.coralSoft,
-                    color: g.onTrack ? HP_TOKENS.sage : HP_TOKENS.coral,
-                  }}>
-                    {g.onTrack ? 'On Track' : 'Off Track'}
-                  </div>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                  <span style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute }}>Progress</span>
-                  <span style={{ ...HP_TEXT.tiny, color: TONE[g.tone], fontWeight: 800 }}>{g.progress}%</span>
-                </div>
-                <HPBar value={g.progress} tone={g.tone as any} />
-              </HPCard>
             ))}
+            {teamGoals.length === 0 && <div style={{ textAlign: 'center', padding: 20, color: HP_TOKENS.inkMute }}>Belum ada OKR tim.</div>}
+          </div>
+
+          {/* Assigned OKRs */}
+          <SectionHeader icon="people" label="Assigned to Members" count={String(assignedGoals.length)} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {assignedGoals.map(g => (
+              <div key={g.id} onClick={() => openModal('new_goal', { goal: g })} className="hp-tap">
+                <div style={{ 
+                  padding: '4px 12px', background: HP_TOKENS.lavenderWash, borderRadius: '12px 12px 0 0', 
+                  fontSize: 10, fontWeight: 900, color: HP_TOKENS.lavender, border: `1px solid ${HP_TOKENS.lavender}20`,
+                  borderBottom: 'none'
+                }}>
+                  ASSIGNED TO: {g.owner.toUpperCase()}
+                </div>
+                <GoalCard g={g} />
+              </div>
+            ))}
+            {assignedGoals.length === 0 && <div style={{ textAlign: 'center', padding: 20, color: HP_TOKENS.inkMute }}>Belum ada OKR yang ditugaskan.</div>}
           </div>
         </>
       )}
