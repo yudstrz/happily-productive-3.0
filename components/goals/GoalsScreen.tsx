@@ -42,6 +42,22 @@ export default function GoalsScreen({ openModal }: GoalsScreenProps) {
         { key: 'company', label: 'Perusahaan' },
       ]} value={tab} onChange={setTab}/>
 
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 12 }}>
+        <button 
+          onClick={() => openModal('okr_dictionary')}
+          className="hp-tap"
+          style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            background: 'none', border: 'none', padding: '4px 8px',
+            fontFamily: HP_FONT, fontWeight: 700, fontSize: 13, color: HP_TOKENS.blue,
+            cursor: 'pointer'
+          }}
+        >
+          <HPGlyph name="info" size={14} color={HP_TOKENS.blue} />
+          Kamus OKR
+        </button>
+      </div>
+
       <HPCard style={{ marginTop: 14, background: HP_TOKENS.sageWash, border: 'none' }} padding={16}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <div style={{ 
