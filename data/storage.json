@@ -7,30 +7,47 @@
     "priorities": [
       {
         "id": 1,
-        "title": "Review wireframe onboarding v3",
+        "title": "Finalize User Retention Dashboard",
         "goal": "Launch Apps Redesign",
         "energy": "high",
         "est": "45m",
         "done": false,
-        "tone": "sage"
+        "tone": "sage",
+        "points": 50,
+        "type": "Daily Task"
       },
       {
         "id": 2,
-        "title": "Kirim handoff ke tim engineering",
+        "title": "Engineering Handoff - Checkout Flow",
         "goal": "Launch Apps Redesign",
         "energy": "mid",
         "est": "20m",
         "done": false,
-        "tone": "sage"
+        "tone": "sage",
+        "points": 50,
+        "type": "Daily Task"
       },
       {
         "id": 3,
-        "title": "Sinkronisasi ikon design system",
+        "title": "Audit Component Library for Icons",
         "goal": "DS Migration Q2",
         "energy": "low",
         "est": "30m",
         "done": true,
-        "tone": "blue"
+        "tone": "blue",
+        "points": 50,
+        "type": "Daily Task"
+      },
+      {
+        "id": 4,
+        "title": "Prepare Mentoring Deck for Rizky",
+        "goal": "Mentoring 2 junior designer",
+        "energy": "mid",
+        "est": "15m",
+        "done": false,
+        "tone": "lavender",
+        "points": 50,
+        "type": "Daily Task"
       }
     ],
     "feed": [

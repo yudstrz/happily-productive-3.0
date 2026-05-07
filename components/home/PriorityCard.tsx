@@ -33,25 +33,27 @@ export default function PriorityCard({ p, onToggle }: PriorityCardProps) {
     <div style={{
       position: 'relative',
       display: 'flex', 
-      alignItems: 'flex-start', 
+      alignItems: 'center', 
       gap: 16, 
-      padding: '16px',
-      background: p.done ? HP_TOKENS.yellowSoft : HP_TOKENS.card,
-      border: `1.5px solid ${p.done ? HP_TOKENS.yellow : HP_TOKENS.line}`,
-      borderRadius: 16, 
-      transition: 'all 0.2s ease',
+      padding: '18px',
+      background: p.done ? HP_TOKENS.card : '#fff',
+      border: `1.5px solid ${p.done ? HP_TOKENS.line : HP_TOKENS.line}`,
+      borderRadius: 20, 
+      boxShadow: p.done ? 'none' : '0 4px 12px rgba(0,0,0,0.02)',
+      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     }}>
       {/* Floating +50 Poin */}
       {showPoints && (
         <div style={{
-          position: 'absolute', top: 10, right: 16,
+          position: 'absolute', top: -10, right: 20,
           background: HP_TOKENS.ink, color: HP_TOKENS.yellow,
-          fontSize: 11, fontWeight: 800, fontFamily: HP_FONT,
-          padding: '2px 8px', borderRadius: 8,
+          fontSize: 10, fontWeight: 900, fontFamily: HP_FONT,
+          padding: '4px 10px', borderRadius: 10,
           animation: 'hpRise 1.2s ease-out forwards',
           pointerEvents: 'none', zIndex: 10,
+          boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
         }}>
-          +50
+          +{p.points || 50} EXP
         </div>
       )}
 
@@ -59,45 +61,68 @@ export default function PriorityCard({ p, onToggle }: PriorityCardProps) {
         onClick={handleToggle} 
         className="hp-tap" 
         style={{
-          width: 24, 
-          height: 24, 
-          borderRadius: 6, 
-          border: `2px solid ${p.done ? HP_TOKENS.yellow : HP_TOKENS.line}`,
-          background: p.done ? HP_TOKENS.yellow : 'transparent', 
+          width: 28, 
+          height: 28, 
+          borderRadius: 10, 
+          border: `2.5px solid ${p.done ? t.bg : HP_TOKENS.line}`,
+          background: p.done ? t.bg : 'transparent', 
           cursor: 'pointer', 
           flexShrink: 0, 
-          marginTop: 2,
           display: 'flex', 
           alignItems: 'center', 
           justifyContent: 'center', 
           padding: 0,
+          transition: '0.2s'
         }}
       >
-        {p.done && <HPGlyph name="check" size={14} color={HP_TOKENS.ink} stroke={4}/>}
+        {p.done && <HPGlyph name="check" size={16} color={t.fg} stroke={4}/>}
       </button>
+
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{
           ...HP_TEXT.h, 
           fontSize: 15,
           textDecoration: p.done ? 'line-through' : 'none',
-          color: p.done ? HP_TOKENS.inkMute : HP_TOKENS.ink,
+          color: p.done ? HP_TOKENS.inkFade : HP_TOKENS.ink,
+          lineHeight: 1.4,
+          fontWeight: 700
         }}>
           {p.title}
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 8 }}>
+        
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 6 }}>
+           {p.goal && (
+             <div style={{ 
+               display: 'flex', alignItems: 'center', gap: 4, 
+               background: p.done ? HP_TOKENS.lineSoft : `${t.wash}80`, 
+               padding: '2px 8px', borderRadius: 6 
+             }}>
+               <HPGlyph name="target" size={10} color={p.done ? HP_TOKENS.inkMute : t.fg} />
+               <span style={{ 
+                 ...HP_TEXT.tiny, 
+                 color: p.done ? HP_TOKENS.inkMute : t.fg, 
+                 fontWeight: 800,
+                 fontSize: 10
+               }}>
+                 {p.goal}
+               </span>
+             </div>
+           )}
+          
           <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <HPGlyph name="target" size={12} color={HP_TOKENS.inkMute} />
-            <span style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, fontWeight: 700 }}>
-              {p.goal}
-            </span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            <HPGlyph name={energyIcon} size={12} color={HP_TOKENS.inkMute} />
+            <HPGlyph name={energyIcon} size={11} color={HP_TOKENS.inkMute} />
             <span style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, fontWeight: 700 }}>
               {p.est}
             </span>
           </div>
         </div>
+      </div>
+
+      <div style={{ 
+        width: 32, height: 32, borderRadius: 16, background: HP_TOKENS.paper,
+        display: 'flex', alignItems: 'center', justifyContent: 'center'
+      }}>
+         <HPGlyph name="arrow" size={14} color={HP_TOKENS.line} />
       </div>
     </div>
   );

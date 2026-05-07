@@ -63,43 +63,58 @@ Jawab dengan tone yang asik dan menyemangati.`,
 
   return (
     <Modal onClose={onClose} title="Cek Target Kerja 🚀">
-      <div style={{ marginBottom: 24 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-          <div style={{ ...HP_TEXT.h, fontSize: 16 }}>Progress Realisasi</div>
-          <div style={{ ...HP_TEXT.h, fontSize: 18, color: HP_TOKENS.sage }}>{Math.round(progress)}%</div>
+      <div style={{ marginBottom: 24, padding: 16, background: HP_TOKENS.paper, borderRadius: 20, border: `1px solid ${HP_TOKENS.line}` }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+          <div style={{ ...HP_TEXT.h, fontSize: 16 }}>Progress Hari Ini</div>
+          <div style={{ ...HP_TEXT.h, fontSize: 20, color: HP_TOKENS.sage }}>{Math.round(progress)}%</div>
         </div>
-        <HPBar value={progress} tone="sage" height={10} />
-        <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, marginTop: 8, textAlign: 'center' }}>
-          {doneCount} dari {totalCount} target sudah terealisasi
+        <div style={{ height: 10, background: HP_TOKENS.lineSoft, borderRadius: 5, overflow: 'hidden' }}>
+          <div style={{ 
+            width: `${progress}%`, height: '100%', 
+            background: `linear-gradient(to right, ${HP_TOKENS.sage}, #4ADE80)`,
+            transition: '1s cubic-bezier(0.2, 0.8, 0.2, 1)' 
+          }} />
+        </div>
+        <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, marginTop: 10, textAlign: 'center', fontWeight: 700 }}>
+          {doneCount} / {totalCount} TARGET TEREALISASI
         </div>
       </div>
 
-      <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, fontWeight: 700, marginBottom: 12 }}>DAFTAR TARGET HARI INI</div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 24 }}>
+      <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, fontWeight: 900, fontSize: 10, letterSpacing: 1, marginBottom: 12 }}>DAFTAR TARGET HARI INI</div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
         {priorities.map((p: any) => (
-          <HPCard key={p.id} padding={12} style={{ 
-            background: p.done ? HP_TOKENS.sageWash : '#fff',
-            border: `1.5px solid ${p.done ? HP_TOKENS.sage : HP_TOKENS.lineSoft}`,
-            opacity: p.done ? 0.8 : 1
+          <HPCard key={p.id} padding={14} style={{ 
+            background: p.done ? `${HP_TOKENS.sageWash}40` : '#fff',
+            border: `1.5px solid ${p.done ? HP_TOKENS.sage : HP_TOKENS.line}`,
+            opacity: p.done ? 0.7 : 1,
+            transition: '0.2s'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
               <button 
                 onClick={() => toggleTask(p.id)}
                 style={{
-                  width: 20, height: 20, borderRadius: 6,
+                  width: 24, height: 24, borderRadius: 8,
                   background: p.done ? HP_TOKENS.sage : 'transparent',
                   border: `2px solid ${p.done ? HP_TOKENS.sage : HP_TOKENS.line}`,
-                  cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                  cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  transition: '0.2s'
                 }}
               >
-                {p.done && <HPGlyph name="check" size={12} color="#fff" />}
+                {p.done && <HPGlyph name="check" size={14} color="#fff" stroke={4}/>}
               </button>
-              <div style={{ 
-                ...HP_TEXT.body, fontSize: 14, fontWeight: 600, 
-                textDecoration: p.done ? 'line-through' : 'none',
-                color: p.done ? HP_TOKENS.inkFade : HP_TOKENS.ink
-              }}>
-                {p.title}
+              <div style={{ flex: 1 }}>
+                <div style={{ 
+                  ...HP_TEXT.body, fontSize: 14, fontWeight: 700, 
+                  textDecoration: p.done ? 'line-through' : 'none',
+                  color: p.done ? HP_TOKENS.inkFade : HP_TOKENS.ink
+                }}>
+                  {p.title}
+                </div>
+                {p.goal && (
+                  <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, marginTop: 2, fontWeight: 600 }}>
+                    Linked to: <span style={{ color: HP_TOKENS.blue }}>{p.goal}</span>
+                  </div>
+                )}
               </div>
             </div>
           </HPCard>

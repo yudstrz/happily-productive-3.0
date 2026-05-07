@@ -509,25 +509,58 @@ export default function HomeScreen({ openModal }: any) {
           />
           
           {/* Realization Progress Card */}
-          <HPCard padding={16} style={{ marginBottom: 16, background: HP_TOKENS.sageWash, border: 'none' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-              <div style={{ ...HP_TEXT.h, fontSize: 14, color: HP_TOKENS.sage }}>Target Realization</div>
-              <div style={{ ...HP_TEXT.h, fontSize: 16, color: HP_TOKENS.sage }}>{total > 0 ? Math.round((done / total) * 100) : 0}%</div>
+          <HPCard padding={20} style={{ 
+            marginBottom: 20, 
+            background: `linear-gradient(135deg, ${HP_TOKENS.sageWash} 0%, #fff 100%)`, 
+            border: `1.5px solid ${HP_TOKENS.sage}20`,
+            boxShadow: '0 10px 30px rgba(0,0,0,0.03)',
+            position: 'relative',
+            overflow: 'hidden'
+          }}>
+            {/* Decorative background element */}
+            <div style={{ 
+              position: 'absolute', right: -20, top: -20, width: 100, height: 100, 
+              borderRadius: 50, background: `${HP_TOKENS.sage}10`, zIndex: 0 
+            }} />
+
+            <div style={{ position: 'relative', zIndex: 1 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 16 }}>
+                <div>
+                  <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.sage, fontWeight: 900, letterSpacing: 1, marginBottom: 4 }}>REALISASI TARGET</div>
+                  <div style={{ ...HP_TEXT.h, fontSize: 24 }}>{total > 0 ? Math.round((done / total) * 100) : 0}% <span style={{ fontSize: 14, color: HP_TOKENS.inkFade, fontWeight: 600 }}>Selesai</span></div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ ...HP_TEXT.h, fontSize: 16, color: HP_TOKENS.sage }}>{done}/{total}</div>
+                  <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, fontWeight: 700 }}>Quests Done</div>
+                </div>
+              </div>
+              
+              <div style={{ position: 'relative', height: 10, background: HP_TOKENS.lineSoft, borderRadius: 5, overflow: 'hidden' }}>
+                <div style={{ 
+                  width: `${total > 0 ? (done / total) * 100 : 0}%`, 
+                  height: '100%', 
+                  background: `linear-gradient(to right, ${HP_TOKENS.sage}, #4ADE80)`, 
+                  borderRadius: 5,
+                  transition: '1s cubic-bezier(0.2, 0.8, 0.2, 1)',
+                  boxShadow: `0 0 12px ${HP_TOKENS.sage}40`
+                }} />
+              </div>
+
+              <button 
+                onClick={() => openModal('work_checkin')}
+                className="hp-tap"
+                style={{ 
+                  marginTop: 20, width: '100%', padding: '12px', borderRadius: 14,
+                  background: HP_TOKENS.ink, border: 'none', color: '#fff',
+                  fontFamily: HP_FONT, fontWeight: 800, fontSize: 13, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                }}
+              >
+                <HPGlyph name="sparkle" size={16} color={HP_TOKENS.yellow} />
+                Cek Realisasi & Tips Fokus
+              </button>
             </div>
-            <HPBar value={total > 0 ? (done / total) * 100 : 0} tone="sage" height={8} />
-            <button 
-              onClick={() => openModal('work_checkin')}
-              className="hp-tap"
-              style={{ 
-                marginTop: 16, width: '100%', padding: '10px', borderRadius: 12,
-                background: '#fff', border: `1px solid ${HP_TOKENS.sage}`, color: HP_TOKENS.sage,
-                fontFamily: HP_FONT, fontWeight: 800, fontSize: 13, cursor: 'pointer',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8
-              }}
-            >
-              <HPGlyph name="sparkle" size={16} color={HP_TOKENS.sage} />
-              Cek Realisasi & Tips Fokus
-            </button>
           </HPCard>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
