@@ -6,6 +6,7 @@ import { useHP } from "@/lib/HPContext";
 import HPCard from "@/components/ui/HPCard";
 import HPChip from "@/components/ui/HPChip";
 import HPBar from "@/components/ui/HPBar";
+import HPGlyph from "@/components/ui/HPGlyph";
 
 interface GoalCardProps {
   g: any;
