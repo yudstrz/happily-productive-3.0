@@ -18,9 +18,11 @@ export const HP_TOKENS = {
 
   coral: '#E88B7D',
   coralSoft: '#F6D8D2',
+  coralWash: '#FAF1EF',
 
   lavender: '#A89BC9',
   lavenderSoft: '#E9E4F1',
+  lavenderWash: '#F6F4FA',
 
   // Neutrals — warm, not sterile
   ink: '#1F1D1B',
