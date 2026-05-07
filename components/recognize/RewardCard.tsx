@@ -34,91 +34,110 @@ const GLYPH_MAP: Record<string, string> = {
 };
 
 export default function RewardCard({ title, points, tone, glyph, onRedeem }: RewardCardProps) {
-  const { state, updateState } = useHP();
+  const { state, updateState, user } = useHP();
   const cfg = TONE_CONFIG[tone] || TONE_CONFIG.sage;
   const icon = glyph ?? GLYPH_MAP[title] ?? 'sparkle';
 
+  const userPoints = state?.points ?? 0;
+  const isLocked = userPoints < points;
+
   const handleRedeem = () => {
+    if (isLocked) {
+      // Small feedback instead of a hard alert if possible, but keep functionality
+      return;
+    }
+
     if (onRedeem) {
       onRedeem();
       return;
     }
 
     if (!state) return;
-    if (state.points < points) {
-      alert(`Poin tidak cukup! Kamu butuh ${points} poin, tapi baru punya ${state.points} poin. 🌱`);
-      return;
-    }
 
     if (confirm(`Tukar ${points} poin dengan "${title}"?`)) {
       updateState((s: any) => ({
         ...s,
         points: s.points - points,
-        user: { ...s.user, points: (s.user?.points || 0) - points },
         rewardHistory: [
           ...(s.rewardHistory || []),
           { id: Date.now(), title, points, date: new Date().toLocaleDateString('id-ID'), glyph: icon }
         ]
       }));
-      alert(`Berhasil! "${title}" telah ditambahkan ke reward kamu. 🎉`);
     }
   };
 
   return (
-    <button
+    <div
       onClick={handleRedeem}
       style={{
-        padding: 0,
-        borderRadius: 18,
-        background: cfg.bg,
-        border: `1.5px solid ${HP_TOKENS.line}`,
-        textAlign: 'left',
-        cursor: 'pointer',
-        width: '100%',
-        fontFamily: HP_FONT,
-        overflow: 'hidden',
-        transition: 'transform 0.2s, box-shadow 0.2s',
-      }}
-      className="hp-tap"
-    >
-      {/* Image area — emoji illustration */}
-      <div style={{
-        height: 80,
-        background: `radial-gradient(ellipse at 60% 40%, ${cfg.glow} 0%, transparent 70%), ${cfg.bg}`,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: 38,
         position: 'relative',
+        borderRadius: 24,
+        background: isLocked ? HP_TOKENS.paper : cfg.bg,
+        border: `1.5px solid ${isLocked ? HP_TOKENS.lineSoft : cfg.accent + '30'}`,
+        padding: '16px',
+        cursor: isLocked ? 'default' : 'pointer',
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        opacity: isLocked ? 0.7 : 1,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 12,
+        boxShadow: isLocked ? 'none' : `0 10px 20px ${cfg.glow}`,
         overflow: 'hidden',
-      }}>
-        {/* Decorative circle */}
-        <div style={{
-          position: 'absolute',
-          width: 70, height: 70,
-          borderRadius: '50%',
-          background: `${cfg.accent}18`,
-          top: '50%', left: '50%',
-          transform: 'translate(-50%, -50%)',
-        }}/>
-        <span style={{ position: 'relative', zIndex: 1, display: 'flex' }}>
-          <HPGlyph name={icon} size={32} color={cfg.text} />
-        </span>
-      </div>
+      }}
+      className={isLocked ? "" : "hp-tap"}
+    >
+      {/* Background decoration */}
+      <div style={{
+        position: 'absolute', right: -10, top: -10, width: 60, height: 60,
+        borderRadius: 30, background: isLocked ? HP_TOKENS.lineSoft : `${cfg.accent}15`, zIndex: 0
+      }} />
 
-      {/* Info area */}
-      <div style={{ padding: '10px 12px 12px' }}>
-        <div style={{ ...HP_TEXT.h, fontSize: 13, color: cfg.text, lineHeight: 1.3, height: 34, overflow: 'hidden' }}>{title}</div>
-        <div style={{
-          marginTop: 6,
-          display: 'inline-flex', alignItems: 'center', gap: 4,
-          padding: '3px 10px', borderRadius: 99,
-          background: cfg.accent, color: '#fff',
-          fontFamily: HP_FONT, fontWeight: 800, fontSize: 11,
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'relative', zIndex: 1 }}>
+        <div style={{ 
+          width: 44, height: 44, borderRadius: 14, 
+          background: isLocked ? HP_TOKENS.lineSoft : '#fff',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: isLocked ? 'none' : '0 4px 10px rgba(0,0,0,0.05)'
         }}>
-          🏆 {points} poin
+          <HPGlyph name={isLocked ? "lock" : icon} size={22} color={isLocked ? HP_TOKENS.inkFade : cfg.accent} />
+        </div>
+        
+        <div style={{ 
+          padding: '4px 10px', borderRadius: 10,
+          background: isLocked ? HP_TOKENS.lineSoft : cfg.accent,
+          color: isLocked ? HP_TOKENS.inkMute : '#fff',
+          fontFamily: HP_FONT, fontWeight: 900, fontSize: 11,
+          letterSpacing: 0.5
+        }}>
+          {points} pts
         </div>
       </div>
-    </button>
+
+      <div style={{ position: 'relative', zIndex: 1 }}>
+        <div style={{ 
+          ...HP_TEXT.h, fontSize: 14, color: isLocked ? HP_TOKENS.inkMute : cfg.text, 
+          lineHeight: 1.4, marginBottom: 4, height: 40, overflow: 'hidden' 
+        }}>
+          {title}
+        </div>
+        
+        {isLocked ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
+            <div style={{ flex: 1, height: 4, background: HP_TOKENS.lineSoft, borderRadius: 2 }}>
+              <div style={{ width: `${(userPoints / points) * 100}%`, height: '100%', background: HP_TOKENS.inkFade, borderRadius: 2 }} />
+            </div>
+            <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkFade }}>{points - userPoints} lagi</div>
+          </div>
+        ) : (
+          <div style={{ 
+            display: 'flex', alignItems: 'center', gap: 6, marginTop: 4,
+            color: cfg.accent, fontWeight: 800, fontSize: 11
+          }}>
+            <span>Tukar Sekarang</span>
+            <HPGlyph name="arrow" size={10} color={cfg.accent} />
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

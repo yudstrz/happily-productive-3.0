@@ -161,6 +161,11 @@ export default function AttendanceScannerModal({ onClose }: AttendanceScannerMod
 
   const handleCheckIn = async (token: string) => {
     setStatus('verifying');
+    
+    // Add a timeout controller
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+
     try {
       const res = await fetch("/api/attendance/check-in", {
         method: "POST",
@@ -173,21 +178,30 @@ export default function AttendanceScannerModal({ onClose }: AttendanceScannerMod
           checkInType,
           officeId,
           notes
-        })
+        }),
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
       
       const data = await res.json();
       if (data.success) {
         setStatus('success');
-        awardXP('priority_complete', 'Check-in kantor tepat waktu! 🏢'); // Reuse action for reward
+        awardXP('priority_complete', 'Check-in kantor tepat waktu! 🏢');
         setTimeout(onClose, 2000);
       } else {
         setStatus('error');
         setErrorMsg(data.error || "Gagal check-in");
       }
-    } catch (e) {
+    } catch (e: any) {
+      clearTimeout(timeoutId);
       setStatus('error');
-      setErrorMsg("Koneksi bermasalah.");
+      if (e.name === 'AbortError') {
+        setErrorMsg("Waktu verifikasi habis (Timeout). Cek koneksi internet kamu.");
+      } else {
+        setErrorMsg("Terjadi kesalahan koneksi atau sistem.");
+      }
+      console.error("Check-in catch:", e);
     }
   };
 

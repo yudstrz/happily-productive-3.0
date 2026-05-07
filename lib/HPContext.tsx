@@ -37,7 +37,7 @@ interface HPState {
   };
   personalWellbeingGoal?: string;
   wellbeingRoutine?: Array<{ id: string; title: string; done: boolean }>;
-  contacts: Array<{ id: string; name: string; role: string; email: string; phone: string }>;
+  contacts: Array<{ id: string; name: string; role: string; email: string; phone: string; isPrivate?: boolean }>;
   hrData?: any;
   managerData?: any;
 }

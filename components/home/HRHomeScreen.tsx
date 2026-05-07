@@ -105,6 +105,21 @@ export default function HRHomeScreen({ openModal }: Props) {
           </div>
         </div>
 
+        {/* Attendance Check-in Button */}
+        <button 
+          onClick={() => openModal('attendance_scanner')}
+          style={{
+            marginTop: 16, width: '100%', padding: '14px', borderRadius: 20, 
+            background: HP_TOKENS.ink, color: '#fff',
+            border: 'none', fontFamily: HP_FONT, fontWeight: 800, fontSize: 14, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+          }} className="hp-tap"
+        >
+          <HPGlyph name="target" size={18} color="#fff" />
+          Check-in Office (QR)
+        </button>
+
         {/* At-Risk Alert */}
         {atRiskEmployees.length > 0 && (
           <div style={{

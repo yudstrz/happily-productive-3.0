@@ -100,23 +100,62 @@ export default function AnnouncementFeed() {
         </HPCard>
       )}
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div style={{ 
+        display: 'flex', 
+        gap: 16, 
+        overflowX: 'auto', 
+        paddingBottom: 16, 
+        paddingRight: 16,
+        scrollbarWidth: 'none',
+        msOverflowStyle: 'none',
+        WebkitOverflowScrolling: 'touch'
+      }} className="hp-no-scrollbar">
         {announcements.map(a => (
-          <HPCard key={a.id} padding={16} style={{ borderLeft: `4px solid ${HP_TOKENS[a.tone as keyof typeof HP_TOKENS] || HP_TOKENS.blue}` }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-              <div style={{ 
-                width: 36, height: 36, borderRadius: 10, 
-                background: (HP_TOKENS as any)[`${a.tone}Soft`] || HP_TOKENS.lineSoft,
-                display: 'flex', alignItems: 'center', justifyContent: 'center'
-              }}>
-                <HPGlyph name={a.glyph || "bullhorn"} size={18} color={(HP_TOKENS as any)[a.tone] || HP_TOKENS.ink} />
-              </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ ...HP_TEXT.h, fontSize: 15 }}>{a.title}</div>
-                <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, marginBottom: 8 }}>
-                  {new Date(a.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long' })}
+          <HPCard 
+            key={a.id} 
+            padding={20} 
+            style={{ 
+              minWidth: 280, 
+              maxWidth: 280,
+              flexShrink: 0,
+              borderLeft: `6px solid ${HP_TOKENS[a.tone as keyof typeof HP_TOKENS] || HP_TOKENS.blue}`,
+              boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+              background: '#fff'
+            }}
+          >
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ 
+                  width: 40, height: 40, borderRadius: 12, 
+                  background: (HP_TOKENS as any)[`${a.tone}Soft`] || HP_TOKENS.lineSoft,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center'
+                }}>
+                  <HPGlyph name={a.glyph || "bullhorn"} size={20} color={(HP_TOKENS as any)[a.tone] || HP_TOKENS.ink} />
                 </div>
-                <div style={{ ...HP_TEXT.body, fontSize: 13, color: HP_TOKENS.inkSoft }}>
+                <div style={{ 
+                  ...HP_TEXT.tiny, 
+                  background: HP_TOKENS.lineSoft, 
+                  padding: '4px 8px', 
+                  borderRadius: 6,
+                  color: HP_TOKENS.inkMute,
+                  fontWeight: 800
+                }}>
+                  {new Date(a.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }).toUpperCase()}
+                </div>
+              </div>
+              
+              <div>
+                <div style={{ ...HP_TEXT.h, fontSize: 16, marginBottom: 6, lineHeight: 1.3 }}>{a.title}</div>
+                <div style={{ 
+                  ...HP_TEXT.body, 
+                  fontSize: 13, 
+                  color: HP_TOKENS.inkSoft,
+                  display: '-webkit-box',
+                  WebkitLineClamp: 3,
+                  WebkitBoxOrient: 'vertical',
+                  overflow: 'hidden',
+                  lineHeight: 1.5
+                }}>
                   {a.content}
                 </div>
               </div>

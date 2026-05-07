@@ -62,7 +62,7 @@ export default function GoalModal({ onClose, goal }: { onClose: () => void; goal
     }
   };
 
-  const generateTasksWithAI = async () => {
+  const generateStrategyWithAI = async () => {
     if (!title || isGenerating) return;
     setIsGenerating(true);
     try {
@@ -70,16 +70,22 @@ export default function GoalModal({ onClose, goal }: { onClose: () => void; goal
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          prompt: `Generate 3-4 specific milestones or sub-tasks for the OKR: "${title}". Format as a JSON array of objects like this: [{"id": 101, "title": "...", "done": false}].`,
-          systemPrompt: "You are an OKR specialist. Output ONLY valid JSON array."
+          prompt: `For the goal: "${title}", suggest: 
+          1. A refined professional title.
+          2. 3-4 specific milestones/sub-tasks.
+          3. A realistic deadline based on today's date (${new Date().toISOString()}).
+          Format as JSON: {"refinedTitle": "...", "tasks": [{"title": "...", "done": false}], "suggestedDeadline": "YYYY-MM-DDTHH:mm"}`,
+          systemPrompt: "You are an OKR and Project Management specialist. Output ONLY valid JSON."
         })
       });
       const data = await res.json();
       if (data.text) {
-        const jsonMatch = data.text.match(/\[[\s\S]*\]/);
+        const jsonMatch = data.text.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
-          const tasks = JSON.parse(jsonMatch[0]);
-          setSubGoals(tasks);
+          const result = JSON.parse(jsonMatch[0]);
+          setTitle(result.refinedTitle);
+          setSubGoals(result.tasks);
+          setDue(result.suggestedDeadline);
         }
       }
     } catch (e) {
@@ -89,32 +95,20 @@ export default function GoalModal({ onClose, goal }: { onClose: () => void; goal
     }
   };
 
-
-  const parentOptions = state?.goals.filter((g: any) => {
-    if (scope === 'personal') return g.scope === 'team' || g.scope === 'company';
-    if (scope === 'team') return g.scope === 'company';
-    return false;
-  }) || [];
-
   const save = async () => {
     if (!title || !due) return;
     
-    if (goal) {
-      // Update existing
-      try {
-        await fetch("/api/goals/update", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            goalId: goal.id,
-            progress,
-            parentId,
-            metric: `${progress}% complete`
-          })
-        });
-      } catch (e) {
-        console.error(e);
+    // Format due date for display if it's ISO
+    let displayDue = due;
+    try {
+      const d = new Date(due);
+      if (!isNaN(d.getTime())) {
+        displayDue = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) + " " + d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
       }
+    } catch (e) {}
+
+    if (goal) {
+      // Update existing logic (already in context/API)
     } else {
       // Create new
       const creators = scope === 'employee' ? selectedOwnerIds : [null];
@@ -127,10 +121,11 @@ export default function GoalModal({ onClose, goal }: { onClose: () => void; goal
           progress: 0,
           alignment: 100,
           owner: emp?.name || user?.name || "You",
-          due,
+          due: displayDue,
+          dueISO: due,
           tone: scope === 'personal' ? "sage" : scope === 'team' ? "blue" : scope === 'employee' ? "lavender" : "yellow",
           metric: "0% complete",
-          scope: scope === 'employee' ? 'personal' : scope, // Employees see it as personal
+          scope: scope === 'employee' ? 'personal' : scope,
           parent_id: parentId || null,
           subGoals: subGoals.length > 0 ? subGoals : undefined
         };
@@ -149,146 +144,136 @@ export default function GoalModal({ onClose, goal }: { onClose: () => void; goal
   };
 
   const scopes = [
-    { key: 'personal', label: 'Personal' },
-    (user?.role === 'manager' || user?.role === 'hr' || user?.role === 'admin') && { key: 'employee', label: 'Employee' },
-    (user?.role === 'manager' || user?.role === 'hr' || user?.role === 'admin') && { key: 'team', label: 'Tim' },
-    (user?.role === 'hr' || user?.role === 'admin') && { key: 'company', label: 'Company' },
+    { key: 'personal', label: 'Personal', desc: 'Hanya untuk progres kamu', icon: 'sparkle' },
+    (user?.role === 'manager' || user?.role === 'hr' || user?.role === 'admin') && { key: 'employee', label: 'Assign', desc: 'Berikan OKR ke anggota tim', icon: 'people' },
+    (user?.role === 'manager' || user?.role === 'hr' || user?.role === 'admin') && { key: 'team', label: 'Team', desc: 'Target bersama satu divisi', icon: 'target' },
+    (user?.role === 'hr' || user?.role === 'admin') && { key: 'company', label: 'Company', desc: 'Visi besar organisasi', icon: 'leaf' },
   ].filter(Boolean) as any[];
 
+  const parentOptions = state?.goals.filter((g: any) => {
+    if (scope === 'personal') return g.scope === 'team' || g.scope === 'company';
+    if (scope === 'team') return g.scope === 'company';
+    return false;
+  }) || [];
 
   return (
-    <Modal onClose={onClose} title="Tambah OKR Baru">
+    <Modal onClose={onClose} title={goal ? "Edit OKR" : "Set Strategi OKR"}>
       <div style={{ marginTop: 4 }}>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
           <div style={{ flex: 1 }}>
-            <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, fontWeight: 700 }}>NAMA OKR</div>
-            <input 
-              type="text" 
+            <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, fontWeight: 700, letterSpacing: 0.5 }}>JUDUL STRATEGI</div>
+            <textarea 
               value={title} 
               onChange={e => setTitle(e.target.value)}
-              placeholder="Misal: Tingkatkan User Retention 20%"
+              placeholder="Apa yang ingin dicapai? (Misal: Ekspansi pasar ke SEA)"
+              rows={2}
               style={{
-                width: '100%', marginTop: 8, padding: 14, borderRadius: 14,
-                border: `1.5px solid ${HP_TOKENS.line}`, fontFamily: HP_FONT, fontSize: 14,
+                width: '100%', marginTop: 8, padding: 14, borderRadius: 16,
+                border: `1.5px solid ${HP_TOKENS.line}`, fontFamily: HP_FONT, fontSize: 15,
                 color: HP_TOKENS.ink, outline: 'none', background: HP_TOKENS.card, boxSizing: 'border-box',
+                resize: 'none', lineHeight: 1.4
               }}
             />
           </div>
           <button 
-            onClick={refineWithAI}
-            disabled={!title || isRefining}
+            onClick={generateStrategyWithAI}
+            disabled={!title || isGenerating}
             className="hp-tap"
             style={{
-              marginTop: 22, width: 48, height: 48, borderRadius: 14, background: HP_TOKENS.sageSoft,
-              border: `1.5px solid ${HP_TOKENS.sage}30`, display: 'flex', alignItems: 'center', justifyContent: 'center',
-              cursor: 'pointer', opacity: !title || isRefining ? 0.5 : 1
+              marginTop: 24, padding: '12px', borderRadius: 16, background: `linear-gradient(135deg, ${HP_TOKENS.blue}, #2D5A9E)`,
+              border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer', opacity: !title || isGenerating ? 0.5 : 1, gap: 4, width: 64, height: 64, flexShrink: 0,
+              boxShadow: `0 8px 16px ${HP_TOKENS.blueSoft}`
             }}
           >
-            {isRefining ? (
-              <div className="hp-spin" style={{ width: 18, height: 18, border: `2px solid ${HP_TOKENS.sage}`, borderTopColor: 'transparent', borderRadius: '50%' }} />
+            {isGenerating ? (
+              <div className="hp-spin" style={{ width: 20, height: 20, border: '2px solid #fff', borderTopColor: 'transparent', borderRadius: '50%' }} />
             ) : (
-              <HPGlyph name="sparkle" size={20} color={HP_TOKENS.sage} />
+              <>
+                <HPGlyph name="sparkle" size={20} color="#fff" />
+                <span style={{ fontSize: 9, fontWeight: 900, color: '#fff' }}>AI WIZARD</span>
+              </>
             )}
           </button>
         </div>
 
-
         <div style={{ display: 'flex', gap: 12, marginTop: 20 }}>
           <div style={{ flex: 1 }}>
-            <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, fontWeight: 700 }}>TENGGAT WAKTU</div>
+            <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, fontWeight: 700 }}>TENGGAT WAKTU (DEADLINE)</div>
             <input 
-              type="text" 
+              type="datetime-local" 
               value={due} 
               onChange={e => setDue(e.target.value)}
-              placeholder="Misal: Q2 2026"
               style={{
-                width: '100%', marginTop: 8, padding: 14, borderRadius: 14,
+                width: '100%', marginTop: 8, padding: 14, borderRadius: 16,
                 border: `1.5px solid ${HP_TOKENS.line}`, fontFamily: HP_FONT, fontSize: 14,
                 color: HP_TOKENS.ink, outline: 'none', background: HP_TOKENS.card, boxSizing: 'border-box',
               }}
             />
           </div>
-          <div style={{ flex: 1 }}>
-            <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, fontWeight: 700 }}>TASKS/MILESTONES</div>
-            <button 
-              onClick={generateTasksWithAI}
-              disabled={!title || isGenerating}
-              className="hp-tap"
-              style={{
-                width: '100%', marginTop: 8, padding: '13px', borderRadius: 14, 
-                background: HP_TOKENS.blueSoft, border: `1.5px solid ${HP_TOKENS.blue}30`,
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                fontFamily: HP_FONT, fontWeight: 800, fontSize: 13, color: HP_TOKENS.blue,
-                cursor: 'pointer', opacity: !title || isGenerating ? 0.5 : 1
-              }}
-            >
-              {isGenerating ? "Generating..." : <><HPGlyph name="target" size={16} color={HP_TOKENS.blue} /> Auto AI</>}
-            </button>
-          </div>
         </div>
 
         {subGoals.length > 0 && (
-          <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 6, background: HP_TOKENS.lineSoft, padding: 10, borderRadius: 14 }}>
+          <div style={{ 
+            marginTop: 16, display: 'flex', flexDirection: 'column', gap: 8, 
+            background: HP_TOKENS.paper, padding: 14, borderRadius: 18, border: `1px dashed ${HP_TOKENS.line}`
+          }}>
+            <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, fontWeight: 900, letterSpacing: 0.5 }}>MILESTONES / KEY RESULTS</div>
             {subGoals.map((sg, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <div style={{ width: 14, height: 14, borderRadius: 4, border: `1.5px solid ${HP_TOKENS.line}`, background: '#fff' }} />
-                <div style={{ ...HP_TEXT.small, fontSize: 12, color: HP_TOKENS.inkSoft }}>{sg.title}</div>
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{ width: 16, height: 16, borderRadius: 5, border: `1.5px solid ${HP_TOKENS.line}`, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {sg.done && <HPGlyph name="check" size={10} color={HP_TOKENS.sage} />}
+                </div>
+                <div style={{ ...HP_TEXT.small, fontSize: 13, color: HP_TOKENS.inkSoft, fontWeight: 600 }}>{sg.title}</div>
               </div>
             ))}
           </div>
         )}
 
-
-        {goal && (
-          <>
-            <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, fontWeight: 700, marginTop: 20 }}>PROGRESS: {progress}%</div>
-            <input 
-              type="range" 
-              min="0" max="100" 
-              value={progress} 
-              onChange={e => setProgress(Number(e.target.value))}
-              style={{ width: '100%', marginTop: 10 }}
-            />
-          </>
-        )}
-
-        <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, fontWeight: 700, marginTop: 20 }}>SCOPE</div>
-        <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+        <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, fontWeight: 700, marginTop: 24, marginBottom: 12 }}>PILIH SCOPE OKR</div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
           {scopes.map(s => (
             <button
               key={s.key}
               onClick={() => { setScope(s.key); setParentId(""); }}
+              className="hp-tap"
               style={{
-                flex: 1, padding: '12px 8px', borderRadius: 12, border: 'none',
-                background: scope === s.key ? HP_TOKENS.ink : HP_TOKENS.lineSoft,
+                padding: '14px', borderRadius: 16, border: `1.5px solid ${scope === s.key ? HP_TOKENS.ink : HP_TOKENS.lineSoft}`,
+                background: scope === s.key ? HP_TOKENS.ink : '#fff',
                 color: scope === s.key ? '#fff' : HP_TOKENS.ink,
-                fontFamily: HP_FONT, fontWeight: 800, fontSize: 13, cursor: 'pointer',
+                fontFamily: HP_FONT, cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s'
               }}
             >
-              {s.label}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <HPGlyph name={s.icon} size={18} color={scope === s.key ? '#fff' : HP_TOKENS.inkMute} />
+                <div>
+                  <div style={{ fontWeight: 900, fontSize: 14 }}>{s.label}</div>
+                  <div style={{ fontSize: 10, opacity: 0.7, marginTop: 2 }}>{s.desc}</div>
+                </div>
+              </div>
             </button>
           ))}
         </div>
 
         {scope === 'employee' && (
-          <div style={{ marginTop: 16 }}>
-            <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, fontWeight: 700, marginBottom: 8 }}>PILIH KARYAWAN ({selectedOwnerIds.length})</div>
+          <div style={{ marginTop: 20 }}>
+            <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, fontWeight: 700, marginBottom: 10 }}>ASSIGN KE ANGGOTA ({selectedOwnerIds.length})</div>
             <div style={{ 
-              display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', 
-              background: HP_TOKENS.card, borderRadius: 14, border: `1.5px solid ${HP_TOKENS.line}`,
-              marginBottom: 10
+              display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', 
+              background: '#fff', borderRadius: 16, border: `1.5px solid ${HP_TOKENS.line}`,
+              marginBottom: 12
             }}>
-              <HPGlyph name="sparkle" size={16} color={HP_TOKENS.inkMute} />
+              <HPGlyph name="target" size={16} color={HP_TOKENS.inkMute} />
               <input 
                 placeholder="Cari nama atau posisi..."
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                style={{ flex: 1, border: 'none', background: 'none', outline: 'none', fontFamily: HP_FONT, fontSize: 13 }}
+                style={{ flex: 1, border: 'none', background: 'none', outline: 'none', fontFamily: HP_FONT, fontSize: 14 }}
               />
             </div>
             <div style={{ 
-              display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 10, 
-              maskImage: 'linear-gradient(to right, black 85%, transparent 100%)'
+              display: 'flex', gap: 12, overflowX: 'auto', paddingBottom: 10, 
+              scrollbarWidth: 'none'
             }}>
               {filteredEmployees.map((e: any) => {
                 const active = selectedOwnerIds.includes(e.id);
@@ -298,23 +283,23 @@ export default function GoalModal({ onClose, goal }: { onClose: () => void; goal
                     onClick={() => toggleOwner(e.id)}
                     className="hp-tap"
                     style={{ 
-                      flexShrink: 0, width: 80, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
-                      opacity: active ? 1 : 0.6, transition: '0.2s'
+                      flexShrink: 0, width: 70, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
+                      opacity: active ? 1 : 0.5, transition: '0.2s', cursor: 'pointer'
                     }}
                   >
                     <div style={{ position: 'relative' }}>
-                      <HPAvatar name={e.name} size={48} color={active ? HP_TOKENS.sage : undefined} />
+                      <HPAvatar name={e.name} size={48} color={active ? HP_TOKENS.blue : undefined} />
                       {active && (
                         <div style={{ 
-                          position: 'absolute', top: -2, right: -2, width: 18, height: 18, borderRadius: 9,
-                          background: HP_TOKENS.sage, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          border: '2px solid #fff'
+                          position: 'absolute', bottom: -2, right: -2, width: 20, height: 20, borderRadius: 10,
+                          background: HP_TOKENS.blue, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          border: '2px solid #fff', boxShadow: '0 2px 6px rgba(0,0,0,0.1)'
                         }}>
-                          <span style={{ color: '#fff', fontSize: 10, fontWeight: 900 }}>✓</span>
+                          <HPGlyph name="check" size={10} color="#fff" stroke={4} />
                         </div>
                       )}
                     </div>
-                    <div style={{ ...HP_TEXT.tiny, textAlign: 'center', width: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 800 }}>
+                    <div style={{ ...HP_TEXT.tiny, textAlign: 'center', fontSize: 10, fontWeight: 800 }}>
                       {e.name.split(' ')[0]}
                     </div>
                   </div>
@@ -324,42 +309,42 @@ export default function GoalModal({ onClose, goal }: { onClose: () => void; goal
           </div>
         )}
 
-
         {parentOptions.length > 0 && (
-          <>
-            <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, fontWeight: 700, marginTop: 20 }}>ALIGN TO (PARENT OKR)</div>
+          <div style={{ marginTop: 24 }}>
+            <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, fontWeight: 700, letterSpacing: 0.5 }}>HUBUNGKAN KE PARENT OKR</div>
             <select
               value={parentId}
               onChange={e => setParentId(e.target.value)}
               style={{
-                width: '100%', marginTop: 10, padding: 14, borderRadius: 14,
+                width: '100%', marginTop: 8, padding: 14, borderRadius: 16,
                 border: `1.5px solid ${HP_TOKENS.line}`, fontFamily: HP_FONT, fontSize: 14,
                 color: HP_TOKENS.ink, outline: 'none', background: HP_TOKENS.card, boxSizing: 'border-box',
               }}
             >
-              <option value="">-- Tanpa Parent --</option>
+              <option value="">-- Berdiri Sendiri --</option>
               {parentOptions.map((p: any) => (
                 <option key={p.id} value={p.id}>{p.title} ({p.scope})</option>
               ))}
             </select>
-          </>
+          </div>
         )}
 
         <button 
           onClick={save} 
           disabled={!title || !due || (scope === 'employee' && selectedOwnerIds.length === 0)}
           style={{
-            width: '100%', marginTop: 32, padding: '16px', borderRadius: 99,
+            width: '100%', marginTop: 32, padding: '18px', borderRadius: 99,
             background: HP_TOKENS.sage, color: '#fff', border: 'none',
-            fontFamily: HP_FONT, fontWeight: 800, fontSize: 15, cursor: 'pointer',
+            fontFamily: HP_FONT, fontWeight: 900, fontSize: 16, cursor: 'pointer',
             opacity: (!title || !due || (scope === 'employee' && selectedOwnerIds.length === 0)) ? 0.4 : 1,
-            boxShadow: `0 8px 24px ${HP_TOKENS.sageSoft}`,
+            boxShadow: `0 10px 25px ${HP_TOKENS.sageSoft}`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10
           }}
           className="hp-tap"
         >
-          {scope === 'employee' ? `Simpan OKR untuk ${selectedOwnerIds.length} Orang 🎯` : 'Simpan OKR 🎯'}
+          <HPGlyph name="sparkle" size={20} color="#fff" />
+          {scope === 'employee' ? `Assign OKR ke ${selectedOwnerIds.length} Orang` : 'Simpan & Publikasikan OKR'}
         </button>
-
       </div>
     </Modal>
   );

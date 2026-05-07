@@ -79,7 +79,7 @@ export default function GoalCard({ g }: GoalCardProps) {
             </div>
           )}
           <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, marginTop: 6, marginLeft: 32, fontSize: 12 }}>
-             {g.metric || 'Realisasi'} · Due {g.due}
+             {g.metric || 'Realisasi'} · <span style={{ fontWeight: 700 }}>Due:</span> {g.due}
           </div>
         </div>
         <HPChip tone={g.tone} size="sm">{g.alignment}% align</HPChip>

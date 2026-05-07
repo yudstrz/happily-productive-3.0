@@ -455,9 +455,18 @@ export default function HomeScreen({ openModal }: any) {
 
         {/* Company Contacts */}
         <div style={{ marginTop: 20 }}>
-          <SectionHeader icon="phone" label="Kontak Penting" count={String(state.contacts?.length || 0)} />
-          <div style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 10, scrollbarWidth: 'none' }}>
-            {(state.contacts || []).map(contact => (
+          <SectionHeader 
+            icon="phone" 
+            label="Kontak Penting" 
+            count={String(state.contacts?.length || 0)} 
+            action="+ Kelola"
+            onAction={() => openModal('manage_contacts')}
+          />
+          
+          {/* Public Contacts */}
+          <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, fontWeight: 800, marginBottom: 8, letterSpacing: 0.5 }}>UMUM</div>
+          <div style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 16, scrollbarWidth: 'none' }}>
+            {(state.contacts || []).filter(c => !c.isPrivate).map(contact => (
               <HPCard 
                 key={contact.id} 
                 padding={12} 
@@ -491,6 +500,43 @@ export default function HomeScreen({ openModal }: any) {
               </HPCard>
             ))}
           </div>
+
+          {/* Private Contacts */}
+          {(state.contacts || []).some(c => c.isPrivate) && (
+            <div style={{ marginTop: 12 }}>
+              <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, fontWeight: 800, marginBottom: 8, letterSpacing: 0.5 }}>PRIVAT</div>
+              <div style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 10, scrollbarWidth: 'none' }}>
+                {(state.contacts || []).filter(c => c.isPrivate).map(contact => (
+                  <HPCard 
+                    key={contact.id} 
+                    padding={12} 
+                    style={{ minWidth: 200, flexShrink: 0, background: HP_TOKENS.yellowWash, border: `1px solid ${HP_TOKENS.yellow}40` }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                      <div>
+                        <div style={{ ...HP_TEXT.h, fontSize: 13 }}>{contact.name}</div>
+                        <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, marginBottom: 8 }}>{contact.role}</div>
+                      </div>
+                      <HPGlyph name="sparkle" size={12} color={HP_TOKENS.yellow} />
+                    </div>
+                    
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <a 
+                        href={`tel:${contact.phone}`} 
+                        style={{ 
+                          flex: 1, textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          background: HP_TOKENS.ink, color: '#fff', padding: '6px 0', borderRadius: 8,
+                          fontFamily: HP_FONT, fontSize: 11, fontWeight: 800
+                        }}
+                      >
+                        Hubungi
+                      </a>
+                    </div>
+                  </HPCard>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Company News */}

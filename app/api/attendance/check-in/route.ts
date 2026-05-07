@@ -33,22 +33,26 @@ export async function POST(request: Request) {
     }
 
     // 1. Verify Token
+    console.log(`[Attendance] Verifying token for user ${userId}: ${token.substring(0, 8)}...`);
     const tokenCheck = await db.execute({
       sql: "SELECT expires_at FROM attendance_tokens WHERE token = ?",
       args: [token]
     });
 
     if (tokenCheck.rows.length === 0) {
+      console.warn(`[Attendance] Invalid token attempt: ${token}`);
       return NextResponse.json({ error: "QR Code tidak valid atau sudah kadaluarsa" }, { status: 400 });
     }
 
     const expiresAt = new Date(tokenCheck.rows[0].expires_at as string);
     if (expiresAt < new Date()) {
+      console.warn(`[Attendance] Token expired: ${token}`);
       return NextResponse.json({ error: "QR Code sudah kadaluarsa" }, { status: 400 });
     }
 
     // 2. Verify Location (Geofencing) only for WFO
     if (checkInType === 'WFO') {
+      console.log(`[Attendance] Verifying location for WFO at office ${officeId}`);
       const officeCheck = await db.execute({
         sql: "SELECT lat, lng, radius FROM office_locations WHERE id = ?",
         args: [officeId]
@@ -62,6 +66,7 @@ export async function POST(request: Request) {
 
       if (lat && lng) {
         const distance = calculateDistance(lat, lng, office.lat, office.lng);
+        console.log(`[Attendance] Distance check: ${Math.round(distance)}m from office (max ${office.radius}m)`);
         if (distance > office.radius) {
           return NextResponse.json({ error: `Anda berada di luar area kantor. Jarak Anda: ${Math.round(distance)}m, Maksimal: ${office.radius}m` }, { status: 403 });
         }
@@ -71,6 +76,7 @@ export async function POST(request: Request) {
     }
 
     // 3. Record Attendance
+    console.log(`[Attendance] Recording attendance for user ${userId} (${checkInType})`);
     const id = "att_" + Math.random().toString(36).substring(2, 9);
     await db.execute({
       sql: "INSERT INTO attendance (id, user_id, location_lat, location_lng, mood, check_in_type, office_id, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
@@ -83,6 +89,7 @@ export async function POST(request: Request) {
       args: [token]
     });
 
+    console.log(`[Attendance] Check-in successful for user ${userId}`);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Check-in Error:", error);
