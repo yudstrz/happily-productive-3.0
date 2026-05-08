@@ -41,6 +41,14 @@ toggleBtn.addEventListener('click', () => {
   });
 });
 
+const testBtn = document.getElementById('testBtn');
+
+
+
+testBtn.addEventListener('click', () => {
+  chrome.runtime.sendMessage({ action: "test" });
+});
+
 function updateUI(isRunning) {
   if (isRunning) {
     statusSpan.textContent = "Active";

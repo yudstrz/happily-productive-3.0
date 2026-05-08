@@ -72,5 +72,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   } else if (request.action === "stop") {
     stopAlarm();
     sendResponse({ status: "stopped" });
+  } else if (request.action === "test") {
+    showNotification();
   }
 });
