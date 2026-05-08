@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Happily Productive</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <img src="icon.png" alt="Icon" class="logo">
+      <h1>Lebah Produktif</h1>
+    </header>
+    
+    <main>
+      <p id="status">Status: <span>Active</span></p>
+      <div class="controls">
+        <label for="interval">Remind every (mins):</label>
+        <input type="number" id="interval" value="10" min="1">
+      </div>
+      <button id="toggleBtn" class="btn-primary">Stop Reminders</button>
+    </main>
+    
+    <footer>
+      <p>Keep shining! ✨</p>
+    </footer>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
