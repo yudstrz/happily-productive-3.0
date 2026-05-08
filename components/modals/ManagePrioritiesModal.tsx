@@ -10,17 +10,13 @@ import {
 import HPGlyph from "@/components/ui/HPGlyph";
 import Modal from "@/components/ui/Modal";
 
-interface ManagePrioritiesModalProps {
-  onClose: () => void;
-}
-
-export default function ManagePrioritiesModal({ onClose }: ManagePrioritiesModalProps) {
+export default function ManagePrioritiesModal({ onClose, initialGoal }: { onClose: () => void; initialGoal?: string }) {
   const { state, updateState } = useHP();
   const [newTitle, setNewTitle] = useState("");
   const [energy, setEnergy] = useState("mid");
   const [type, setType] = useState("Daily Task");
   const [points, setPoints] = useState<number>(50);
-  const [selectedGoal, setSelectedGoal] = useState<string>(state?.goals?.[0]?.title || "General");
+  const [selectedGoal, setSelectedGoal] = useState<string>(initialGoal || state?.goals?.[0]?.title || "General");
 
   if (!state) return null;
 
@@ -80,7 +76,7 @@ export default function ManagePrioritiesModal({ onClose }: ManagePrioritiesModal
             const doneCount = tasksForGoal.filter((p: any) => p.done).length;
             const newProgress = tasksForGoal.length > 0 
               ? Math.round((doneCount / tasksForGoal.length) * 100) 
-              : 0;
+              : g.progress;
             return { 
               ...g, 
               progress: newProgress, 

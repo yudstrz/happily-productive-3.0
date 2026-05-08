@@ -198,7 +198,7 @@ function AppContent() {
 
       {modal?.name === 'new_goal'         && <GoalModal onClose={closeModal} {...modal.props} />}
       {modal?.name === 'work_checkin'     && <WorkCheckInModal onClose={closeModal} {...modal.props} />}
-      {modal?.name === 'manage_priorities'&& <ManagePrioritiesModal onClose={closeModal} />}
+      {modal?.name === 'manage_priorities'&& <ManagePrioritiesModal onClose={closeModal} {...modal.props} />}
       {modal?.name === 'manage_habits'    && <ManageHabitsModal onClose={closeModal} />}
       {modal?.name === 'manage_weekly'    && <ManageWeeklyModal onClose={closeModal} />}
       {modal?.name === 'manage_learning'  && <ManageLearningModal onClose={closeModal} />}

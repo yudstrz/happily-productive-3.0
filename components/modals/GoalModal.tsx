@@ -118,7 +118,7 @@ export default function GoalModal({ onClose, goal }: { onClose: () => void; goal
             const doneCount = tasksForGoal.filter((p: any) => p.done).length;
             const newProgress = tasksForGoal.length > 0 
               ? Math.round((doneCount / tasksForGoal.length) * 100) 
-              : g.progress;
+              : progress;
 
             return {
               ...g,
@@ -144,7 +144,7 @@ export default function GoalModal({ onClose, goal }: { onClose: () => void; goal
         return {
           id: Date.now() + idx,
           title,
-          progress: 0,
+          progress: progress,
           alignment: 100,
           owner: emp?.name || user?.name || "You",
           ownerId: ownerId,
@@ -239,6 +239,35 @@ export default function GoalModal({ onClose, goal }: { onClose: () => void; goal
               }}
             />
           </div>
+        </div>
+
+        <div style={{ marginTop: 20 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, fontWeight: 700 }}>PROGRESS MANUAL (%)</div>
+            <div style={{ ...HP_TEXT.h, fontSize: 16, color: HP_TOKENS.sage }}>{progress}%</div>
+          </div>
+          <input 
+            type="range" 
+            min="0" 
+            max="100" 
+            value={progress} 
+            onChange={e => setProgress(parseInt(e.target.value))}
+            style={{
+              width: '100%', marginTop: 12, accentColor: HP_TOKENS.sage, cursor: 'pointer'
+            }}
+          />
+          {state?.priorities?.some((p: any) => p.goal && p.goal === title) && (
+            <div style={{ 
+              marginTop: 8, padding: '8px 12px', background: HP_TOKENS.yellowWash, 
+              borderRadius: 10, border: `1px solid ${HP_TOKENS.yellow}40`,
+              display: 'flex', alignItems: 'center', gap: 8
+            }}>
+              <HPGlyph name="info" size={12} color={HP_TOKENS.yellow} />
+              <div style={{ ...HP_TEXT.tiny, color: '#8A6814', fontWeight: 700, fontSize: 10 }}>
+                Progress akan otomatis terupdate berdasarkan task yang terhubung.
+              </div>
+            </div>
+          )}
         </div>
 
         {subGoals.length > 0 && (

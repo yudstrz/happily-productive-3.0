@@ -43,6 +43,47 @@ export default function GoalCard({ g }: GoalCardProps) {
     }
   };
 
+  const toggleTask = (taskId: number) => {
+    updateState((s: any) => {
+      const taskIndex = s.priorities.findIndex((p: any) => p.id === taskId);
+      if (taskIndex === -1) return s;
+      
+      const task = s.priorities[taskIndex];
+      const wasDone = task.done;
+      
+      // Award XP and show confetti if completing
+      if (!wasDone) {
+        awardXP('priority_complete', `Selesaikan: ${task.title}`);
+        // Confetti is usually handled in HomeScreen, but we can trigger it if we have access to setConfetti
+        // Since setConfetti is local to HomeScreen, we might need a more global way or just skip it here.
+        // For now, let's just update the state.
+      }
+
+      const newPriorities = [...s.priorities];
+      newPriorities[taskIndex] = { ...newPriorities[taskIndex], done: !wasDone };
+
+      // Recalculate goal progress
+      const updatedGoals = s.goals.map((goal: any) => {
+        if (goal.title === g.title) {
+          const tasksForGoal = newPriorities.filter((p: any) => p.goal && p.goal === goal.title);
+          const doneCount = tasksForGoal.filter((p: any) => p.done).length;
+          const newProgress = tasksForGoal.length > 0 
+            ? Math.round((doneCount / tasksForGoal.length) * 100) 
+            : goal.progress;
+          return { ...goal, progress: newProgress, metric: `${doneCount}/${tasksForGoal.length} task selesai` };
+        }
+        return goal;
+      });
+
+      return {
+        ...s,
+        priorities: newPriorities,
+        goals: updatedGoals,
+        lastActivityDate: !wasDone ? new Date().toISOString() : s.lastActivityDate
+      };
+    });
+  };
+
   const toneColor = tones[g.tone] || HP_TOKENS.sage;
   
   return (
@@ -106,11 +147,25 @@ export default function GoalCard({ g }: GoalCardProps) {
           flexDirection: 'column',
           gap: 8
         }}>
-          <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, fontWeight: 900, fontSize: 9, letterSpacing: 1, marginBottom: 4 }}>
-            LINKED QUESTS ({doneTaskCount}/{linkedTasks.length})
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+            <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, fontWeight: 900, fontSize: 9, letterSpacing: 1 }}>
+              LINKED QUESTS ({doneTaskCount}/{linkedTasks.length})
+            </div>
+            <button 
+              onClick={(e) => { e.stopPropagation(); updateState((s: any) => ({ ...s, modal: { name: 'manage_priorities', props: { initialGoal: g.title } } })); }}
+              style={{ background: HP_TOKENS.sageSoft, border: 'none', borderRadius: 4, padding: '2px 6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+            >
+              <HPGlyph name="target" size={8} color={HP_TOKENS.sage} />
+              <span style={{ fontSize: 8, fontWeight: 900, color: HP_TOKENS.sage }}>QUICK ADD</span>
+            </button>
           </div>
           {linkedTasks.map((sg: any) => (
-            <div key={sg.id} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div 
+              key={sg.id} 
+              onClick={(e) => { e.stopPropagation(); toggleTask(sg.id); }}
+              className="hp-tap"
+              style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}
+            >
               <div style={{ 
                 width: 14, height: 14, borderRadius: 4, 
                 background: sg.done ? toneColor : 'transparent',
