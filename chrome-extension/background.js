@@ -32,11 +32,11 @@ chrome.alarms.onAlarm.addListener((alarm) => {
   }
 });
 
-function startAlarm(interval) {
+function startAlarm(interval, goal, progress) {
   chrome.alarms.create(ALARM_NAME, {
     periodInMinutes: interval
   });
-  chrome.storage.local.set({ isRunning: true, interval: interval });
+  chrome.storage.local.set({ isRunning: true, interval: interval, goal: goal, progress: progress });
 }
 
 function stopAlarm() {
@@ -45,21 +45,29 @@ function stopAlarm() {
 }
 
 function showNotification() {
-  const quote = quotes[Math.floor(Math.random() * quotes.length)];
-  
-  chrome.notifications.create({
-    type: 'basic',
-    iconUrl: 'icon.png',
-    title: 'Lebah Produktif 🐝',
-    message: quote,
-    priority: 2
+  chrome.storage.local.get(['goal', 'progress'], (data) => {
+    const quote = quotes[Math.floor(Math.random() * quotes.length)];
+    let message = quote;
+    
+    if (data.goal) {
+      const progText = data.progress ? ` (${data.progress}%)` : '';
+      message += `\n\n🎯 Target: ${data.goal}${progText}`;
+    }
+    
+    chrome.notifications.create({
+      type: 'basic',
+      iconUrl: 'icon.png',
+      title: 'Lebah Produktif 🐝',
+      message: message,
+      priority: 2
+    });
   });
 }
 
 // Handle messages from popup
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "start") {
-    startAlarm(request.interval || DEFAULT_INTERVAL);
+    startAlarm(request.interval || DEFAULT_INTERVAL, request.goal, request.progress);
     sendResponse({ status: "started" });
   } else if (request.action === "stop") {
     stopAlarm();

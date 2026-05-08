@@ -16,7 +16,27 @@
     <main>
       <p id="status">Status: <span>Active</span></p>
       <div class="controls">
-        <label for="interval">Remind every (mins):</label>
+        <label for="goal">Target/OKR Hari Ini:</label>
+        <input type="text" id="goal" placeholder="Contoh: Selesaikan fitur login" maxlength="50">
+      </div>
+      <div class="controls">
+        <label for="progress">Progres Saat Ini:</label>
+        <select id="progress">
+          <option value="0">0%</option>
+          <option value="10">10%</option>
+          <option value="20">20%</option>
+          <option value="30">30%</option>
+          <option value="40">40%</option>
+          <option value="50">50%</option>
+          <option value="60">60%</option>
+          <option value="70">70%</option>
+          <option value="80">80%</option>
+          <option value="90">90%</option>
+          <option value="100">100%</option>
+        </select>
+      </div>
+      <div class="controls">
+        <label for="interval">Ingatkan setiap (menit):</label>
         <input type="number" id="interval" value="10" min="1">
       </div>
       <button id="toggleBtn" class="btn-primary pulse">Stop Reminders</button>

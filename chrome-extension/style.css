@@ -79,7 +79,7 @@ label {
   color: var(--text-light);
 }
 
-input {
+input, select {
   width: 100%;
   padding: 8px 12px;
   border: 1px solid #cbd5e1;
@@ -87,9 +87,10 @@ input {
   font-size: 0.875rem;
   box-sizing: border-box;
   transition: border-color 0.2s;
+  background-color: var(--white);
 }
 
-input:focus {
+input:focus, select:focus {
   outline: none;
   border-color: var(--primary);
 }

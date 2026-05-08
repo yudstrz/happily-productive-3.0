@@ -1,9 +1,11 @@
 const toggleBtn = document.getElementById('toggleBtn');
 const statusSpan = document.querySelector('#status span');
 const intervalInput = document.getElementById('interval');
+const goalInput = document.getElementById('goal');
+const progressSelect = document.getElementById('progress');
 
 // Load current state
-chrome.storage.local.get(['isRunning', 'interval'], (data) => {
+chrome.storage.local.get(['isRunning', 'interval', 'goal', 'progress'], (data) => {
   if (data.isRunning) {
     updateUI(true);
   } else {
@@ -11,6 +13,12 @@ chrome.storage.local.get(['isRunning', 'interval'], (data) => {
   }
   if (data.interval) {
     intervalInput.value = data.interval;
+  }
+  if (data.goal) {
+    goalInput.value = data.goal;
+  }
+  if (data.progress) {
+    progressSelect.value = data.progress;
   }
 });
 
@@ -24,7 +32,9 @@ toggleBtn.addEventListener('click', () => {
     } else {
       // Start
       const interval = parseInt(intervalInput.value) || 10;
-      chrome.runtime.sendMessage({ action: "start", interval: interval }, (response) => {
+      const goal = goalInput.value.trim();
+      const progress = progressSelect.value;
+      chrome.runtime.sendMessage({ action: "start", interval: interval, goal: goal, progress: progress }, (response) => {
         updateUI(true);
       });
     }
