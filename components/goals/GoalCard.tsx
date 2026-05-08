@@ -13,7 +13,7 @@ interface GoalCardProps {
 }
 
 export default function GoalCard({ g }: GoalCardProps) {
-  const { state, updateState } = useHP();
+  const { state, updateState, awardXP } = useHP();
   const tones: Record<string, string> = { 
     sage: HP_TOKENS.sage, 
     blue: HP_TOKENS.blue, 
