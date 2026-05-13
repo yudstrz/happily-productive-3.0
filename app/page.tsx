@@ -68,7 +68,7 @@ import ManageContactsModal from "@/components/modals/ManageContactsModal";
 
 
 // ─── Role pill badge colors ──────────────────────────────────────────────────
-const ROLE_META: Record<Exclude<UserRole, 'admin'>, { label: string; color: string; bg: string; glyph: string }> = {
+const ROLE_META: Record<UserRole, { label: string; color: string; bg: string; glyph: string }> = {
   employee: { label: 'Employee', color: HP_TOKENS.yellow, bg: HP_TOKENS.yellowSoft, glyph: 'target' },
   manager:  { label: 'Manager',  color: HP_TOKENS.blue, bg: HP_TOKENS.blueSoft,  glyph: 'people' },
   hr:       { label: 'HR',       color: '#7B6BB5',       bg: '#EDE8F5',           glyph: 'medal' },
@@ -94,8 +94,9 @@ function AppContent() {
     return <AuthScreen onLogin={login} />;
   }
 
-  // ── Determine Role ─────────────────────────────────────────────────────────
-  const currentRole = (user?.role || 'employee') as UserRole;
+  // ── Determine Role (legacy 'admin' maps to 'hr') ─────────────────────────
+  const rawRole = user?.role || 'employee';
+  const currentRole: UserRole = rawRole === 'admin' ? 'hr' : rawRole as UserRole;
   const isManager = currentRole === 'manager';
   const isHR = currentRole === 'hr';
 
