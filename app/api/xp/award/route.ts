@@ -21,11 +21,15 @@ export async function POST(request: Request) {
     const coinsAmount = Math.floor(amount / 4); // 4:1 Ratio
     const txId = "tx_" + Math.random().toString(36).substring(2, 9);
 
-    // 1. Log Transaction
-    await db.execute({
-      sql: "INSERT INTO xp_transactions (id, user_id, amount, action_type, description) VALUES (?, ?, ?, ?, ?)",
-      args: [txId, userId, amount, actionType, description || actionType]
-    });
+    // 1. Log Transaction (Optional, don't crash if table missing)
+    try {
+      await db.execute({
+        sql: "INSERT INTO xp_transactions (id, user_id, amount, action_type, description) VALUES (?, ?, ?, ?, ?)",
+        args: [txId, userId, amount, actionType, description || actionType]
+      });
+    } catch (e) {
+      console.warn("Failed to log XP transaction (table might be missing):", e);
+    }
 
     // 2. Update User Points & Coins
     await db.execute({

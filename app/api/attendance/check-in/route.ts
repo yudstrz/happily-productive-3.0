@@ -54,28 +54,21 @@ export async function POST(request: Request) {
       console.log(`[Attendance] Manual check-in for user ${userId}`);
     }
 
-    // 2. Verify Location (Geofencing) only for WFO
-    if (checkInType === 'WFO') {
+    // 2. Verify Location (Geofencing) only for WFO if coordinates provided
+    if (checkInType === 'WFO' && lat && lng) {
       console.log(`[Attendance] Verifying location for WFO at office ${officeId}`);
       const officeCheck = await db.execute({
         sql: "SELECT lat, lng, radius FROM office_locations WHERE id = ?",
         args: [officeId]
       });
 
-      if (officeCheck.rows.length === 0) {
-        return NextResponse.json({ error: "Lokasi kantor tidak valid" }, { status: 400 });
-      }
-
-      const office = officeCheck.rows[0] as unknown as { lat: number, lng: number, radius: number };
-
-      if (lat && lng) {
+      if (officeCheck.rows.length > 0) {
+        const office = officeCheck.rows[0] as unknown as { lat: number, lng: number, radius: number };
         const distance = calculateDistance(lat, lng, office.lat, office.lng);
         console.log(`[Attendance] Distance check: ${Math.round(distance)}m from office (max ${office.radius}m)`);
         if (distance > office.radius) {
           return NextResponse.json({ error: `Anda berada di luar area kantor. Jarak Anda: ${Math.round(distance)}m, Maksimal: ${office.radius}m` }, { status: 403 });
         }
-      } else {
-         return NextResponse.json({ error: "Koordinat lokasi tidak ditemukan" }, { status: 400 });
       }
     }
 
