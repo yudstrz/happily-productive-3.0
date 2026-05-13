@@ -14,6 +14,7 @@ export async function POST() {
     { desc: "Add personal_wellbeing_goal to users", sql: "ALTER TABLE users ADD COLUMN personal_wellbeing_goal TEXT" },
     { desc: "Add wellbeing_routine to users", sql: "ALTER TABLE users ADD COLUMN wellbeing_routine TEXT" },
     { desc: "Add owner_name to goals", sql: "ALTER TABLE goals ADD COLUMN owner_name TEXT" },
+    { desc: "Remove legacy director_questions", sql: "DROP TABLE IF EXISTS director_questions" },
   ];
 
   for (const m of migrations) {
