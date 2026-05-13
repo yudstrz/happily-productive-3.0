@@ -2,13 +2,16 @@ const CACHE_NAME = 'flow-productivity-v1';
 const ASSETS_TO_CACHE = [
   '/',
   '/icon.png',
-  '/manifest.json'
+  '/icon-192.png'
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
+      // Individually add to avoid one failure breaking all
+      return Promise.allSettled(
+        ASSETS_TO_CACHE.map(url => cache.add(url))
+      );
     })
   );
   self.skipWaiting();
