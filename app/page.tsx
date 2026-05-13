@@ -131,6 +131,42 @@ function AppContent() {
 
   const meta = ROLE_META[currentRole];
 
+  // ── Draggable Coach Button ────────────────────────────────────────────────
+  const [coachPos, setCoachPos] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const dragRef = React.useRef<{ startX: number, startY: number, initialX: number, initialY: number } | null>(null);
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    dragRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      initialX: coachPos.x,
+      initialY: coachPos.y,
+    };
+    setIsDragging(false);
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!dragRef.current) return;
+    const dx = e.clientX - dragRef.current.startX;
+    const dy = e.clientY - dragRef.current.startY;
+    if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+      setIsDragging(true);
+    }
+    setCoachPos({
+      x: dragRef.current.initialX + dx,
+      y: dragRef.current.initialY + dy,
+    });
+  };
+
+  const handlePointerUp = (e: React.PointerEvent) => {
+    if (!isDragging && dragRef.current) {
+      openModal('coach');
+    }
+    dragRef.current = null;
+  };
+
   return (
     <div style={{ position: 'relative', height: '100%', background: HP_TOKENS.paper, overflow: 'hidden' }}>
       {/* Role pill — top right */}
@@ -159,25 +195,31 @@ function AppContent() {
         {renderScreen()}
       </div>
 
-      {/* Floating AI Coach button */}
+      {/* Floating AI Coach button - DRAGGABLE */}
       {currentRole !== 'admin' && (
         <button
-          onClick={() => openModal('coach')}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
           style={{
-            position: 'absolute', right: 18, bottom: 106, zIndex: 30,
+            position: 'absolute', 
+            right: 18 - coachPos.x, 
+            bottom: 106 - coachPos.y, 
+            zIndex: 100, // High z-index to be above everything
             width: 56, height: 56, borderRadius: 28, border: 'none',
             background: currentRole === 'manager' ? HP_TOKENS.blue :
                        currentRole === 'hr' ? '#7B6BB5' :
                        HP_TOKENS.yellow,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer',
+            cursor: isDragging ? 'grabbing' : 'pointer',
+            touchAction: 'none', // Prevent scrolling while dragging
             boxShadow: `0 8px 24px ${
-              currentRole === 'manager' ? 'rgba(59,111,160,0.2)' :
-              currentRole === 'hr' ? 'rgba(123,107,181,0.2)' :
-              'rgba(253,185,19,0.2)'
+              currentRole === 'manager' ? 'rgba(59,111,160,0.4)' :
+              currentRole === 'hr' ? 'rgba(123,107,181,0.4)' :
+              'rgba(253,185,19,0.4)'
             }`,
+            transition: isDragging ? 'none' : 'all 0.1s ease-out',
           }}
-          className="hp-tap"
         >
           <HPGlyph name="sparkle" size={26} color={currentRole === 'employee' ? HP_TOKENS.ink : "#fff"} />
         </button>
