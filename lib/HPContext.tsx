@@ -12,7 +12,7 @@ interface HPState {
   goals: any[];
   habits: any[];
   weeklyPriorities: any[];
-  surveys: any[]; // NEW: For HR Surveys
+  surveys: any[];
   skills: any[];
   learning: any[];
   coaching: any;
@@ -77,10 +77,52 @@ interface HPContextType {
 
 const HPContext = createContext<HPContextType | undefined>(undefined);
 
+// ── Helpers (Moved outside to keep hooks order stable) ───────────────────────
+const calculateLevel = (points: number) => {
+  if (points < 1000) return Math.floor(points / 100) + 1;
+  if (points < 4000) return 10 + Math.floor((points - 1000) / 300) + 1;
+  return 20 + Math.floor((points - 4000) / 1000) + 1;
+};
+
+const calculateRank = (level: number) => {
+  if (level <= 10) return 'E';
+  if (level <= 20) return 'D';
+  if (level <= 35) return 'C';
+  if (level <= 50) return 'B';
+  if (level <= 70) return 'A';
+  return 'S';
+};
+
 export function HPProvider({ children }: { children: React.ReactNode }) {
+  // 1. ALL STATES FIRST
   const [state, setState] = useState<HPState | null>(null);
   const [user, setUser] = useState<HPUser | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // 2. REFS
+  const userRef = useRef<HPUser | null>(null);
+
+  // 3. CALLBACKS
+  const updateState = useCallback((update: Partial<HPState> | ((prev: HPState) => HPState)) => {
+    setState((prev) => {
+      if (!prev) return null;
+      if (typeof update === "function") return update(prev);
+      return { ...prev, ...update };
+    });
+  }, []);
+
+  const updateUser = useCallback((update: Partial<HPUser> | ((prev: HPUser) => HPUser)) => {
+    setUser((prev) => {
+      if (!prev) return null;
+      let next = typeof update === "function" ? update(prev) : { ...prev, ...update };
+      if (next.points !== prev.points) {
+        const newLevel = calculateLevel(next.points);
+        const newRank = calculateRank(newLevel);
+        next = { ...next, level: newLevel, rank: newRank };
+      }
+      return next;
+    });
+  }, []);
 
   const fetchData = useCallback(async (userId: string) => {
     try {
@@ -89,7 +131,6 @@ export function HPProvider({ children }: { children: React.ReactNode }) {
       if (data.error) throw new Error(`${data.error}: ${data.details || ''}`);
       if (data.state) setState(data.state);
       else {
-        // Initialize default state if new user
         setState({
           mood: null, energy: null, tag: null, intention: "",
           priorities: [], feed: [], goals: [], habits: [], weeklyPriorities: [],
@@ -101,11 +142,8 @@ export function HPProvider({ children }: { children: React.ReactNode }) {
           workSchedule: { start: "08:00", end: "17:00", breakStart: "12:00", breakEnd: "13:00" },
           contacts: []
         });
-
       }
-      if (data.user) {
-        setUser(data.user);
-      }
+      if (data.user) setUser(data.user);
     } catch (error) {
       console.error("Failed to fetch state:", error);
     } finally {
@@ -113,41 +151,27 @@ export function HPProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  useEffect(() => {
-    const savedUserId = localStorage.getItem("hp_user_id");
-    if (savedUserId) {
-      fetchData(savedUserId);
-    } else {
-      setLoading(false);
-    }
-  }, [fetchData]);
-
-  const login = (userData: any) => {
+  const login = useCallback((userData: any) => {
     setUser(userData);
     localStorage.setItem("hp_user_id", userData.id);
     fetchData(userData.id);
-  };
+  }, [fetchData]);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     setUser(null);
     setState(null);
     localStorage.removeItem("hp_user_id");
-  };
+  }, []);
 
   const fetchDashboards = useCallback(async (userId: string, role: string) => {
     try {
       if (role === 'hr') {
-        try {
-          const res = await fetch('/api/hr/dashboard');
-          const data = await res.json();
-          if (data && data.metrics) {
-            setState(prev => prev ? { ...prev, hrData: data } : null);
-          }
-        } catch (e) {
-          console.error("HR dashboard fetch error:", e);
+        const res = await fetch('/api/hr/dashboard');
+        const data = await res.json();
+        if (data && data.metrics) {
+          setState(prev => prev ? { ...prev, hrData: data } : null);
         }
-      }
-      if (role === 'manager') {
+      } else if (role === 'manager') {
         const res = await fetch(`/api/manager/dashboard?userId=${userId}`);
         const data = await res.json();
         setState(prev => prev ? { ...prev, managerData: data } : null);
@@ -155,78 +179,6 @@ export function HPProvider({ children }: { children: React.ReactNode }) {
     } catch (e) {
       console.error("Dashboard fetch error:", e);
     }
-  }, []);
-
-  useEffect(() => {
-    if (user) {
-      const activeRole = user.userRole || user.role;
-      if (activeRole === 'hr' || activeRole === 'manager') {
-        fetchDashboards(user.id, activeRole);
-      }
-    }
-  }, [user, fetchDashboards]);
-
-  // Auto-refresh surveys for ALL roles when user logs in
-  useEffect(() => {
-    if (user?.id && !loading) {
-      fetch('/api/hr/surveys')
-        .then(r => r.json())
-        .then(data => {
-          if (data.surveys) {
-            setState(prev => prev ? { ...prev, surveys: data.surveys } : null);
-          }
-        })
-        .catch(() => {});
-    }
-  }, [user?.id, loading]);
-
-  useEffect(() => {
-    if (!loading && user && state) {
-      fetch("/api/storage", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ state, user, userId: user.id }),
-      });
-    }
-  }, [state, user, loading]);
-
-  const updateState = useCallback((update: Partial<HPState> | ((prev: HPState) => HPState)) => {
-    setState((prev) => {
-      if (!prev) return null;
-      if (typeof update === "function") return update(prev);
-      return { ...prev, ...update };
-    });
-  }, []);
-
-  const calculateLevel = (points: number) => {
-    if (points < 1000) return Math.floor(points / 100) + 1; // Lv 1-10 (100 pts/ea)
-    if (points < 4000) return 10 + Math.floor((points - 1000) / 300) + 1; // Lv 11-20 (300 pts/ea)
-    return 20 + Math.floor((points - 4000) / 1000) + 1; // Lv 21+ (1000 pts/ea)
-  };
-
-  const calculateRank = (level: number) => {
-    if (level <= 10) return 'E';
-    if (level <= 20) return 'D';
-    if (level <= 35) return 'C';
-    if (level <= 50) return 'B';
-    if (level <= 70) return 'A';
-    return 'S';
-  };
-
-  const updateUser = useCallback((update: Partial<HPUser> | ((prev: HPUser) => HPUser)) => {
-    setUser((prev) => {
-      if (!prev) return null;
-      let next = typeof update === "function" ? update(prev) : { ...prev, ...update };
-      
-      // Auto-calculate Level and Rank if points changed
-      if (next.points !== prev.points) {
-        const newLevel = calculateLevel(next.points);
-        const newRank = calculateRank(newLevel);
-        next = { ...next, level: newLevel, rank: newRank };
-      }
-      
-      return next;
-    });
   }, []);
 
   const setUserRole = useCallback((role: UserRole) => {
@@ -239,50 +191,35 @@ export function HPProvider({ children }: { children: React.ReactNode }) {
   const syncSkillProgress = useCallback((source: string, amount: number) => {
     setState((prev) => {
       if (!prev) return null;
-      
-      // AI Mapping logic (Heuristic) - analyzing the source text to find the best skill match
       let targetSkill = "";
       const s = source.toLowerCase();
-      
       if (s.includes("design system") || s.includes("component") || s.includes("token")) targetSkill = "Design Systems";
       else if (s.includes("user") || s.includes("research") || s.includes("insight") || s.includes("interview")) targetSkill = "User Research";
       else if (s.includes("interaction") || s.includes("prototype") || s.includes("flow") || s.includes("wireframe") || s.includes("hi-fi")) targetSkill = "Interaction Design";
       else if (s.includes("lead") || s.includes("mentor") || s.includes("manager") || s.includes("strategic")) targetSkill = "Leadership";
       else if (s.includes("story") || s.includes("present") || s.includes("pitch") || s.includes("narrative")) targetSkill = "Storytelling";
       else if (s.trim().length > 0) {
-        // Find if a skill with same name exists, otherwise use first word as potential skill
         const words = s.split(' ');
         targetSkill = words[0].charAt(0).toUpperCase() + words[0].slice(1);
       } else {
         targetSkill = "General";
       }
-      
       const newSkills = [...(prev.skills || [])];
       const skillIndex = newSkills.findIndex(sk => sk.name.toLowerCase() === targetSkill.toLowerCase());
-      
       if (skillIndex > -1) {
-        newSkills[skillIndex] = { 
-          ...newSkills[skillIndex], 
-          current: Math.min(100, newSkills[skillIndex].current + amount) 
-        };
+        newSkills[skillIndex] = { ...newSkills[skillIndex], current: Math.min(100, newSkills[skillIndex].current + amount) };
       } else {
-        // Dynamic addition of new skill discovered by AI analysis
         newSkills.push({ name: targetSkill, current: amount, target: 100 });
       }
-      
       return { ...prev, skills: newSkills };
     });
   }, []);
 
   const resetData = useCallback(async () => {
     setLoading(true);
-    // In a real app we'd have a reset endpoint, 
-    // here we just clear the state and it will re-fetch if we refresh or we can hardcode reset.
-    // For this prototype, we'll just reload the page to get the initial JSON state again.
     window.location.reload();
   }, []);
 
-  // Refresh ONLY surveys without resetting other state fields
   const refreshSurveys = useCallback(async () => {
     try {
       const res = await fetch('/api/hr/surveys');
@@ -295,12 +232,7 @@ export function HPProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // Keep a ref to user so stable callbacks can access latest value without stale closures
-  const userRef = useRef(user);
-  useEffect(() => { userRef.current = user; }, [user]);
-
   const awardXP = useCallback(async (actionType: string, description?: string) => {
-    // Read user id from ref to avoid stale closure without adding `user` to deps
     const currentUser = userRef.current;
     if (!currentUser) return;
     try {
@@ -323,6 +255,47 @@ export function HPProvider({ children }: { children: React.ReactNode }) {
     if (userRef.current?.id) await fetchData(userRef.current.id);
   }, [fetchData]);
 
+  // 4. ALL EFFECTS AT THE END
+  useEffect(() => {
+    userRef.current = user;
+  }, [user]);
+
+  useEffect(() => {
+    const savedUserId = localStorage.getItem("hp_user_id");
+    if (savedUserId) fetchData(savedUserId);
+    else setLoading(false);
+  }, [fetchData]);
+
+  useEffect(() => {
+    if (user) {
+      const activeRole = user.userRole || user.role;
+      if (activeRole === 'hr' || activeRole === 'manager') {
+        fetchDashboards(user.id, activeRole);
+      }
+    }
+  }, [user, fetchDashboards]);
+
+  useEffect(() => {
+    if (user?.id && !loading) {
+      fetch('/api/hr/surveys')
+        .then(r => r.json())
+        .then(data => {
+          if (data.surveys) setState(prev => prev ? { ...prev, surveys: data.surveys } : null);
+        })
+        .catch(() => {});
+    }
+  }, [user?.id, loading]);
+
+  useEffect(() => {
+    if (!loading && user && state) {
+      fetch("/api/storage", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ state, user, userId: user.id }),
+      });
+    }
+  }, [state, user, loading]);
+
   return (
     <HPContext.Provider value={{ 
       state, user, updateState, updateUser, setUserRole, login, logout, awardXP,
@@ -336,8 +309,6 @@ export function HPProvider({ children }: { children: React.ReactNode }) {
 
 export function useHP() {
   const context = useContext(HPContext);
-  if (context === undefined) {
-    throw new Error("useHP must be used within a HPProvider");
-  }
+  if (context === undefined) throw new Error("useHP must be used within a HPProvider");
   return context;
 }
