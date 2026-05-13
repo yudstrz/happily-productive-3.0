@@ -11,6 +11,7 @@ import { useHP } from "@/lib/HPContext";
 import Modal from "@/components/ui/Modal";
 import HPGlyph from "@/components/ui/HPGlyph";
 import HPCard from "@/components/ui/HPCard";
+import BeeMascot from "@/components/ui/BeeMascot";
 
 interface ReflectModalProps {
   onClose: () => void;
@@ -121,8 +122,11 @@ export default function ReflectModal({ onClose }: ReflectModalProps) {
 
   return (
     <Modal onClose={onClose} title="Tutup Hari (Clock Out)">
-      <div style={{ ...HP_TEXT.body, fontSize: 13, marginBottom: 20, color: HP_TOKENS.inkSoft }}>
-        Refleksi singkat membantu menjernihkan pikiran sebelum istirahat.
+      <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginBottom: 20 }}>
+        <BeeMascot mood="happy" size={60} showSpeech="Kamu hebat hari ini!" />
+        <div style={{ ...HP_TEXT.body, fontSize: 13, color: HP_TOKENS.inkSoft, flex: 1 }}>
+          Refleksi singkat membantu menjernihkan pikiran sebelum istirahat.
+        </div>
       </div>
 
       {/* Target vs Realization Summary */}

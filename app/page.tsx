@@ -6,6 +6,7 @@ import { HP_TOKENS, HP_FONT } from "@/lib/constants";
 
 // Auth
 import AuthScreen from "@/components/auth/AuthScreen";
+import OnboardingScreen from "@/components/auth/OnboardingScreen";
 
 // UI
 import HPGlyph from "@/components/ui/HPGlyph";
@@ -76,7 +77,7 @@ const ROLE_META: Record<UserRole, { label: string; color: string; bg: string; gl
 };
 
 function AppContent() {
-  const { state, loading, user, login, setUserRole } = useHP();
+  const { state, loading, user, login, setUserRole, updateState } = useHP();
   const [tab, setTab] = useState('home');
   const [modal, setModal] = useState<{ name: string; props?: any } | null>(null);
   const [coachPos, setCoachPos] = useState({ x: 0, y: 0 });
@@ -96,6 +97,19 @@ function AppContent() {
   // ── Auth Check ─────────────────────────────────────────────────────────────
   if (!user) {
     return <AuthScreen onLogin={login} />;
+  }
+
+  // ── Onboarding ──
+  if (state && !state.onboarded && user.role === 'employee') {
+    return (
+      <OnboardingScreen 
+        userName={user.name} 
+        onFinish={() => {
+          updateState({ onboarded: true });
+          openModal('checkin');
+        }} 
+      />
+    );
   }
 
   // ── Determine Role (legacy 'admin' maps to 'hr') ─────────────────────────

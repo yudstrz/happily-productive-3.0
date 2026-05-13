@@ -2,9 +2,9 @@ import { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Happily Productive',
-    short_name: 'Happily',
-    description: 'Intelligent Happiness — Human-Centered Platform',
+    name: 'Bee Flow',
+    short_name: 'BeeFlow',
+    description: 'Flow into Focus — Human-Centered Platform',
     start_url: '/',
     display: 'standalone',
     background_color: '#FFFBF5',

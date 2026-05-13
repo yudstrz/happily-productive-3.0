@@ -14,6 +14,7 @@ import {
 } from "@/lib/mockData";
 import HPGlyph from "@/components/ui/HPGlyph";
 import Modal from "@/components/ui/Modal";
+import BeeMascot from "@/components/ui/BeeMascot";
 
 interface CheckInModalProps {
   onClose: () => void;
@@ -47,6 +48,9 @@ export default function CheckInModal({ onClose }: CheckInModalProps) {
   return (
     <Modal onClose={onClose}>
       <div style={{ paddingTop: 8 }}>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
+          <BeeMascot mood="happy" size={80} />
+        </div>
         <div style={{ ...HP_TEXT.small, color: HP_TOKENS.sage, fontWeight: 800 }}>
           LANGKAH {step} DARI 3
         </div>

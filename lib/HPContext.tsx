@@ -41,6 +41,7 @@ interface HPState {
   contacts: Array<{ id: string; name: string; role: string; email: string; phone: string; isPrivate?: boolean }>;
   hrData?: any;
   managerData?: any;
+  onboarded?: boolean;
 }
 
 export type UserRole = 'hr' | 'manager' | 'employee';
@@ -140,7 +141,8 @@ export function HPProvider({ children }: { children: React.ReactNode }) {
           logbook: [], lastActivityDate: new Date().toISOString(),
           penaltyActive: false, penaltyThresholdDays: 3,
           workSchedule: { start: "08:00", end: "17:00", breakStart: "12:00", breakEnd: "13:00" },
-          contacts: []
+          contacts: [],
+          onboarded: false
         });
       }
       if (data.user) setUser(data.user);

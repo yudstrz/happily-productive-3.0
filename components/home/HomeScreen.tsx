@@ -26,6 +26,8 @@ import SectionHeader from "@/components/home/SectionHeader";
 import PriorityCard from "@/components/home/PriorityCard";
 import InsightCard from "@/components/home/InsightCard";
 import HabitCell from "@/components/home/HabitCell";
+import BeeMascot from "@/components/ui/BeeMascot";
+import CelebrationOverlay from "@/components/ui/CelebrationOverlay";
 
 
 interface HomeScreenProps {
@@ -42,6 +44,7 @@ export default function HomeScreen({ openModal }: any) {
   const { state, updateState, updateUser, user, syncSkillProgress, awardXP } = useHP();
   const [greeting, setGreeting] = useState('');
   const [confetti, setConfetti] = useState(false);
+  const [celebrate, setCelebrate] = useState(false);
   const [reminder, setReminder] = useState<{ type: 'break' | 'clockout' | 'meeting', mins: number, sessionWith?: string } | null>(null);
   const [coachNudge, setCoachNudge] = useState<{ text: string, type: 'support' | 'warning' | 'cheer' }>({ 
     text: "Semangat ya! Kamu sudah melakukan yang terbaik hari ini. ✨", 
@@ -133,6 +136,11 @@ export default function HomeScreen({ openModal }: any) {
   if (!state || !user) return null;
 
   const { mood, energy, priorities } = state;
+  const moodObj = HP_MOODS.find(m => m.key === mood);
+  const energyObj = HP_ENERGY.find(e => e.key === energy);
+  const done = priorities.filter((p: any) => p.done).length;
+  const total = priorities.length;
+
   const calculateLevelProgress = (points: number) => {
     if (points < 1000) return (points % 100) / 100;
     if (points < 4000) return ((points - 1000) % 300) / 300;
@@ -141,10 +149,17 @@ export default function HomeScreen({ openModal }: any) {
 
   const levelProgress = calculateLevelProgress(user.points);
 
-  const moodObj = HP_MOODS.find(m => m.key === mood);
-  const energyObj = HP_ENERGY.find(e => e.key === energy);
-  const done = priorities.filter((p: any) => p.done).length;
-  const total = priorities.length;
+  const beeMood = useMemo(() => {
+    if (!state) return 'happy';
+    const now = new Date();
+    const lastAct = state.lastActivityDate ? new Date(state.lastActivityDate) : now;
+    const hoursInactive = (now.getTime() - lastAct.getTime()) / (1000 * 60 * 60);
+
+    if (hoursInactive > 4) return 'sad';
+    if (state.mood === 'tired' || state.mood === 'burnout') return 'sleepy';
+    if (state.mood === 'stress' || state.mood === 'anxious') return 'surprised';
+    return 'happy';
+  }, [state]);
 
   const togglePriority = useCallback((id: number) => {
     updateState((s: any) => {
@@ -154,6 +169,7 @@ export default function HomeScreen({ openModal }: any) {
       
       if (!wasDone) { 
         setConfetti(true); 
+        setCelebrate(true);
         setTimeout(() => setConfetti(false), 1200); 
         awardXP('priority_complete', `Selesaikan: ${priority.title}`);
       }
@@ -210,6 +226,7 @@ export default function HomeScreen({ openModal }: any) {
 
       if (!wasDone) { 
         setConfetti(true); 
+        setCelebrate(true);
         setTimeout(() => setConfetti(false), 1200); 
         awardXP('habit_complete', `Latihan: ${name}`);
 
@@ -245,6 +262,7 @@ export default function HomeScreen({ openModal }: any) {
     <div style={{ position: 'relative', minHeight: '100%', paddingBottom: 120, fontFamily: HP_FONT }}>
       <BlobBackground colors={[HP_TOKENS.yellowWash, '#fff', HP_TOKENS.paper]}/>
       <Confetti show={confetti}/>
+      <CelebrationOverlay show={celebrate} onComplete={() => setCelebrate(false)} />
 
       <div style={{ position: 'relative', zIndex: 1, padding: '0 16px' }} className="hp-stagger">
         {/* Top Card - Profile & Level */}
@@ -315,38 +333,22 @@ export default function HomeScreen({ openModal }: any) {
             </div>
           </div>
 
-          {/* AI Coach Nudge (Duolingo Style) */}
-        <div style={{ marginBottom: 20 }}>
-          <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-            <div style={{ 
-              width: 50, height: 50, borderRadius: 25, 
-              background: HP_TOKENS.blueSoft, display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 24, border: `2px solid ${HP_TOKENS.blue}`
-            }}>
-              🤖
-            </div>
-            <div style={{ 
-              flex: 1, padding: '14px 16px', borderRadius: '4px 20px 20px 20px', 
-              background: coachNudge.type === 'warning' ? HP_TOKENS.coralSoft : coachNudge.type === 'support' ? HP_TOKENS.yellowSoft : HP_TOKENS.blueWash,
-              border: `1px solid ${coachNudge.type === 'warning' ? HP_TOKENS.coral : coachNudge.type === 'support' ? HP_TOKENS.yellow : HP_TOKENS.blue}`,
-              position: 'relative'
-            }}>
-              <div style={{ ...HP_TEXT.body, fontSize: 13, fontWeight: 700, lineHeight: 1.5 }}>
-                {coachNudge.text}
-              </div>
-              {/* Little tail for the speech bubble */}
-              <div style={{ 
-                position: 'absolute', left: -8, top: 12, width: 0, height: 0,
-                borderTop: '8px solid transparent',
-                borderBottom: '8px solid transparent',
-                borderRight: `8px solid ${coachNudge.type === 'warning' ? HP_TOKENS.coral : coachNudge.type === 'support' ? HP_TOKENS.yellow : HP_TOKENS.blue}`
-              }} />
+          {/* AI Coach Nudge with Bee Mascot */}
+          <div style={{ 
+            background: HP_TOKENS.blueWash,
+            borderRadius: 20,
+            padding: '16px 20px',
+            border: `1px solid ${HP_TOKENS.blue}30`,
+            marginBottom: 20,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 20
+          }}>
+            <BeeMascot mood={beeMood} size={60} showSpeech="" />
+            <div style={{ ...HP_TEXT.body, fontSize: 13, fontWeight: 700, lineHeight: 1.5, color: HP_TOKENS.ink }}>
+              {coachNudge.text}
             </div>
           </div>
-        </div>
-
-        {/* Level & Points Card */}
-
           <div style={{ 
             display: 'flex', gap: 12, padding: '12px 16px', borderRadius: 16, 
             background: HP_TOKENS.paper, border: `1px solid ${HP_TOKENS.line}`,

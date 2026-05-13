@@ -9,6 +9,7 @@ import {
 } from "@/lib/constants";
 import HPGlyph from "@/components/ui/HPGlyph";
 import HPBar from "@/components/ui/HPBar";
+import BeeMascot from "@/components/ui/BeeMascot";
 
 interface FocusModalProps {
   onClose: () => void;
@@ -59,7 +60,7 @@ export default function FocusModal({ onClose }: FocusModalProps) {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: 20, textAlign: 'center' }}>
         {!started ? (
           <>
-            <div style={{ fontSize: 50 }}>🌿</div>
+            <BeeMascot mood="happy" size={100} showSpeech="Ayo kita selesaikan ini!" />
             <div style={{ ...HP_TEXT.display, fontSize: 28, color: '#fff', marginTop: 16 }}>Deep work tanpa gangguan</div>
             <div style={{ ...HP_TEXT.body, color: 'rgba(255,255,255,0.75)', marginTop: 8, maxWidth: 280 }}>
               Notifikasi off. Kita fokus selesaikan: <br/>
@@ -108,7 +109,8 @@ export default function FocusModal({ onClose }: FocusModalProps) {
           </>
         ) : (
           <>
-            <div style={{ fontSize: 72, fontWeight: 800, fontFamily: HP_FONT, letterSpacing: -2 }}>
+            <BeeMascot mood="sleepy" size={100} showSpeech="Aku nemenin di sini ya..." />
+            <div style={{ fontSize: 72, fontWeight: 800, fontFamily: HP_FONT, letterSpacing: -2, marginTop: 24 }}>
               {String(mins).padStart(2,'0')}:{String(ss).padStart(2,'0')}
             </div>
             <div style={{ ...HP_TEXT.body, color: 'rgba(255,255,255,0.8)', marginTop: 12 }}>

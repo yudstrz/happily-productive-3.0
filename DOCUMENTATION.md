@@ -1,7 +1,7 @@
-# Dokumentasi Proyek Happily Productive 3.0
+# Dokumentasi Proyek Bee Flow 🐝
 
 ## 1. Pendahuluan
-**Happily Productive 3.0** adalah platform manajemen produktivitas dan kesejahteraan (wellbeing) berbasis web yang dirancang untuk menyelaraskan pertumbuhan profesional karyawan dengan kebahagiaan mereka di tempat kerja. Platform ini mengintegrasikan gamifikasi tingkat lanjut, analisis berbasis AI, dan sistem peran (role-based) untuk menciptakan lingkungan kerja yang dinamis dan mendukung.
+**Bee Flow** adalah platform manajemen produktivitas dan kesejahteraan (wellbeing) berbasis web yang dirancang untuk menyelaraskan pertumbuhan profesional karyawan dengan kebahagiaan mereka di tempat kerja. Platform ini mengintegrasikan gamifikasi tingkat lanjut, analisis berbasis AI, dan sistem peran (role-based) untuk menciptakan alur kerja yang bahagia.
 
 ## 2. Arsitektur Teknis
 Proyek ini dibangun menggunakan teknologi terbaru untuk memastikan performa dan skalabilitas:
@@ -42,7 +42,7 @@ Aplikasi ini memiliki tiga tampilan utama yang disesuaikan dengan tanggung jawab
 -   **HR (Human Resources)**: Fokus pada analitik budaya perusahaan, keterlibatan karyawan (engagement), dan manajemen program kesejahteraan di tingkat organisasi.
 
 ## 5. Mekanisme Gamifikasi & Identity
-Ini adalah inti dari Happily Productive yang mendorong keterlibatan pengguna:
+Ini adalah inti dari Bee Flow yang mendorong keterlibatan pengguna:
 
 -   **Rank & Leveling**:
     -   Pengguna memulai dari Rank **E** hingga mencapai Rank **S**.
@@ -70,4 +70,4 @@ Untuk menjalankan proyek secara lokal:
 3.  Akses di: `http://localhost:3000`
 
 ---
-*Dokumentasi ini dibuat untuk versi Happily Productive 3.0 - April 2026.*
+*Dokumentasi ini dibuat untuk versi Bee Flow - Mei 2026.*

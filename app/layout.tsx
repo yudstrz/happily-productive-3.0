@@ -26,13 +26,13 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Happily Productive",
-  description: "Intelligent Happiness — Human-Centered Platform",
+  title: "Bee Flow",
+  description: "Flow into Focus — Human-Centered Platform",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Happily Productive",
+    title: "Bee Flow",
   },
   formatDetection: {
     telephone: false,

@@ -11,6 +11,6 @@ if (!url || !authToken) {
 }
 
 export const db = createClient({
-  url: url || "",
+  url: url || "libsql://dummy-url.turso.io",
   authToken: authToken || "",
 });

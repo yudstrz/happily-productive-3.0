@@ -1,6 +1,6 @@
-# Happily Productive 3.0
+# Bee Flow 🐝
 
-Selamat datang di Happily Productive 3.0, platform produktivitas dan kesejahteraan masa depan.
+Selamat datang di Bee Flow, platform produktivitas dan kesejahteraan masa depan yang fokus pada alur kerja yang bahagia.
 
 > [!IMPORTANT]
 > Untuk dokumentasi teknis dan fungsional yang mendalam dalam Bahasa Indonesia, silakan lihat [**DOCUMENTATION.md**](./DOCUMENTATION.md).
