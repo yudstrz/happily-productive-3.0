@@ -33,15 +33,7 @@ export default function GrowthScreen({ openModal }: GrowthScreenProps) {
   const user = ctxUser || { name: "User", level: 1, rank: "Novice", role: "Designer", points: 0 };
   const levelProgress = (user.points % 100) / 100;
 
-  const refreshTopic = async () => {
-    setRefreshing(true);
-    const topic = await generateCoachingTopic(state.goals, state.skills);
-    updateState((s: any) => ({
-      ...s,
-      coaching: { ...s.coaching, aiTopic: topic }
-    }));
-    setRefreshing(false);
-  };
+
 
   return (
     <div style={{ padding: '0 16px 120px', fontFamily: HP_FONT }}>
@@ -141,61 +133,7 @@ export default function GrowthScreen({ openModal }: GrowthScreenProps) {
         ))}
       </div>
 
-      <SectionHeader 
-        icon="chat" 
-        label="1-on-1 Coaching" 
-        action="Atur"
-        onAction={() => openModal('schedule_coaching')}
-      />
-      <HPCard padding={14}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <HPAvatar name={state.coaching?.coachName || "Dewi Lestari"} size={44} color={HP_TOKENS.blue}/>
-          <div style={{ flex: 1 }}>
-            <div style={{ ...HP_TEXT.h, fontSize: 15 }}>{state.coaching?.coachName}</div>
-            <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, marginTop: 2 }}>{state.coaching?.role} · {state.coaching?.time}</div>
-          </div>
-          <button 
-            onClick={() => state.coaching?.meetLink ? window.open(state.coaching.meetLink, '_blank') : openModal('grow_coaching', { role: 'employee', topic: state.coaching?.aiTopic })} 
-            style={{ 
-              ...primaryBtn, 
-              background: state.coaching?.meetLink ? HP_TOKENS.blue : HP_TOKENS.blueSoft,
-              color: state.coaching?.meetLink ? '#fff' : HP_TOKENS.blue,
-              display: 'flex', alignItems: 'center', gap: 6
-            }} 
-            className="hp-tap"
-          >
-            <HPGlyph name="video" size={14} color={state.coaching?.meetLink ? '#fff' : HP_TOKENS.blue} />
-            {state.coaching?.meetLink ? 'Join Meet' : 'Buka'}
-          </button>
 
-        </div>
-        <div style={{ 
-          marginTop: 12, 
-          padding: 12, 
-          background: HP_TOKENS.sageWash, 
-          borderRadius: 12, 
-          display: 'flex', 
-          gap: 10, 
-          alignItems: 'flex-start' 
-        }}>
-          <HPGlyph name="sparkle" size={16} color={HP_TOKENS.blue}/>
-          <div style={{ flex: 1 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ ...HP_TEXT.h, fontSize: 13, color: HP_TOKENS.blue }}>Saran topik dari AI</div>
-              <button 
-                onClick={refreshTopic} 
-                className="hp-tap"
-                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex', opacity: refreshing ? 0.5 : 1 }}
-              >
-                <HPGlyph name="refresh" size={12} color={HP_TOKENS.blue}/>
-              </button>
-            </div>
-            <div style={{ ...HP_TEXT.body, fontSize: 13, marginTop: 4, fontStyle: refreshing ? 'italic' : 'normal', opacity: refreshing ? 0.6 : 1 }}>
-              {refreshing ? "Menganalisis goal kamu..." : (state.coaching?.aiTopic || "Pilih goal untuk mendapakan saran topik.")}
-            </div>
-          </div>
-        </div>
-      </HPCard>
     </div>
   );
 }

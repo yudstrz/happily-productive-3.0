@@ -45,7 +45,6 @@ export default function ManagerGoalsScreen({ openModal }: Props) {
           { key: 'okr', label: 'OKR Tim' },
           { key: 'members', label: 'Anggota' },
           { key: 'attendance', label: 'Absensi' },
-          { key: 'schedule', label: '1-on-1' },
         ] as const).map(t => (
           <button key={t.key} onClick={() => setActiveTab(t.key)} className="hp-tap" style={{
             flex: 1, padding: '10px 4px', borderRadius: 14,
@@ -195,55 +194,7 @@ export default function ManagerGoalsScreen({ openModal }: Props) {
         <HRAttendanceView currentUser={user} />
       )}
 
-      {/* ── 1-on-1 Schedule ── */}
-      {activeTab === 'schedule' && (
-        <>
-          <SectionHeader icon="calendar" label="Jadwal 1-on-1" action="+ Tambah" onAction={() => openModal('schedule_coaching')} />
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {MANAGER_ONE_ON_ONES.map(s => (
-              <HPCard key={s.id} padding={14} style={{ border: s.urgent ? `1.5px solid ${HP_TOKENS.coral}` : undefined }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <HPAvatar name={s.with} size={42} color={s.urgent ? HP_TOKENS.coral : HP_TOKENS.blue} />
-                  <div style={{ flex: 1 }}>
-                    {s.urgent && <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.coral, marginBottom: 2 }}>PRIORITASKAN ⚠️</div>}
-                    <div style={{ ...HP_TEXT.h, fontSize: 14 }}>{s.with}</div>
-                    <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, marginTop: 2 }}>{s.date} · {s.time}</div>
-                    <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.blue, marginTop: 3 }}>{s.topic}</div>
-                  </div>
-                  <button 
-                    onClick={() => s.meetLink && window.open(s.meetLink, '_blank')}
-                    className="hp-tap" 
-                    style={{
-                      padding: '8px 14px', borderRadius: 12, border: 'none',
-                      background: s.urgent ? HP_TOKENS.coral : HP_TOKENS.blue,
-                      color: '#fff', fontFamily: HP_FONT, fontWeight: 800, fontSize: 12, cursor: 'pointer',
-                      display: 'flex', alignItems: 'center', gap: 6,
-                      opacity: s.meetLink ? 1 : 0.5
-                    }}
-                  >
-                    <HPGlyph name="video" size={14} color="#fff" />
-                    Join
-                  </button>
 
-                </div>
-              </HPCard>
-            ))}
-          </div>
-
-          {/* Coaching tip */}
-          <HPCard style={{ marginTop: 14, background: HP_TOKENS.blueWash, border: 'none' }} padding={14}>
-            <div style={{ display: 'flex', gap: 10 }}>
-              <HPGlyph name="sparkle" size={18} color={HP_TOKENS.blue} />
-              <div>
-                <div style={{ ...HP_TEXT.h, fontSize: 13, color: HP_TOKENS.blue }}>Tip dari AI Coach</div>
-                <div style={{ ...HP_TEXT.body, fontSize: 13, marginTop: 4 }}>
-                  Dian perlu check-in lebih sering — wellbeing-nya turun 3 minggu berturut. Mulai dengan pertanyaan terbuka, bukan evaluasi kinerja.
-                </div>
-              </div>
-            </div>
-          </HPCard>
-        </>
-      )}
     </div>
   );
 }

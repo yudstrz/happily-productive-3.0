@@ -233,40 +233,7 @@ export default function ManagerHomeScreen({ openModal }: Props) {
           </div>
         )}
 
-        {/* 1-on-1 Schedule */}
-        <div style={{ marginTop: 16 }}>
-          <SectionHeader icon="chat" label="1-on-1 Mendatang" action="Atur" onAction={() => openModal('schedule_coaching')} />
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {MANAGER_ONE_ON_ONES.map((s: OneOnOneSession) => (
-              <HPCard key={s.id} padding={14} style={{ border: s.urgent ? `1.5px solid ${HP_TOKENS.coral}` : undefined }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <HPAvatar name={s.with} size={38} color={s.urgent ? HP_TOKENS.coral : HP_TOKENS.blue} />
-                  <div style={{ flex: 1 }}>
-                    {s.urgent && <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.coral, marginBottom: 1 }}>CHECK-IN WELLBEING</div>}
-                    <div style={{ ...HP_TEXT.h, fontSize: 14 }}>1-on-1 dengan {s.with}</div>
-                    <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, marginTop: 2 }}>{s.date} · {s.time}</div>
-                    <div style={{ ...HP_TEXT.tiny, color: HP_TOKENS.blue, marginTop: 3 }}>{s.topic}</div>
-                  </div>
-                  <button 
-                    onClick={() => s.meetLink && window.open(s.meetLink, '_blank')}
-                    className="hp-tap" 
-                    style={{
-                      padding: '8px 14px', borderRadius: 12, border: 'none',
-                      background: s.urgent ? HP_TOKENS.coral : HP_TOKENS.blue,
-                      color: '#fff', fontFamily: HP_FONT, fontWeight: 800, fontSize: 12, cursor: 'pointer',
-                      display: 'flex', alignItems: 'center', gap: 6,
-                      opacity: s.meetLink ? 1 : 0.5
-                    }}
-                  >
-                    <HPGlyph name="video" size={14} color="#fff" />
-                    Join
-                  </button>
 
-                </div>
-              </HPCard>
-            ))}
-          </div>
-        </div>
 
         {/* Surveys Section */}
         {state.surveys && state.surveys.length > 0 && (
@@ -321,7 +288,7 @@ export default function ManagerHomeScreen({ openModal }: Props) {
           <div style={{ flex: 1, position: 'relative' }}>
             <div style={{ ...HP_TEXT.h, fontSize: 15, color: '#fff' }}>AI Manager Coach</div>
             <div style={{ ...HP_TEXT.small, fontWeight: 700, color: 'rgba(255,255,255,0.75)', marginTop: 2 }}>
-              Tips 1-on-1, feedback, pengelolaan tim
+              Feedback, coaching & pengelolaan tim
             </div>
           </div>
           <HPGlyph name="arrow" size={18} color="#fff" />

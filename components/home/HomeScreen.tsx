@@ -76,19 +76,6 @@ export default function HomeScreen({ openModal }: any) {
       } else if (currentMins >= workEnd - 15 && currentMins < workEnd) {
         setReminder({ type: 'clockout', mins: workEnd - currentMins });
       } else {
-        // Check for 1-on-1 Meeting Reminder
-        const coaching = state?.coaching;
-        if (coaching?.time) {
-          // Simplistic parsing for the prototype (matches "Kamis, 10:00")
-          const timeMatch = coaching.time.match(/(\d{2}):(\d{2})/);
-          if (timeMatch) {
-            const meetMins = parseInt(timeMatch[1]) * 60 + parseInt(timeMatch[2]);
-            if (currentMins >= meetMins - 10 && currentMins < meetMins) {
-              setReminder({ type: 'meeting', mins: meetMins - currentMins, sessionWith: coaching.coachName });
-              return;
-            }
-          }
-        }
         setReminder(null);
       }
     };
@@ -424,7 +411,7 @@ export default function HomeScreen({ openModal }: any) {
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ ...HP_TEXT.h, fontSize: 15 }}>
-                    {reminder.type === 'break' ? 'Waktunya Istirahat!' : reminder.type === 'meeting' ? 'Meeting 1-on-1!' : 'Bentar lagi Pulang!'}
+                    {reminder.type === 'break' ? 'Waktunya Istirahat!' : 'Bentar lagi Pulang!'}
                   </div>
                   <div style={{ ...HP_TEXT.body, fontSize: 13, marginTop: 2 }}>
                     {reminder.type === 'break' && `${reminder.mins} menit lagi istirahat. Yuk, siap-siap rehat sejenak! 🌿`}
