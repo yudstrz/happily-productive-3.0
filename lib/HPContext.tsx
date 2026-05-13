@@ -140,9 +140,15 @@ export function HPProvider({ children }: { children: React.ReactNode }) {
   const fetchDashboards = useCallback(async (userId: string, role: string) => {
     try {
       if (role === 'hr') {
-        const res = await fetch('/api/hr/dashboard');
-        const data = await res.json();
-        setState(prev => prev ? { ...prev, hrData: data } : null);
+        try {
+          const res = await fetch('/api/hr/dashboard');
+          const data = await res.json();
+          if (data && data.metrics) {
+            setState(prev => prev ? { ...prev, hrData: data } : null);
+          }
+        } catch (e) {
+          console.error("HR dashboard fetch error:", e);
+        }
       }
       if (role === 'manager') {
         const res = await fetch(`/api/manager/dashboard?userId=${userId}`);

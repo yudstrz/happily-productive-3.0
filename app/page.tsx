@@ -10,6 +10,7 @@ import AuthScreen from "@/components/auth/AuthScreen";
 // UI
 import HPGlyph from "@/components/ui/HPGlyph";
 import TabNav from "@/components/layout/TabNav";
+import ErrorBoundary from "@/components/ui/ErrorBoundary";
 
 // ── Employee Screens ──
 import HomeScreen from "@/components/home/HomeScreen";
@@ -262,7 +263,9 @@ function AppContent() {
 export default function Home() {
   return (
     <HPProvider>
-      <AppContent />
+      <ErrorBoundary>
+        <AppContent />
+      </ErrorBoundary>
     </HPProvider>
   );
 }

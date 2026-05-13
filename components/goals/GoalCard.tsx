@@ -25,7 +25,7 @@ export default function GoalCard({ g }: GoalCardProps) {
   const parentGoal = g.parent_id ? state?.goals.find((item: any) => String(item.id) === String(g.parent_id)) : null;
 
   // Link to actual priorities (tasks) in state that are connected to this goal
-  const linkedTasks = state?.priorities?.filter((p: any) => p.goal && p.goal === g.title) || [];
+  const linkedTasks = state?.priorities?.filter((p: any) => p.goal_id && String(p.goal_id) === String(g.id)) || [];
   const hasTasks = linkedTasks.length > 0;
   const doneTaskCount = linkedTasks.filter((p: any) => p.done).length;
   
@@ -64,8 +64,8 @@ export default function GoalCard({ g }: GoalCardProps) {
 
       // Recalculate goal progress
       const updatedGoals = s.goals.map((goal: any) => {
-        if (goal.title === g.title) {
-          const tasksForGoal = newPriorities.filter((p: any) => p.goal && p.goal === goal.title);
+        if (String(goal.id) === String(g.id)) {
+            const tasksForGoal = newPriorities.filter((p: any) => p.goal_id && String(p.goal_id) === String(goal.id));
           const doneCount = tasksForGoal.filter((p: any) => p.done).length;
           const newProgress = tasksForGoal.length > 0 
             ? Math.round((doneCount / tasksForGoal.length) * 100) 
