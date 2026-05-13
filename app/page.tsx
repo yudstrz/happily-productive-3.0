@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { HPProvider, useHP, UserRole } from "@/lib/HPContext";
 import { HP_TOKENS, HP_FONT } from "@/lib/constants";
 
