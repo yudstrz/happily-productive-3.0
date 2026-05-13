@@ -1,49 +1,31 @@
-import { NextResponse } from "next/server";
-import { db } from "@/lib/turso";
+import { NextResponse } from 'next/server';
+import { db } from '@/lib/db';
+import { eq, and } from 'drizzle-orm';
+import { users } from '@/lib/schema';
 
-export async function POST(request: Request) {
+export async function POST(req: Request) {
   try {
-    const { requesterId, targetUserId } = await request.json();
+    const { requesterId, targetUserId } = await req.json();
 
     if (!requesterId || !targetUserId) {
-      return NextResponse.json({ error: "Data tidak lengkap" }, { status: 400 });
+      return NextResponse.json({ error: 'Missing parameters' }, { status: 400 });
     }
 
-    // Verify if requester is admin
-    const requesterCheck = await db.execute({
-      sql: "SELECT role FROM users WHERE id = ?",
-      args: [requesterId]
-    });
-
-    const role = requesterCheck.rows[0]?.role;
-    if (role !== 'hr') {
-      return NextResponse.json({ error: "Unauthorized. Only HR can delete users." }, { status: 403 });
-    }
-
-    // Prevent deleting self
-    if (requesterId === targetUserId) {
-      return NextResponse.json({ error: "Cannot delete your own account." }, { status: 400 });
-    }
-
-    // Delete related data first (simplified for prototype)
-    // In a real app, we'd handle foreign keys more carefully or use ON DELETE CASCADE
-    await db.execute({ sql: "DELETE FROM mood_checkins WHERE user_id = ?", args: [targetUserId] });
-    await db.execute({ sql: "DELETE FROM goals WHERE owner_id = ?", args: [targetUserId] });
-    await db.execute({ sql: "DELETE FROM daily_priorities WHERE user_id = ?", args: [targetUserId] });
-    await db.execute({ sql: "DELETE FROM weekly_priorities WHERE user_id = ?", args: [targetUserId] });
-    await db.execute({ sql: "DELETE FROM habits WHERE user_id = ?", args: [targetUserId] });
-    await db.execute({ sql: "DELETE FROM user_skills WHERE user_id = ?", args: [targetUserId] });
-    await db.execute({ sql: "DELETE FROM xp_transactions WHERE user_id = ?", args: [targetUserId] });
+    // 1. Verify requester is an HR/Admin
+    const [adminUser] = await db.select().from(users).where(eq(users.id, requesterId)).limit(1);
     
-    // Finally delete the user
-    await db.execute({
-      sql: "DELETE FROM users WHERE id = ?",
-      args: [targetUserId]
-    });
+    if (!adminUser || adminUser.role !== 'hr') {
+      return NextResponse.json({ error: 'Unauthorized. HR access required.' }, { status: 403 });
+    }
 
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error("Delete User Error:", error);
-    return NextResponse.json({ error: "Gagal menghapus user" }, { status: 500 });
+    // 2. Delete the user
+    // Note: In a production app, you might want to do a "soft delete" or handle related records.
+    // Here we do a direct delete for simplicity of the management console.
+    await db.delete(users).where(eq(users.id, targetUserId));
+
+    return NextResponse.json({ success: true, message: 'User deleted successfully' });
+  } catch (error: any) {
+    console.error('Delete User Error:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
