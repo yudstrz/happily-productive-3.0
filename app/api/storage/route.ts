@@ -182,9 +182,13 @@ export async function GET(request: Request) {
     };
 
     return NextResponse.json({ state, user });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Turso Fetch Error:", error);
-    return NextResponse.json({ error: 'Failed to read data from Turso' }, { status: 500 });
+    return NextResponse.json({ 
+      error: 'Failed to read data from Turso', 
+      details: error.message,
+      stack: error.stack 
+    }, { status: 500 });
   }
 }
 
@@ -298,8 +302,12 @@ export async function POST(request: Request) {
     // to prevent accidental overwrites during per-user state sync.
 
     return NextResponse.json({ success: true, message: 'Updated Turso successfully' });
-  } catch (error) {
-    console.error("Turso Save Error:", error);
-    return NextResponse.json({ error: 'Failed to save data to Turso' }, { status: 500 });
+  } catch (error: any) {
+    console.error("Turso Sync Error:", error);
+    return NextResponse.json({ 
+      error: 'Failed to sync data to Turso', 
+      details: error.message,
+      stack: error.stack 
+    }, { status: 500 });
   }
 }
