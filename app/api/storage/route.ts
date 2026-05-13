@@ -38,11 +38,11 @@ export async function GET(request: Request) {
       id: r.id, title: r.title, goal: r.goal_title, goal_id: r.goal_id, energy: r.energy_level, est: r.est_time, done: !!r.is_done, tone: r.tone
     }));
 
-    const weeklyRes = await db.execute({
+    const weeklyPrioritiesRes = await db.execute({
       sql: "SELECT * FROM weekly_priorities WHERE user_id = ?",
       args: [userId]
     });
-    const weeklyPriorities = weeklyRes.rows.map(r => ({
+    const weeklyPriorities = weeklyPrioritiesRes.rows.map(r => ({
       id: r.id, text: r.text, done: !!r.is_done
     }));
 
@@ -54,22 +54,20 @@ export async function GET(request: Request) {
       name: r.name, streak: r.streak, target: r.target_days, done: !!r.is_done_today, glyph: r.glyph
     }));
 
-    // Fetch Goals with Sub-goals
+    // Fetch Goals with Owner Names and Sub-goals
     const goalsRes = await db.execute({
-      sql: "SELECT * FROM goals WHERE owner_id = ? OR assigned_by_id = ? OR scope IN ('company', 'team')",
+      sql: `SELECT g.*, u.name as owner_name 
+            FROM goals g 
+            LEFT JOIN users u ON g.owner_id = u.id 
+            WHERE g.owner_id = ? OR g.assigned_by_id = ? OR g.scope IN ('company', 'team')`,
       args: [userId, userId]
     });
+
     const goals = await Promise.all(goalsRes.rows.map(async (r) => {
       const subGoalsRes = await db.execute({
         sql: "SELECT * FROM sub_goals WHERE goal_id = ?",
         args: [String(r.id)]
       });
-      // Resolve owner name
-      let ownerName = 'Unknown';
-      if (r.owner_id) {
-        const ownerRes = await db.execute({ sql: "SELECT name FROM users WHERE id = ?", args: [String(r.owner_id)] });
-        ownerName = (ownerRes.rows[0]?.name as string) || 'Unknown';
-      }
       return {
         id: r.id, 
         title: r.title, 
@@ -79,7 +77,7 @@ export async function GET(request: Request) {
         tone: r.tone, 
         metric: r.metric, 
         scope: r.scope,
-        owner: ownerName,
+        owner: (r.owner_name as string) || 'Unknown',
         ownerId: r.owner_id,
         assignedById: r.assigned_by_id,
         parent_id: r.parent_id,
@@ -131,8 +129,10 @@ export async function GET(request: Request) {
     ];
     let workSchedule = { start: "08:00", end: "17:00", breakStart: "12:00", breakEnd: "13:00" };
     settingsRes.rows.forEach(r => {
-      if (r.key === 'contacts') contacts = JSON.parse(r.value as string);
-      if (r.key === 'work_schedule') workSchedule = JSON.parse(r.value as string);
+      try {
+        if (r.key === 'contacts' && r.value) contacts = JSON.parse(r.value as string);
+        if (r.key === 'work_schedule' && r.value) workSchedule = JSON.parse(r.value as string);
+      } catch (e) { console.error(`Error parsing setting ${r.key}:`, e); }
     });
 
     // Fetch Today's Attendance
@@ -147,6 +147,22 @@ export async function GET(request: Request) {
       args: [userId]
     });
     const checkOut = todayReflectRes.rows[0]?.created_at as string;
+
+    let wellbeingRoutine = [];
+    try {
+      if (userRow.wellbeing_routine) {
+        wellbeingRoutine = JSON.parse(userRow.wellbeing_routine as string);
+      }
+    } catch (e) { console.error("Failed to parse wellbeingRoutine:", e); }
+
+    const formatTime = (iso: string | undefined) => {
+      if (!iso) return undefined;
+      try {
+        const date = new Date(iso);
+        if (isNaN(date.getTime())) return undefined;
+        return date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+      } catch (e) { return undefined; }
+    }
 
     const state = {
       mood: latestMood?.mood_key || 'calm',
@@ -173,11 +189,11 @@ export async function GET(request: Request) {
       penaltyThresholdDays: 3,
       workSchedule,
       todayAttendance: {
-        checkIn: checkIn ? new Date(checkIn).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : undefined,
-        checkOut: checkOut ? new Date(checkOut).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : undefined,
+        checkIn: formatTime(checkIn),
+        checkOut: formatTime(checkOut),
       },
       personalWellbeingGoal: (userRow.personal_wellbeing_goal as string) || "",
-      wellbeingRoutine: userRow.wellbeing_routine ? JSON.parse(userRow.wellbeing_routine as string) : [],
+      wellbeingRoutine,
       contacts
     };
 
@@ -297,9 +313,6 @@ export async function POST(request: Request) {
         });
       }
     }
-
-    // Sync Surveys (Global) - REMOVED: Managed via /api/hr/surveys dedicated endpoint
-    // to prevent accidental overwrites during per-user state sync.
 
     return NextResponse.json({ success: true, message: 'Updated Turso successfully' });
   } catch (error: any) {
