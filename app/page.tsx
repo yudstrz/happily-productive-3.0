@@ -80,8 +80,8 @@ function AppContent() {
   const [tab, setTab] = useState('home');
   const [modal, setModal] = useState<{ name: string; props?: any } | null>(null);
 
-  const openModal  = (name: string, props?: any) => setModal({ name, props });
-  const closeModal = () => setModal(null);
+  const openModal  = useCallback((name: string, props?: any) => setModal({ name, props }), []);
+  const closeModal = useCallback(() => setModal(null), []);
 
   // ── Loading splash ─────────────────────────────────────────────────────────
   if (loading) return (

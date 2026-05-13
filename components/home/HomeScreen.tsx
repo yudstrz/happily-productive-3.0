@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { useHP } from "@/lib/HPContext";
 import { 
   HP_TOKENS, 
@@ -98,7 +98,7 @@ export default function HomeScreen({ openModal }: any) {
     const interval = setInterval(checkTime, 60000);
 
     // AI Nudge Logic (Duolingo Style)
-    const generateNudge = () => {
+    const generateNudge = useCallback(() => {
       if (!state) return;
       
       const now = new Date();
@@ -134,7 +134,7 @@ export default function HomeScreen({ openModal }: any) {
         text: cheerMessages[Math.floor(Math.random() * cheerMessages.length)],
         type: 'cheer'
       });
-    };
+    }, [state?.lastActivityDate, state?.mood]);
 
     generateNudge();
     
@@ -159,7 +159,7 @@ export default function HomeScreen({ openModal }: any) {
   const done = priorities.filter((p: any) => p.done).length;
   const total = priorities.length;
 
-  const togglePriority = (id: number) => {
+  const togglePriority = useCallback((id: number) => {
     updateState((s: any) => {
       const pIndex = s.priorities.findIndex((p: any) => p.id === id);
       const priority = s.priorities[pIndex];
@@ -210,9 +210,9 @@ export default function HomeScreen({ openModal }: any) {
       }
       return { ...s, ...update };
     });
-  };
+  }, [updateState, awardXP, syncSkillProgress]);
 
-  const toggleHabit = (name: string) => {
+  const toggleHabit = useCallback((name: string) => {
     updateState((s: any) => {
       const hIndex = s.habits.findIndex((h: any) => h.name === name);
       const habit = s.habits[hIndex];
@@ -243,7 +243,7 @@ export default function HomeScreen({ openModal }: any) {
         return { ...s, habits: newHabits };
       }
     });
-  };
+  }, [updateState, awardXP]);
 
   const energyHint = (e: string) => {
     if (e === 'low') return 'Energimu sedang rendah 🌱 Mulai dari task ringan dulu — handoff sinkron ikon cocok sekarang.';
@@ -717,7 +717,7 @@ export default function HomeScreen({ openModal }: any) {
         <div style={{ marginTop: 24 }}>
           <SectionHeader icon="heart" label="AI Coach Insights" action="Explore" onAction={() => openModal('coach')}/>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {generateAIInsights(state, user).map((ins, i) => (
+            {useMemo(() => generateAIInsights(state, user), [state, user]).map((ins, i) => (
               <InsightCard key={i} ins={ins} idx={i}/>
             ))}
           </div>
