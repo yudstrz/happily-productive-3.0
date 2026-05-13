@@ -24,8 +24,8 @@ export default function GoalsScreen({ openModal }: GoalsScreenProps) {
   const filteredGoals = state.goals.filter((g: any) => {
     if (tab === 'personal') return g.scope === 'personal' && String(g.ownerId) === String(user.id);
     if (tab === 'assigned') return g.scope === 'assigned' && String(g.ownerId) === String(user.id);
-    if (tab === 'team') return g.scope === 'team';
-    if (tab === 'company') return g.scope === 'company';
+    if (tab === 'team') return false;
+    if (tab === 'company') return false;
     return false;
   });
 
@@ -45,8 +45,6 @@ export default function GoalsScreen({ openModal }: GoalsScreenProps) {
       <TabBar options={[
         { key: 'personal', label: 'Personal' },
         { key: 'assigned', label: 'Assigned' },
-        { key: 'team', label: 'Team' },
-        { key: 'company', label: 'Company' },
       ]} value={tab} onChange={setTab}/>
 
       {/* Tab Context Info */}
@@ -60,14 +58,11 @@ export default function GoalsScreen({ openModal }: GoalsScreenProps) {
             <HPGlyph name={tab === 'personal' ? "sparkle" : tab === 'assigned' ? "target" : "people"} size={18} color="#fff"/>
           </div>
           <div style={{ flex: 1 }}>
-            <div style={{ ...HP_TEXT.h, fontSize: 14, color: tab === 'personal' ? HP_TOKENS.sage : tab === 'assigned' ? HP_TOKENS.lavender : HP_TOKENS.blue }}>
-              {tab === 'personal' ? 'Personal Focus' : tab === 'assigned' ? 'Assigned by Manager' : tab === 'team' ? 'Team Alignment' : 'Company Vision'}
+            <div style={{ ...HP_TEXT.h, fontSize: 14, color: tab === 'personal' ? HP_TOKENS.sage : HP_TOKENS.lavender }}>
+              {tab === 'personal' ? 'Personal Focus' : 'Assigned by Manager'}
             </div>
             <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkSoft, fontWeight: 600, marginTop: 2 }}>
-              {tab === 'personal' && 'Target yang kamu buat sendiri untuk pengembangan diri.'}
-              {tab === 'assigned' && 'Target penting yang diberikan oleh atasanmu.'}
-              {tab === 'team' && 'Prioritas utama yang dikerjakan bersama seluruh tim.'}
-              {tab === 'company' && 'Visi besar organisasi yang ingin kita capai bersama.'}
+              {tab === 'personal' ? 'Target yang kamu buat sendiri untuk pengembangan diri.' : 'Target penting yang diberikan oleh atasanmu.'}
             </div>
           </div>
         </div>
