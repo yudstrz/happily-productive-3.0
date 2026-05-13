@@ -235,7 +235,7 @@ export default function HRPeopleScreen({ openModal }: Props) {
             </div>
           )}
         </>
-      )}      )}
+      )}
 
       {/* ── Attendance ── */}
       {activeTab === 'attendance' && (

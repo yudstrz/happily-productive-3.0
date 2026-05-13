@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
-import { eq, and } from 'drizzle-orm';
-import { users } from '@/lib/schema';
+import { db } from '@/lib/turso';
 
 export async function POST(req: Request) {
   try {
@@ -12,16 +10,22 @@ export async function POST(req: Request) {
     }
 
     // 1. Verify requester is an HR/Admin
-    const [adminUser] = await db.select().from(users).where(eq(users.id, requesterId)).limit(1);
+    const adminResult = await db.execute({
+      sql: "SELECT role FROM users WHERE id = ?",
+      args: [requesterId]
+    });
+    
+    const adminUser = adminResult.rows[0];
     
     if (!adminUser || adminUser.role !== 'hr') {
       return NextResponse.json({ error: 'Unauthorized. HR access required.' }, { status: 403 });
     }
 
     // 2. Delete the user
-    // Note: In a production app, you might want to do a "soft delete" or handle related records.
-    // Here we do a direct delete for simplicity of the management console.
-    await db.delete(users).where(eq(users.id, targetUserId));
+    await db.execute({
+      sql: "DELETE FROM users WHERE id = ?",
+      args: [targetUserId]
+    });
 
     return NextResponse.json({ success: true, message: 'User deleted successfully' });
   } catch (error: any) {
