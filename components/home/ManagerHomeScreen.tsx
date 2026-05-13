@@ -54,18 +54,28 @@ interface OneOnOneSession {
 }
 
 export default function ManagerHomeScreen({ openModal }: Props) {
-  const { user, state, awardXP } = useHP();
-  const [approvals, setApprovals] = useState<ApprovalTask[]>([]); // In a real app, fetch these from DB too
+  const { members, goals, approvals: serverApprovals } = state.managerData;
+  const [localApprovals, setLocalApprovals] = useState<ApprovalTask[] | null>(null);
 
-  if (!user || !state?.managerData) return (
-    <div style={{ padding: 40, textAlign: 'center', opacity: 0.5 }}>Memuat data Tim...</div>
-  );
-
-  const { members, goals } = state.managerData;
+  const currentApprovals = localApprovals || serverApprovals || [];
   const teamAtRisk = members.filter((m: TeamMember) => m.status === 'Needs check-in' || m.status === 'At risk');
   const avgWellbeing = members.length > 0 ? Math.round(members.reduce((a: number, b: TeamMember) => a + b.wellbeing, 0) / members.length) : 0;
 
-  const handleApprove = (id: number | string) => setApprovals(prev => prev.filter(a => a.id !== id));
+  const handleApprove = async (id: number | string) => {
+    try {
+      const res = await fetch("/api/admin/approve-goal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ goalId: id, status: 'approved', adminId: user.id })
+      });
+      if (res.ok) {
+        setLocalApprovals(currentApprovals.filter((a: any) => a.id !== id));
+        awardXP('approve_goal', 'Menyetujui target KPI anggota tim');
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   return (
     <div style={{ position: 'relative', minHeight: '100%', paddingBottom: 120, fontFamily: HP_FONT }}>
@@ -123,7 +133,7 @@ export default function ManagerHomeScreen({ openModal }: Props) {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
               {[
                 { label: 'Wellbeing Tim', value: `${avgWellbeing}`, suffix: '/100', color: HP_TOKENS.sage, icon: '🌱' },
-                { label: 'Approval', value: `${approvals.length}`, suffix: ' pending', color: approvals.length > 0 ? HP_TOKENS.coral : HP_TOKENS.sage, icon: '⏳' },
+                { label: 'Approval', value: `${currentApprovals.length}`, suffix: ' pending', color: currentApprovals.length > 0 ? HP_TOKENS.coral : HP_TOKENS.sage, icon: '⏳' },
                 { label: 'At Risk', value: `${teamAtRisk.length}`, suffix: ' org', color: teamAtRisk.length > 0 ? HP_TOKENS.coral : HP_TOKENS.sage, icon: '⚠️' },
               ].map(s => (
                 <div key={s.label} style={{
@@ -195,11 +205,11 @@ export default function ManagerHomeScreen({ openModal }: Props) {
         </div>
 
         {/* Approvals */}
-        {approvals.length > 0 && (
+        {currentApprovals.length > 0 && (
           <div style={{ marginTop: 16 }}>
-            <SectionHeader icon="target" label="Perlu Approval" count={String(approvals.length)} />
+            <SectionHeader icon="target" label="Perlu Approval" count={String(currentApprovals.length)} />
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {approvals.map(task => (
+              {currentApprovals.map((task: any) => (
                 <HPCard key={task.id} padding={14} style={{ border: task.urgent ? `1.5px solid ${HP_TOKENS.coral}` : undefined }}>
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
                     <div style={{

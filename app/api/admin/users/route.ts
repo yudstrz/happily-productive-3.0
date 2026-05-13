@@ -14,8 +14,8 @@ export async function GET(request: Request) {
     });
 
     const role = roleCheck.rows[0]?.role;
-    if (role !== 'hr') {
-      return NextResponse.json({ error: "Unauthorized. Only HR can manage users." }, { status: 403 });
+    if (role !== 'hr' && role !== 'manager') {
+      return NextResponse.json({ error: "Unauthorized. Only HR and Managers can view user lists." }, { status: 403 });
     }
 
     const res = await db.execute("SELECT id, name, email, role, level, points, job_title, department, manager_id, password_hash FROM users ORDER BY created_at DESC");

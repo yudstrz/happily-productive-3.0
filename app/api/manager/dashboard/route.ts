@@ -32,7 +32,9 @@ export async function GET(request: Request) {
 
     // 2. Fetch Team Goals
     const memberIds = members.map(m => String(m.id)).concat([userId]);
+    const memberIdsOnly = members.map(m => String(m.id));
     const placeholders = memberIds.map(() => '?').join(',');
+    const memberPlaceholders = memberIdsOnly.length > 0 ? memberIdsOnly.map(() => '?').join(',') : "''";
     
     const goalsRes = await db.execute({
       sql: `SELECT * FROM goals WHERE scope = 'team' AND owner_id IN (${placeholders})`,
@@ -49,7 +51,26 @@ export async function GET(request: Request) {
       onTrack: Number(g.progress) > 40
     }));
 
-    return NextResponse.json({ members, goals });
+    // 3. Fetch Pending Approvals (Goals or KPI tasks from team members)
+    let approvals: any[] = [];
+    if (memberIdsOnly.length > 0) {
+      const pendingRes = await db.execute({
+        sql: `SELECT g.*, u.name as owner_name 
+              FROM goals g 
+              JOIN users u ON g.owner_id = u.id
+              WHERE g.owner_id IN (${memberPlaceholders}) AND g.status = 'pending'`,
+        args: memberIdsOnly
+      });
+      approvals = pendingRes.rows.map(a => ({
+        id: a.id,
+        type: a.is_kpi ? 'KPI GOAL' : 'GOAL',
+        from: a.owner_name,
+        desc: a.title,
+        urgent: a.is_kpi === 1
+      }));
+    }
+
+    return NextResponse.json({ members, goals, approvals });
   } catch (error) {
     console.error("Manager Dashboard Error:", error);
     return NextResponse.json({ error: 'Failed to fetch manager data' }, { status: 500 });
