@@ -95,7 +95,15 @@ export function HPProvider({ children }: { children: React.ReactNode }) {
           priorities: [], feed: [], goals: [], habits: [], weeklyPriorities: [],
           surveys: [], skills: [], learning: [], coaching: { coachName: "Dewi Lestari", role: "Sr. Coach", time: "Jumat, 10:00", meetLink: "https://meet.google.com/abc-defg-hij" }, wellbeing: { dims: [], programs: [] },
 
-          points: data.user?.points || 0, coins: data.user?.coins || 0, notifications: 0, rewards: [], rewardHistory: [],
+          points: data.user?.points || 0, coins: data.user?.coins || 0, notifications: 0, 
+          rewards: [
+            { id: 1, title: 'Extra Cuti 1 Hari', points: 500, description: 'Nikmati satu hari penuh istirahat untuk mengisi ulang energimu.', tone: 'sage', stock: 12, category: 'Wellbeing' },
+            { id: 2, title: 'Voucher Lunch 100k', points: 250, description: 'Makan siang enak bareng teman kerja — ditanggung kantor!', tone: 'yellow', stock: 50, category: 'Lifestyle' },
+            { id: 3, title: 'Workshop UX Intensif', points: 800, description: 'Ikuti workshop 2 hari bersama praktisi UX terkemuka.', tone: 'blue', stock: 5, category: 'Growth' },
+            { id: 4, title: 'Donasi Program Sosial', points: 100, description: 'Ubah poinmu menjadi donasi nyata untuk lingkungan.', tone: 'coral', stock: 999, category: 'Impact' },
+            { id: 5, title: 'Mentoring 1:1 Head', points: 1200, description: 'Sesi privat 60 menit dengan Head of Department.', tone: 'lavender', stock: 2, category: 'Growth' }
+          ], 
+          rewardHistory: [],
           logbook: [], lastActivityDate: new Date().toISOString(),
           penaltyActive: false, penaltyThresholdDays: 3,
           workSchedule: { start: "08:00", end: "17:00", breakStart: "12:00", breakEnd: "13:00" },

@@ -27,7 +27,7 @@ export default function AllRewardsModal({ onClose }: AllRewardsModalProps) {
   const [activeCategory, setActiveCategory] = useState("Semua");
   const [showConfetti, setShowConfetti] = useState(false);
 
-  const rewards = HP_REWARDS;
+  const rewards = state?.rewards || [];
   const history = state?.rewardHistory || [];
   const userPoints = state?.points ?? 0;
 
@@ -35,8 +35,12 @@ export default function AllRewardsModal({ onClose }: AllRewardsModalProps) {
     ? rewards
     : rewards.filter(r => r.category === activeCategory);
 
-  const handleRedeem = (reward: typeof rewards[0]) => {
+  const handleRedeem = (reward: any) => {
     if (!state) return;
+    if (reward.stock <= 0) {
+      alert(`Maaf, stok "${reward.title}" sedang habis. 🌱`);
+      return;
+    }
     if (state.points < reward.points) {
       alert(`Poin tidak cukup! Kamu butuh ${reward.points} poin, tapi baru punya ${state.points} poin. 🌱`);
       return;
@@ -45,10 +49,11 @@ export default function AllRewardsModal({ onClose }: AllRewardsModalProps) {
       updateState((s: any) => ({
         ...s,
         points: s.points - reward.points,
-        user: { ...s.user, points: (s.user?.points || 0) - reward.points },
+        coins: s.coins - reward.points,
+        rewards: s.rewards.map((r: any) => r.id === reward.id ? { ...r, stock: r.stock - 1 } : r),
         rewardHistory: [
           ...history,
-          { id: Date.now(), title: reward.title, points: reward.points, date: new Date().toLocaleDateString('id-ID'), glyph: reward.glyph }
+          { id: Date.now(), title: reward.title, points: reward.points, date: new Date().toLocaleDateString('id-ID'), glyph: reward.glyph || 'trophy' }
         ]
       }));
       
@@ -168,30 +173,37 @@ export default function AllRewardsModal({ onClose }: AllRewardsModalProps) {
 
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ ...HP_TEXT.h, fontSize: 14, color: cfg.text }}>{reward.title}</div>
-                      <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, marginTop: 2, fontSize: 12 }}>{reward.desc}</div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6 }}>
+                      <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, marginTop: 2, fontSize: 11, lineHeight: 1.3 }}>{reward.description || reward.desc}</div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
                         <span style={{
-                          padding: '3px 10px', borderRadius: 99, fontSize: 11, fontWeight: 800,
+                          padding: '3px 10px', borderRadius: 99, fontSize: 10, fontWeight: 800,
                           background: cfg.bg, color: '#fff', fontFamily: HP_FONT,
                         }}>
-                          {reward.points} poin
+                          {reward.points} POIN
+                        </span>
+                        <span style={{ 
+                          fontSize: 10, fontWeight: 900, 
+                          color: reward.stock < 5 ? HP_TOKENS.coral : HP_TOKENS.sage 
+                        }}>
+                          STOK: {reward.stock}
                         </span>
                       </div>
                     </div>
 
                     <button
                       onClick={() => handleRedeem(reward)}
-                      disabled={!canAfford}
+                      disabled={!canAfford || reward.stock <= 0}
                       style={{
-                        padding: '8px 14px', borderRadius: 12, border: 'none',
-                        background: canAfford ? cfg.bg : HP_TOKENS.lineSoft,
-                        color: canAfford ? '#fff' : HP_TOKENS.inkFade,
-                        fontFamily: HP_FONT, fontWeight: 800, fontSize: 13,
-                        cursor: !canAfford ? 'default' : 'pointer',
+                        padding: '10px 14px', borderRadius: 14, border: 'none',
+                        background: (canAfford && reward.stock > 0) ? cfg.bg : HP_TOKENS.lineSoft,
+                        color: (canAfford && reward.stock > 0) ? '#fff' : HP_TOKENS.inkFade,
+                        fontFamily: HP_FONT, fontWeight: 800, fontSize: 12,
+                        cursor: (!canAfford || reward.stock <= 0) ? 'default' : 'pointer',
                         transition: 'all 0.2s',
+                        whiteSpace: 'nowrap'
                       }}
                     >
-                      Tukar
+                      {reward.stock <= 0 ? 'Stok Habis' : 'Tukar'}
                     </button>
                   </div>
                 );

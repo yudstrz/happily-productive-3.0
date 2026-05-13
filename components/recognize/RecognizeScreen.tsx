@@ -41,8 +41,15 @@ export default function RecognizeScreen({ openModal }: RecognizeScreenProps) {
         onAction={() => openModal('all_rewards')}
       />
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-        {ORG_REWARDS_CATALOG.slice(0, 6).map(r => (
-          <RewardCard key={r.id} title={r.title} points={Math.floor(r.points / 4)} tone={r.tone as any} />
+        {(state.rewards || []).slice(0, 4).map((r: any) => (
+          <div key={r.id} onClick={() => openModal('all_rewards', { selected: r.id })} className="hp-tap">
+            <RewardCard 
+              title={r.title} 
+              points={r.points} 
+              tone={r.tone as any} 
+              style={{ opacity: r.stock === 0 ? 0.6 : 1 }}
+            />
+          </div>
         ))}
       </div>
     </div>
