@@ -9,7 +9,7 @@ import HPCard from "@/components/ui/HPCard";
 import HPAvatar from "@/components/ui/HPAvatar";
 import SectionHeader from "@/components/home/SectionHeader";
 import BlobBackground from "@/components/home/BlobBackground";
-import AnnouncementFeed from "@/components/home/AnnouncementFeed";
+
 
 interface Props { openModal: (name: string, props?: any) => void; }
 
@@ -117,7 +117,7 @@ export default function HRHomeScreen({ openModal }: Props) {
           }} className="hp-tap"
         >
           <HPGlyph name="target" size={18} color="#fff" />
-          Check-in Office (QR)
+          Check-in Office
         </button>
 
         {/* At-Risk Alert */}
@@ -164,10 +164,7 @@ export default function HRHomeScreen({ openModal }: Props) {
 
 
 
-        {/* Company News */}
-        <div style={{ marginTop: 16 }}>
-          <AnnouncementFeed />
-        </div>
+
 
         {/* Surveys Section */}
         {state.surveys && state.surveys.length > 0 && (

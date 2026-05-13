@@ -152,7 +152,7 @@ export default function ManagerHomeScreen({ openModal }: Props) {
           }} className="hp-tap"
         >
           <HPGlyph name="target" size={18} color="#fff" />
-          Check-in Office (QR)
+          Check-in Office
         </button>
 
         <div style={{ marginTop: 16 }}>

@@ -32,13 +32,13 @@ import HRRecognizeScreen from "@/components/recognize/HRRecognizeScreen";
 
 
 // ── Admin Screens ──
-import AdminConsoleScreen from "@/components/admin/AdminConsoleScreen";
+
 
 
 // Modals
 import CheckInModal from "@/components/modals/CheckInModal";
 import FocusModal from "@/components/modals/FocusModal";
-import AppreciateModal from "@/components/modals/AppreciateModal";
+
 import PauseModal from "@/components/modals/PauseModal";
 import ReflectModal from "@/components/modals/ReflectModal";
 import CoachModal from "@/components/modals/CoachModal";
@@ -97,15 +97,13 @@ function AppContent() {
 
   // ── Determine Role ─────────────────────────────────────────────────────────
   const currentRole = (user?.role || 'employee') as UserRole;
+  const isManager = currentRole === 'manager';
+  const isHR = currentRole === 'hr' || currentRole === 'admin';
 
   // ── Render screen by role + tab ─────────────────────────────────────────────
   const pad = { paddingTop: 58 };
 
   const renderScreen = () => {
-    // Admin
-    if (currentRole === 'admin') {
-      return <div style={pad}><AdminConsoleScreen openModal={openModal} /></div>;
-    }
     // Employee
     if (currentRole === 'employee') {
       if (tab === 'home')      return <div style={pad}><HomeScreen tab={tab} openModal={openModal} /></div>;
@@ -122,8 +120,8 @@ function AppContent() {
       if (tab === 'growth')    return <div style={pad}><ManagerGrowthScreen openModal={openModal} /></div>;
       if (tab === 'wellbeing') return <div style={pad}><ManagerWellbeingScreen openModal={openModal} /></div>;
     }
-    // HR
-    if (currentRole === 'hr') {
+    // HR or Admin fallback to HR
+    if (currentRole === 'hr' || currentRole === 'admin') {
       if (tab === 'home')      return <div style={pad}><HRHomeScreen openModal={openModal} /></div>;
       if (tab === 'goals')     return <div style={pad}><HRPeopleScreen openModal={openModal} /></div>;
       if (tab === 'recognize') return <div style={pad}><HRRecognizeScreen openModal={openModal} /></div>;
@@ -190,7 +188,7 @@ function AppContent() {
       {/* Modal Renderer */}
       {modal?.name === 'checkin'          && <CheckInModal onClose={closeModal} />}
       {modal?.name === 'focus'            && <FocusModal onClose={closeModal} />}
-      {modal?.name === 'appreciate'       && <AppreciateModal onClose={closeModal} />}
+
       {modal?.name === 'pause'            && <PauseModal onClose={closeModal} />}
       {modal?.name === 'reflect'          && <ReflectModal onClose={closeModal} />}
       {modal?.name === 'coach'            && <CoachModal onClose={closeModal} />}

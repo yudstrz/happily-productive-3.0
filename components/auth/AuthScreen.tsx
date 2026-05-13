@@ -152,7 +152,7 @@ export default function AuthScreen({ onLogin }: AuthScreenProps) {
 
         {!isLogin && (
           <div style={{ marginTop: 20, padding: 12, background: HP_TOKENS.blueWash, borderRadius: 12, fontSize: 11, color: HP_TOKENS.blue, fontWeight: 600 }}>
-            Note: Pendaftaran baru otomatis menjadi <b>Employee</b>. Role HR/Manager hanya dapat diubah oleh Admin.
+            Note: Pendaftaran baru otomatis menjadi <b>Employee</b>. Role HR/Manager hanya dapat diubah oleh HR.
           </div>
         )}
       </div>

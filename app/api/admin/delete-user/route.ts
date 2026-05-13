@@ -16,8 +16,8 @@ export async function POST(request: Request) {
     });
 
     const role = requesterCheck.rows[0]?.role;
-    if (role !== 'admin') {
-      return NextResponse.json({ error: "Unauthorized. Only admins can delete users." }, { status: 403 });
+    if (role !== 'admin' && role !== 'hr') {
+      return NextResponse.json({ error: "Unauthorized. Only admins or HR can delete users." }, { status: 403 });
     }
 
     // Prevent deleting self

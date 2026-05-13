@@ -18,6 +18,7 @@ interface HPState {
   coaching: any;
   wellbeing: any;
   points: number;
+  coins: number;
   notifications: number;
   rewards: any[];
   rewardHistory: any[];
@@ -51,6 +52,7 @@ interface HPUser {
   role: UserRole;
   streak: number;
   points: number;
+  coins: number;
   level: number;
   rank: string;
   userRole?: UserRole | null;
@@ -92,7 +94,7 @@ export function HPProvider({ children }: { children: React.ReactNode }) {
           priorities: [], feed: [], goals: [], habits: [], weeklyPriorities: [],
           surveys: [], skills: [], learning: [], coaching: { coachName: "Dewi Lestari", role: "Sr. Coach", time: "Jumat, 10:00", meetLink: "https://meet.google.com/abc-defg-hij" }, wellbeing: { dims: [], programs: [] },
 
-          points: data.user?.points || 0, notifications: 0, rewards: [], rewardHistory: [],
+          points: data.user?.points || 0, coins: data.user?.coins || 0, notifications: 0, rewards: [], rewardHistory: [],
           logbook: [], lastActivityDate: new Date().toISOString(),
           penaltyActive: false, penaltyThresholdDays: 3,
           workSchedule: { start: "08:00", end: "17:00", breakStart: "12:00", breakEnd: "13:00" },
@@ -300,7 +302,8 @@ export function HPProvider({ children }: { children: React.ReactNode }) {
       });
       const data = await res.json();
       if (data.success) {
-        updateUser({ points: data.newTotal });
+        updateUser({ points: data.newTotal, coins: data.newCoins });
+        updateState((s: any) => ({ ...s, points: data.newTotal, coins: data.newCoins }));
       }
     } catch (e) {
       console.error("Failed to award XP:", e);

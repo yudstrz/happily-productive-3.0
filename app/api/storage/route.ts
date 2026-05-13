@@ -22,6 +22,7 @@ export async function GET(request: Request) {
       role: userRow.role,
       streak: userRow.streak,
       points: userRow.points,
+      coins: userRow.coins,
       level: userRow.level,
       rank: userRow.rank,
       avatarImage: userRow.avatar_image,
@@ -34,7 +35,7 @@ export async function GET(request: Request) {
       args: [userId]
     });
     const priorities = prioritiesRes.rows.map(r => ({
-      id: r.id, title: r.title, goal: r.goal_title, energy: r.energy_level, est: r.est_time, done: !!r.is_done, tone: r.tone
+      id: r.id, title: r.title, goal: r.goal_title, goal_id: r.goal_id, energy: r.energy_level, est: r.est_time, done: !!r.is_done, tone: r.tone
     }));
 
     const weeklyRes = await db.execute({
@@ -75,6 +76,8 @@ export async function GET(request: Request) {
         ownerId: r.owner_id,
         assignedById: r.assigned_by_id,
         parent_id: r.parent_id,
+        status: r.status || 'pending',
+        is_kpi: !!r.is_kpi,
         subGoals: subGoalsRes.rows.map(sr => ({ id: sr.id, title: sr.title, done: !!sr.is_done }))
       };
     }));
@@ -153,6 +156,7 @@ export async function GET(request: Request) {
       learning: [],
       wellbeing: { dims: [], programs: [], dailyPrompt: "" },
       points: user.points,
+      coins: user.coins,
       notifications: 0,
       rewards: [],
       rewardHistory: [],
@@ -184,9 +188,9 @@ export async function POST(request: Request) {
 
     // Update User
     await db.execute({
-      sql: `UPDATE users SET name = ?, streak = ?, points = ?, level = ?, rank = ?, avatar_image = ?, user_role_context = ?, last_activity_at = ?, personal_wellbeing_goal = ?, wellbeing_routine = ? WHERE id = ?`,
+      sql: `UPDATE users SET name = ?, streak = ?, points = ?, coins = ?, level = ?, rank = ?, avatar_image = ?, user_role_context = ?, last_activity_at = ?, personal_wellbeing_goal = ?, wellbeing_routine = ? WHERE id = ?`,
       args: [
-        user.name, user.streak, user.points, user.level, user.rank, 
+        user.name, user.streak, user.points, user.coins, user.level, user.rank, 
         user.avatarImage || null, 
         user.userRole || user.role, state.lastActivityDate,
         state.personalWellbeingGoal || "",
@@ -200,8 +204,8 @@ export async function POST(request: Request) {
       await db.execute({ sql: "DELETE FROM daily_priorities WHERE user_id = ?", args: [userId] });
       for (const p of state.priorities) {
         await db.execute({
-          sql: `INSERT INTO daily_priorities (user_id, title, goal_title, energy_level, est_time, is_done, tone) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-          args: [userId, p.title, p.goal, p.energy, p.est, p.done ? 1 : 0, p.tone]
+          sql: `INSERT INTO daily_priorities (user_id, title, goal_title, goal_id, energy_level, est_time, is_done, tone) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+          args: [userId, p.title, p.goal, p.goal_id || null, p.energy, p.est, p.done ? 1 : 0, p.tone]
         });
       }
     }
@@ -233,13 +237,14 @@ export async function POST(request: Request) {
       for (const g of state.goals) {
         // We use INSERT OR REPLACE (UPSERT) logic
         await db.execute({
-          sql: `INSERT INTO goals (id, owner_id, title, progress, alignment, due_date, tone, metric, scope, parent_id, assigned_by_id) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          sql: `INSERT INTO goals (id, owner_id, title, progress, alignment, due_date, tone, metric, scope, parent_id, assigned_by_id, status, is_kpi) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(id) DO UPDATE SET 
                 owner_id=excluded.owner_id, title=excluded.title, progress=excluded.progress, alignment=excluded.alignment, 
                 due_date=excluded.due_date, tone=excluded.tone, metric=excluded.metric, 
-                scope=excluded.scope, parent_id=excluded.parent_id, assigned_by_id=excluded.assigned_by_id`,
-          args: [String(g.id), String(g.ownerId || userId), g.title, g.progress, g.alignment, g.due, g.tone, g.metric, g.scope, g.parent_id || null, g.assignedById || null]
+                scope=excluded.scope, parent_id=excluded.parent_id, assigned_by_id=excluded.assigned_by_id,
+                status=excluded.status, is_kpi=excluded.is_kpi`,
+          args: [String(g.id), String(g.ownerId || userId), g.title, g.progress, g.alignment, g.due, g.tone, g.metric, g.scope, g.parent_id || null, g.assignedById || null, g.status || 'pending', g.is_kpi ? 1 : 0]
         });
         
         // Sync Sub-goals

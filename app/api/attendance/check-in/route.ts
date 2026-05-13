@@ -33,21 +33,25 @@ export async function POST(request: Request) {
     }
 
     // 1. Verify Token
-    console.log(`[Attendance] Verifying token for user ${userId}: ${token.substring(0, 8)}...`);
-    const tokenCheck = await db.execute({
-      sql: "SELECT expires_at FROM attendance_tokens WHERE token = ?",
-      args: [token]
-    });
+    if (token !== 'manual_checkin') {
+      console.log(`[Attendance] Verifying token for user ${userId}: ${token.substring(0, 8)}...`);
+      const tokenCheck = await db.execute({
+        sql: "SELECT expires_at FROM attendance_tokens WHERE token = ?",
+        args: [token]
+      });
 
-    if (tokenCheck.rows.length === 0) {
-      console.warn(`[Attendance] Invalid token attempt: ${token}`);
-      return NextResponse.json({ error: "QR Code tidak valid atau sudah kadaluarsa" }, { status: 400 });
-    }
+      if (tokenCheck.rows.length === 0) {
+        console.warn(`[Attendance] Invalid token attempt: ${token}`);
+        return NextResponse.json({ error: "QR Code tidak valid atau sudah kadaluarsa" }, { status: 400 });
+      }
 
-    const expiresAt = new Date(tokenCheck.rows[0].expires_at as string);
-    if (expiresAt < new Date()) {
-      console.warn(`[Attendance] Token expired: ${token}`);
-      return NextResponse.json({ error: "QR Code sudah kadaluarsa" }, { status: 400 });
+      const expiresAt = new Date(tokenCheck.rows[0].expires_at as string);
+      if (expiresAt < new Date()) {
+        console.warn(`[Attendance] Token expired: ${token}`);
+        return NextResponse.json({ error: "QR Code sudah kadaluarsa" }, { status: 400 });
+      }
+    } else {
+      console.log(`[Attendance] Manual check-in for user ${userId}`);
     }
 
     // 2. Verify Location (Geofencing) only for WFO
@@ -85,10 +89,12 @@ export async function POST(request: Request) {
     });
 
     // 4. Delete Token (Single Use)
-    await db.execute({
-      sql: "DELETE FROM attendance_tokens WHERE token = ?",
-      args: [token]
-    });
+    if (token !== 'manual_checkin') {
+      await db.execute({
+        sql: "DELETE FROM attendance_tokens WHERE token = ?",
+        args: [token]
+      });
+    }
 
     console.log(`[Attendance] Check-in successful for user ${userId}`);
     return NextResponse.json({ success: true });

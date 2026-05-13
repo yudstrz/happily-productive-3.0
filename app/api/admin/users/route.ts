@@ -4,17 +4,17 @@ import { db } from "@/lib/turso";
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const adminId = searchParams.get('adminId');
+    const requesterId = searchParams.get('adminId') || searchParams.get('requesterId');
 
-    if (!adminId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!requesterId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const adminCheck = await db.execute({
+    const roleCheck = await db.execute({
       sql: "SELECT role FROM users WHERE id = ?",
-      args: [adminId]
+      args: [requesterId]
     });
 
-    const role = adminCheck.rows[0]?.role;
-    if (role !== 'admin') {
+    const role = roleCheck.rows[0]?.role;
+    if (role !== 'admin' && role !== 'hr') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

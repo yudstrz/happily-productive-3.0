@@ -28,15 +28,14 @@ import OfficeSettingsMap from "@/components/admin/OfficeSettingsMap";
 
 export default function HRPeopleScreen({ openModal }: Props) {
   const { state, user: currentUser, updateState, refreshSurveys } = useHP();
-  const isAdmin = currentUser?.role === 'admin';
-  const isAdminOrHR = isAdmin || currentUser?.role === 'hr';
-  const [activeTab, setActiveTab] = useState<'goals' | 'people' | 'dept' | 'surveys' | 'users' | 'attendance' | 'office' | 'schedule' | 'contacts'>(isAdmin ? 'users' : 'attendance');
+  const isHR = currentUser?.role === 'hr' || currentUser?.role === 'admin';
+  const [activeTab, setActiveTab] = useState<'goals' | 'people' | 'dept' | 'surveys' | 'users' | 'attendance' | 'office' | 'schedule' | 'contacts'>(isHR ? 'users' : 'attendance');
   const [search, setSearch] = useState('');
   const [dbUsers, setDbUsers] = useState<any[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
 
   useEffect(() => {
-    if (activeTab === 'users' && isAdmin) {
+    if (activeTab === 'users' && isHR) {
       fetchUsers();
     }
     if (activeTab === 'surveys') {
@@ -91,7 +90,7 @@ export default function HRPeopleScreen({ openModal }: Props) {
       {/* Tab switcher */}
       <div style={{ display: 'flex', gap: 6, marginBottom: 16, overflowX: 'auto', paddingBottom: 4 }}>
         {[
-          isAdmin && { key: 'users', label: 'Users & Roles' },
+          isHR && { key: 'users', label: 'Users & Roles' },
           { key: 'attendance', label: 'Attendance' },
           { key: 'office', label: 'Office' },
           { key: 'schedule', label: 'Work Hours' },
@@ -111,8 +110,8 @@ export default function HRPeopleScreen({ openModal }: Props) {
         ))}
       </div>
 
-      {/* ── Users (Admin Only) ── */}
-      {activeTab === 'users' && isAdmin && (
+      {/* ── Users (HR/Admin) ── */}
+      {activeTab === 'users' && isHR && (
         <>
           <SectionHeader icon="people" label="Daftar Seluruh User" count={String(dbUsers.length)} />
           {loadingUsers ? (
@@ -140,7 +139,6 @@ export default function HRPeopleScreen({ openModal }: Props) {
                           <option value="employee">Employee</option>
                           <option value="manager">Manager</option>
                           <option value="hr">HR</option>
-                          <option value="admin">Admin</option>
                         </select>
                       </div>
 

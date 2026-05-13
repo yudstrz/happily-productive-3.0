@@ -18,6 +18,7 @@ export async function POST(request: Request) {
     }
 
     const amount = XP_VALUES[actionType] || 10;
+    const coinsAmount = Math.floor(amount / 4); // 4:1 Ratio
     const txId = "tx_" + Math.random().toString(36).substring(2, 9);
 
     // 1. Log Transaction
@@ -26,25 +27,27 @@ export async function POST(request: Request) {
       args: [txId, userId, amount, actionType, description || actionType]
     });
 
-    // 2. Update User Points
+    // 2. Update User Points & Coins
     await db.execute({
-      sql: "UPDATE users SET points = points + ? WHERE id = ?",
-      args: [amount, userId]
+      sql: "UPDATE users SET points = points + ?, coins = coins + ? WHERE id = ?",
+      args: [amount, coinsAmount, userId]
     });
 
-    // 3. Fetch new total to check for level up (optional, logic handled in HPContext usually)
+    // 3. Fetch new totals
     const res = await db.execute({
-      sql: "SELECT points FROM users WHERE id = ?",
+      sql: "SELECT points, coins FROM users WHERE id = ?",
       args: [userId]
     });
 
     return NextResponse.json({ 
       success: true, 
       awarded: amount, 
-      newTotal: res.rows[0]?.points 
+      awardedCoins: coinsAmount,
+      newTotal: res.rows[0]?.points,
+      newCoins: res.rows[0]?.coins
     });
   } catch (error) {
     console.error("XP Award Error:", error);
-    return NextResponse.json({ error: "Failed to award XP" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to award XP & Coins" }, { status: 500 });
   }
 }

@@ -23,6 +23,8 @@ export default function GoalModal({ onClose, goal }: { onClose: () => void; goal
   const [scope, setScope] = useState(goal?.scope === 'assigned' ? 'employee' : (goal?.scope || "personal"));
   const [parentId, setParentId] = useState(goal?.parent_id || "");
   const [progress, setProgress] = useState(goal?.progress || 0);
+  const [status, setStatus] = useState(goal?.status || 'pending');
+  const [isKpi, setIsKpi] = useState(goal?.is_kpi || false);
   const [subGoals, setSubGoals] = useState<any[]>(goal?.subGoals || []);
   const [selectedOwnerIds, setSelectedOwnerIds] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -114,7 +116,7 @@ export default function GoalModal({ onClose, goal }: { onClose: () => void; goal
         goals: s.goals.map((g: any) => {
           if (String(g.id) === String(goal.id)) {
             // Recalculate progress from linked tasks
-            const tasksForGoal = s.priorities?.filter((p: any) => p.goal && p.goal === title) || [];
+            const tasksForGoal = s.priorities?.filter((p: any) => p.goal_id && String(p.goal_id) === String(goal.id)) || [];
             const doneCount = tasksForGoal.filter((p: any) => p.done).length;
             const newProgress = tasksForGoal.length > 0 
               ? Math.round((doneCount / tasksForGoal.length) * 100) 
@@ -128,6 +130,8 @@ export default function GoalModal({ onClose, goal }: { onClose: () => void; goal
               scope: scope === 'employee' ? 'assigned' : scope,
               parent_id: parentId || null,
               progress: newProgress,
+              status: status,
+              is_kpi: isKpi || g.is_kpi,
               metric: tasksForGoal.length > 0 ? `${doneCount}/${tasksForGoal.length} task selesai` : g.metric,
               subGoals: subGoals.length > 0 ? subGoals : g.subGoals,
             };
@@ -155,6 +159,8 @@ export default function GoalModal({ onClose, goal }: { onClose: () => void; goal
           metric: "0% complete",
           scope: scope === 'employee' ? 'assigned' : scope,
           parent_id: parentId || null,
+          status: 'pending',
+          is_kpi: scope === 'employee' || scope === 'team',
           subGoals: subGoals.length > 0 ? subGoals : undefined
         };
       });

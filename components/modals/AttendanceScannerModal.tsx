@@ -14,31 +14,24 @@ interface AttendanceScannerModalProps {
 
 export default function AttendanceScannerModal({ onClose }: AttendanceScannerModalProps) {
   const { user, awardXP } = useHP();
-  const [status, setStatus] = useState<'idle' | 'scanning' | 'verifying' | 'success' | 'error' | 'show_qr'>('idle');
+  const [status, setStatus] = useState<'idle' | 'verifying' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState("");
   const [location, setLocation] = useState<{lat: number, lng: number} | null>(null);
-  
-  // QR Token state
-  const [qrToken, setQrToken] = useState<string | null>(null);
-  const [qrExpiresAt, setQrExpiresAt] = useState<Date | null>(null);
-  const [qrTimeLeft, setQrTimeLeft] = useState<string>("");
-  const [qrLoading, setQrLoading] = useState(false);
   
   const [checkInType, setCheckInType] = useState('WFO');
   const [officeId, setOfficeId] = useState('');
   const [notes, setNotes] = useState('');
   const [offices, setOffices] = useState<any[]>([]);
   
-  const scannerRef = useRef<Html5Qrcode | null>(null);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const autoRefreshRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
   useEffect(() => {
     // Get location immediately
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-        (err) => console.warn("Location error:", err)
+        (err) => {
+          console.warn("Location error:", err);
+          setErrorMsg("Gagal mendapatkan lokasi. Pastikan GPS aktif.");
+        }
       );
     }
     
@@ -51,158 +44,7 @@ export default function AttendanceScannerModal({ onClose }: AttendanceScannerMod
     }).catch(e => console.error(e));
   }, []);
 
-  // Fetch a new token from API
-  const fetchQrToken = useCallback(async () => {
-    setQrLoading(true);
-    try {
-      const res = await fetch("/api/attendance/token");
-      const data = await res.json();
-      if (data.token && data.expiresAt) {
-        setQrToken(data.token);
-        setQrExpiresAt(new Date(data.expiresAt));
-        setErrorMsg("");
-      } else {
-        setErrorMsg("Gagal membuat QR token.");
-      }
-    } catch (e) {
-      setErrorMsg("Koneksi bermasalah, gagal membuat QR.");
-    } finally {
-      setQrLoading(false);
-    }
-  }, []);
-
-  // Countdown timer + auto-refresh
-  useEffect(() => {
-    // Clear previous timers
-    if (timerRef.current) clearInterval(timerRef.current);
-    if (autoRefreshRef.current) clearTimeout(autoRefreshRef.current);
-
-    if (status !== 'show_qr' || !qrExpiresAt) {
-      setQrTimeLeft("");
-      return;
-    }
-
-    const updateCountdown = () => {
-      const now = new Date();
-      const diff = qrExpiresAt.getTime() - now.getTime();
-      
-      if (diff <= 0) {
-        setQrTimeLeft("Kadaluarsa");
-        if (timerRef.current) clearInterval(timerRef.current);
-        // Auto-refresh: fetch new token
-        autoRefreshRef.current = setTimeout(() => {
-          fetchQrToken();
-        }, 500);
-        return;
-      }
-
-      const minutes = Math.floor(diff / 60000);
-      const seconds = Math.floor((diff % 60000) / 1000);
-      setQrTimeLeft(`${minutes}:${seconds.toString().padStart(2, '0')}`);
-    };
-
-    updateCountdown();
-    timerRef.current = setInterval(updateCountdown, 1000);
-
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-      if (autoRefreshRef.current) clearTimeout(autoRefreshRef.current);
-    };
-  }, [status, qrExpiresAt, fetchQrToken]);
-
-  // When user clicks "Tampilkan QR Saya", fetch token
-  const showMyQR = async () => {
-    setStatus('show_qr');
-    await fetchQrToken();
-  };
-
-  const startScanner = () => {
-    setStatus('scanning');
-    // Wait for React to render the #reader div before initializing Html5Qrcode
-    setTimeout(() => {
-      try {
-        const readerEl = document.getElementById("reader");
-        if (!readerEl) {
-          console.error("Reader element not found in DOM");
-          setStatus('error');
-          setErrorMsg("Gagal memulai kamera. Coba lagi.");
-          return;
-        }
-        const scanner = new Html5Qrcode("reader");
-        scannerRef.current = scanner;
-        
-        scanner.start(
-          { facingMode: "environment" },
-          { fps: 10, qrbox: { width: 250, height: 250 } },
-          (decodedText) => {
-            handleCheckIn(decodedText);
-            stopScanner();
-          },
-          () => {} // silent on failure
-        ).catch(err => {
-          console.error("Scanner start error:", err);
-          setStatus('error');
-          setErrorMsg("Gagal mengakses kamera. Pastikan izin kamera sudah diberikan.");
-        });
-      } catch (err) {
-        console.error("Scanner init error:", err);
-        setStatus('error');
-        setErrorMsg("Gagal memulai scanner. Coba lagi.");
-      }
-    }, 100);
-  };
-
-  const stopScanner = () => {
-    if (scannerRef.current) {
-      scannerRef.current.stop().then(() => {
-        scannerRef.current = null;
-      }).catch(err => {
-        console.warn("Scanner stop error:", err);
-        scannerRef.current = null;
-      });
-    }
-  };
-
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setStatus('verifying');
-    
-    // Use a temporary hidden div for file scanning so we don't depend on the
-    // #reader element existing yet (React may not have re-rendered).
-    try {
-      // Create a temporary container for Html5Qrcode
-      let tempDiv = document.getElementById("reader-temp");
-      if (!tempDiv) {
-        tempDiv = document.createElement("div");
-        tempDiv.id = "reader-temp";
-        tempDiv.style.display = "none";
-        document.body.appendChild(tempDiv);
-      }
-
-      const html5QrCode = new Html5Qrcode("reader-temp");
-      html5QrCode.scanFile(file, true)
-        .then(decodedText => {
-          handleCheckIn(decodedText);
-        })
-        .catch(err => {
-          console.error("QR scan file error:", err);
-          setStatus('error');
-          setErrorMsg("Tidak dapat menemukan QR Code di gambar ini.");
-        })
-        .finally(() => {
-          // Clean up temp div
-          tempDiv?.remove();
-        });
-    } catch (err) {
-      console.error("QR init error:", err);
-      setStatus('error');
-      setErrorMsg("Gagal memproses gambar. Coba lagi.");
-    }
-  };
-
-  const handleCheckIn = async (token: string) => {
+  const handleCheckIn = async () => {
     setStatus('verifying');
     
     // Add a timeout controller
@@ -215,7 +57,7 @@ export default function AttendanceScannerModal({ onClose }: AttendanceScannerMod
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           userId: user?.id,
-          token,
+          token: "manual_checkin", // Using a dummy token for manual checkin
           lat: location?.lat,
           lng: location?.lng,
           checkInType,
@@ -248,34 +90,6 @@ export default function AttendanceScannerModal({ onClose }: AttendanceScannerMod
     }
   };
 
-  const downloadQR = () => {
-    const canvas = document.getElementById("my-qr") as HTMLCanvasElement;
-    if (canvas) {
-      const pngUrl = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
-      let downloadLink = document.createElement("a");
-      downloadLink.href = pngUrl;
-      downloadLink.download = `QR_Absen_${user?.name?.replace(/\s+/g, '_') || 'Karyawan'}.png`;
-      document.body.appendChild(downloadLink);
-      downloadLink.click();
-      document.body.removeChild(downloadLink);
-    }
-  };
-
-  // Format expiry time for display
-  const formatExpiryTime = (date: Date) => {
-    return date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-  };
-
-  // Determine countdown color
-  const getCountdownColor = () => {
-    if (!qrExpiresAt) return HP_TOKENS.inkMute;
-    const diff = qrExpiresAt.getTime() - Date.now();
-    if (diff <= 0) return HP_TOKENS.coral;
-    if (diff <= 60000) return HP_TOKENS.coral; // < 1 min = red
-    if (diff <= 120000) return HP_TOKENS.yellow; // < 2 min = yellow
-    return HP_TOKENS.sage; // green
-  };
-
   return (
     <Modal onClose={onClose} title="Attendance Check-in">
       <div style={{ padding: '10px 0' }}>
@@ -287,149 +101,63 @@ export default function AttendanceScannerModal({ onClose }: AttendanceScannerMod
           </div>
         ) : (
           <>
-            {status === 'idle' && (
-              <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 12, textAlign: 'left', marginBottom: 24 }}>
+            <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 12, textAlign: 'left', marginBottom: 24 }}>
+              <div>
+                <label style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, fontWeight: 700 }}>Tipe Kehadiran</label>
+                <select 
+                  value={checkInType} onChange={e => setCheckInType(e.target.value)}
+                  style={{ width: '100%', padding: '10px', borderRadius: 12, border: `1px solid ${HP_TOKENS.line}`, fontFamily: HP_FONT, outline: 'none', background: '#fff' }}
+                >
+                  <option value="WFO">Work From Office</option>
+                  <option value="WFA">Work From Anywhere</option>
+                  <option value="DINAS">Perjalanan Dinas</option>
+                </select>
+              </div>
+
+              {checkInType === 'WFO' && (
                 <div>
-                  <label style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, fontWeight: 700 }}>Tipe Kehadiran</label>
+                  <label style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, fontWeight: 700 }}>Lokasi Kantor</label>
                   <select 
-                    value={checkInType} onChange={e => setCheckInType(e.target.value)}
+                    value={officeId} onChange={e => setOfficeId(e.target.value)}
                     style={{ width: '100%', padding: '10px', borderRadius: 12, border: `1px solid ${HP_TOKENS.line}`, fontFamily: HP_FONT, outline: 'none', background: '#fff' }}
                   >
-                    <option value="WFO">Work From Office</option>
-                    <option value="WFA">Work From Anywhere</option>
-                    <option value="DINAS">Perjalanan Dinas</option>
+                    {offices.map(off => (
+                      <option key={off.id} value={off.id}>{off.name}</option>
+                    ))}
                   </select>
                 </div>
+              )}
 
-                {checkInType === 'WFO' && (
-                  <div>
-                    <label style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, fontWeight: 700 }}>Lokasi Kantor</label>
-                    <select 
-                      value={officeId} onChange={e => setOfficeId(e.target.value)}
-                      style={{ width: '100%', padding: '10px', borderRadius: 12, border: `1px solid ${HP_TOKENS.line}`, fontFamily: HP_FONT, outline: 'none', background: '#fff' }}
-                    >
-                      {offices.map(off => (
-                        <option key={off.id} value={off.id}>{off.name}</option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-
-                {checkInType !== 'WFO' && (
-                  <div>
-                    <label style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, fontWeight: 700 }}>Catatan/Alasan</label>
-                    <input 
-                      type="text" value={notes} onChange={e => setNotes(e.target.value)}
-                      placeholder="Misal: Bekerja dari cafe..."
-                      style={{ width: '100%', padding: '10px', borderRadius: 12, border: `1px solid ${HP_TOKENS.line}`, fontFamily: HP_FONT, outline: 'none' }}
-                    />
-                  </div>
-                )}
-              </div>
-            )}
-
-            {status !== 'idle' && (
-              <div style={{ 
-                width: '100%', maxWidth: 400, margin: '0 auto', aspectRatio: '1/1', background: '#f8f8f8', 
-                borderRadius: 24, overflow: 'hidden', position: 'relative',
-                border: `2px dashed ${HP_TOKENS.line}`
-              }}>
-                <div id="reader" style={{ width: '100%', height: '100%' }}></div>
-
-                {status === 'verifying' && (
-                  <div style={{ 
-                    position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column',
-                    alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.9)', gap: 12
-                  }}>
-                    <div style={{
-                      width: 36, height: 36, border: `3px solid ${HP_TOKENS.line}`,
-                      borderTopColor: HP_TOKENS.blue, borderRadius: '50%',
-                      animation: 'spin 0.8s linear infinite'
-                    }} />
-                    <div style={{ ...HP_TEXT.h, fontSize: 14 }}>Memverifikasi...</div>
-                    <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-                  </div>
-                )}
-
-              {status === 'show_qr' && (
-                <div style={{ 
-                  position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column',
-                  alignItems: 'center', justifyContent: 'center', background: '#fff', zIndex: 10
-                }}>
-                  {qrLoading ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
-                      <div style={{
-                        width: 36, height: 36, border: `3px solid ${HP_TOKENS.line}`,
-                        borderTopColor: HP_TOKENS.blue, borderRadius: '50%',
-                        animation: 'spin 0.8s linear infinite'
-                      }} />
-                      <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute }}>Membuat QR Code...</div>
-                      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-                    </div>
-                  ) : qrToken ? (
-                    <>
-                      <QRCodeCanvas 
-                        id="my-qr" 
-                        value={qrToken} 
-                        size={180} 
-                        level={"H"} 
-                        includeMargin={true}
-                      />
-                      {/* Expiry info below QR */}
-                      <div style={{ 
-                        marginTop: 8, display: 'flex', flexDirection: 'column', 
-                        alignItems: 'center', gap: 4, width: '100%', padding: '0 16px'
-                      }}>
-                        {/* Countdown badge */}
-                        <div style={{
-                          display: 'inline-flex', alignItems: 'center', gap: 6,
-                          padding: '6px 14px', borderRadius: 99,
-                          background: qrTimeLeft === 'Kadaluarsa' ? HP_TOKENS.coralSoft : HP_TOKENS.blueSoft,
-                          transition: 'background 0.3s ease'
-                        }}>
-                          <div style={{
-                            width: 8, height: 8, borderRadius: '50%',
-                            background: getCountdownColor(),
-                            boxShadow: qrTimeLeft !== 'Kadaluarsa' ? `0 0 6px ${getCountdownColor()}` : 'none',
-                            animation: qrTimeLeft === 'Kadaluarsa' ? 'none' : 'pulse-dot 2s ease-in-out infinite'
-                          }} />
-                          <span style={{ 
-                            fontFamily: HP_FONT, fontWeight: 800, fontSize: 14,
-                            color: getCountdownColor(),
-                            fontVariantNumeric: 'tabular-nums'
-                          }}>
-                            {qrTimeLeft === 'Kadaluarsa' ? '⟳ Memperbarui...' : qrTimeLeft}
-                          </span>
-                          <style>{`@keyframes pulse-dot { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }`}</style>
-                        </div>
-                        {/* Expiry detail */}
-                        {qrExpiresAt && qrTimeLeft !== 'Kadaluarsa' && (
-                          <div style={{ ...HP_TEXT.small, color: HP_TOKENS.inkMute, fontSize: 11, textAlign: 'center' }}>
-                            Berlaku hingga {formatExpiryTime(qrExpiresAt)}  •  Auto-refresh saat habis
-                          </div>
-                        )}
-                      </div>
-                    </>
-                  ) : (
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
-                      <div style={{ ...HP_TEXT.small, color: HP_TOKENS.coral }}>Gagal membuat QR Code</div>
-                      <button onClick={fetchQrToken} style={{
-                        padding: '8px 20px', borderRadius: 99,
-                        background: HP_TOKENS.blue, color: '#fff', border: 'none',
-                        fontFamily: HP_FONT, fontWeight: 800, fontSize: 13, cursor: 'pointer'
-                      }}>
-                        Coba Lagi
-                      </button>
-                    </div>
-                  )}
+              {checkInType !== 'WFO' && (
+                <div>
+                  <label style={{ ...HP_TEXT.tiny, color: HP_TOKENS.inkMute, fontWeight: 700 }}>Catatan/Alasan</label>
+                  <input 
+                    type="text" value={notes} onChange={e => setNotes(e.target.value)}
+                    placeholder="Misal: Bekerja dari cafe..."
+                    style={{ width: '100%', padding: '10px', borderRadius: 12, border: `1px solid ${HP_TOKENS.line}`, fontFamily: HP_FONT, outline: 'none' }}
+                  />
                 </div>
               )}
             </div>
-          )}
+
+            {status === 'verifying' && (
+              <div style={{ 
+                display: 'flex', flexDirection: 'column',
+                alignItems: 'center', justifyContent: 'center', padding: '20px 0', gap: 12
+              }}>
+                <div style={{
+                  width: 36, height: 36, border: `3px solid ${HP_TOKENS.line}`,
+                  borderTopColor: HP_TOKENS.blue, borderRadius: '50%',
+                  animation: 'spin 0.8s linear infinite'
+                }} />
+                <div style={{ ...HP_TEXT.h, fontSize: 14 }}>Memverifikasi...</div>
+                <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+              </div>
+            )}
 
             {status === 'error' && (
               <div style={{ 
-                marginTop: 16, padding: 12, borderRadius: 12, background: HP_TOKENS.coralSoft, 
+                marginBottom: 16, padding: 12, borderRadius: 12, background: HP_TOKENS.coralSoft, 
                 color: HP_TOKENS.coral, fontSize: 13, fontWeight: 700, textAlign: 'center'
               }}>
                 ⚠️ {errorMsg}
@@ -437,73 +165,25 @@ export default function AttendanceScannerModal({ onClose }: AttendanceScannerMod
             )}
 
             <div style={{ marginTop: 24, display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {status === 'idle' ? (
-                <>
-                  <button onClick={startScanner} style={{
-                    width: '100%', padding: '16px', borderRadius: 99,
-                    background: HP_TOKENS.blue, color: '#fff', border: 'none',
-                    fontFamily: HP_FONT, fontWeight: 800, fontSize: 15, cursor: 'pointer',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10
-                  }} className="hp-tap">
-                    <HPGlyph name="target" size={18} color="#fff" />
-                    Scan QR Kantor
-                  </button>
-                  
-                  <div style={{ position: 'relative', height: 48 }}>
-                    <input 
-                      type="file" 
-                      accept="image/*" 
-                      onChange={handleFileUpload}
-                      style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', zIndex: 2 }}
-                    />
-                    <button style={{
-                      width: '100%', padding: '16px', borderRadius: 99,
-                      background: 'transparent', color: HP_TOKENS.blue, 
-                      border: `1.5px solid ${HP_TOKENS.blue}`,
-                      fontFamily: HP_FONT, fontWeight: 800, fontSize: 15, cursor: 'pointer'
-                    }}>
-                      Upload Gambar QR
-                    </button>
-                  </div>
-                  
-                  <button onClick={showMyQR} style={{
-                    width: '100%', padding: '16px', borderRadius: 99,
-                    background: 'transparent', color: HP_TOKENS.inkFade, border: 'none',
-                    fontFamily: HP_FONT, fontWeight: 800, fontSize: 15, cursor: 'pointer',
-                    textDecoration: 'underline'
-                  }}>
-                    Tampilkan QR Saya
-                  </button>
-                </>
-              ) : status === 'show_qr' ? (
-                <div style={{ display: 'flex', gap: 10 }}>
-                  <button onClick={downloadQR} style={{
-                    flex: 1, padding: '14px', borderRadius: 99,
-                    background: HP_TOKENS.sage, color: '#fff', border: 'none',
-                    fontFamily: HP_FONT, fontWeight: 800, fontSize: 14, cursor: 'pointer',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                    opacity: qrToken ? 1 : 0.5, pointerEvents: qrToken ? 'auto' : 'none'
-                  }}>
-                    <HPGlyph name="download" size={16} color="#fff" />
-                    Download
-                  </button>
-                  <button onClick={() => { setStatus('idle'); setQrToken(null); setQrExpiresAt(null); }} style={{
-                    flex: 1, padding: '14px', borderRadius: 99,
-                    background: HP_TOKENS.lineSoft, color: HP_TOKENS.ink, border: 'none',
-                    fontFamily: HP_FONT, fontWeight: 800, fontSize: 14, cursor: 'pointer'
-                  }}>
-                    Kembali
-                  </button>
-                </div>
-              ) : (
-                <button onClick={() => setStatus('idle')} style={{
+              {status !== 'verifying' && (
+                <button onClick={handleCheckIn} style={{
                   width: '100%', padding: '16px', borderRadius: 99,
-                  background: HP_TOKENS.lineSoft, color: HP_TOKENS.ink, border: 'none',
-                  fontFamily: HP_FONT, fontWeight: 800, fontSize: 15,
-                }}>
-                  Batal
+                  background: HP_TOKENS.blue, color: '#fff', border: 'none',
+                  fontFamily: HP_FONT, fontWeight: 800, fontSize: 15, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10
+                }} className="hp-tap">
+                  <HPGlyph name="target" size={18} color="#fff" />
+                  Check-in Sekarang
                 </button>
               )}
+              
+              <button onClick={onClose} style={{
+                width: '100%', padding: '16px', borderRadius: 99,
+                background: HP_TOKENS.lineSoft, color: HP_TOKENS.ink, border: 'none',
+                fontFamily: HP_FONT, fontWeight: 800, fontSize: 15, cursor: 'pointer'
+              }}>
+                Batal
+              </button>
             </div>
           </>
         )}

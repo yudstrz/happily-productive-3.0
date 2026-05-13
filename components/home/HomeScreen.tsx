@@ -26,7 +26,7 @@ import SectionHeader from "@/components/home/SectionHeader";
 import PriorityCard from "@/components/home/PriorityCard";
 import InsightCard from "@/components/home/InsightCard";
 import HabitCell from "@/components/home/HabitCell";
-import AnnouncementFeed from "@/components/home/AnnouncementFeed";
+
 
 interface HomeScreenProps {
   tab: string;
@@ -389,7 +389,7 @@ export default function HomeScreen({ openModal }: any) {
             }} className="hp-tap"
           >
             <HPGlyph name="target" size={18} color="#fff" />
-            Check-in Office (QR)
+            Check-in Office
           </button>
         </div>
 
@@ -556,10 +556,7 @@ export default function HomeScreen({ openModal }: any) {
           )}
         </div>
 
-        {/* Company News */}
-        <div style={{ marginTop: 24 }}>
-          <AnnouncementFeed />
-        </div>
+
 
         {/* LAYER 2 — Task Management & Realization */}
         <div style={{ marginTop: 24 }}>

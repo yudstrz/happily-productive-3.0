@@ -16,16 +16,18 @@ export default function ManagePrioritiesModal({ onClose, initialGoal }: { onClos
   const [energy, setEnergy] = useState("mid");
   const [type, setType] = useState("Daily Task");
   const [points, setPoints] = useState<number>(50);
-  const [selectedGoal, setSelectedGoal] = useState<string>(initialGoal || state?.goals?.[0]?.title || "General");
+  const [selectedGoalId, setSelectedGoalId] = useState<string>(initialGoal || state?.goals?.[0]?.id || "General");
 
   if (!state) return null;
 
   const addPriority = () => {
     if (!newTitle) return;
+    const selectedGoal = state.goals.find((g: any) => String(g.id) === String(selectedGoalId));
     const newP = {
       id: Date.now(),
       title: newTitle,
-      goal: selectedGoal === 'General' ? '' : selectedGoal,
+      goal: selectedGoal?.title || '',
+      goal_id: selectedGoal?.id || null,
       energy: energy,
       type: type,
       est: "30m",
@@ -38,10 +40,10 @@ export default function ManagePrioritiesModal({ onClose, initialGoal }: { onClos
       
       // Recalculate goal progress with the new task included
       let updatedGoals = s.goals;
-      if (newP.goal && s.goals) {
+      if (newP.goal_id && s.goals) {
         updatedGoals = s.goals.map((g: any) => {
-          if (g.title === newP.goal) {
-            const tasksForGoal = newPriorities.filter((p: any) => p.goal && p.goal === g.title);
+          if (String(g.id) === String(newP.goal_id)) {
+            const tasksForGoal = newPriorities.filter((p: any) => p.goal_id && String(p.goal_id) === String(g.id));
             const doneCount = tasksForGoal.filter((p: any) => p.done).length;
             const newProgress = tasksForGoal.length > 0 
               ? Math.round((doneCount / tasksForGoal.length) * 100) 
@@ -69,10 +71,10 @@ export default function ManagePrioritiesModal({ onClose, initialGoal }: { onClos
       
       // Recalculate goal progress after removing the task
       let updatedGoals = s.goals;
-      if (deletedTask?.goal && s.goals) {
+      if (deletedTask?.goal_id && s.goals) {
         updatedGoals = s.goals.map((g: any) => {
-          if (g.title === deletedTask.goal) {
-            const tasksForGoal = newPriorities.filter((p: any) => p.goal && p.goal === g.title);
+          if (String(g.id) === String(deletedTask.goal_id)) {
+            const tasksForGoal = newPriorities.filter((p: any) => p.goal_id && String(p.goal_id) === String(g.id));
             const doneCount = tasksForGoal.filter((p: any) => p.done).length;
             const newProgress = tasksForGoal.length > 0 
               ? Math.round((doneCount / tasksForGoal.length) * 100) 
@@ -155,8 +157,8 @@ export default function ManagePrioritiesModal({ onClose, initialGoal }: { onClos
           
           <div style={{ ...HP_TEXT.small, fontSize: 11, fontWeight: 700, color: HP_TOKENS.inkMute }}>Pilih Goal (OKR Terkait)</div>
           <select 
-            value={selectedGoal}
-            onChange={(e) => setSelectedGoal(e.target.value)}
+            value={selectedGoalId}
+            onChange={(e) => setSelectedGoalId(e.target.value)}
             style={{
               padding: 14, borderRadius: 12, border: `1.5px solid ${HP_TOKENS.line}`,
               fontFamily: HP_FONT, fontSize: 14, background: '#fff', outline: 'none'
@@ -164,7 +166,7 @@ export default function ManagePrioritiesModal({ onClose, initialGoal }: { onClos
           >
             <option value="General">General / Tidak Spesifik</option>
             {state.goals?.map((g: any) => (
-              <option key={g.id} value={g.title}>{g.title} ({g.scope})</option>
+              <option key={g.id} value={g.id}>{g.title} ({g.scope})</option>
             ))}
           </select>
 
