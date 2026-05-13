@@ -56,6 +56,23 @@ export default function HRPeopleScreen({ openModal }: Props) {
     }
   };
 
+  const handleUpdateUser = async (targetUserId: string, updates: { newRole?: string, managerId?: string, jobTitle?: string, department?: string }) => {
+    try {
+      const res = await fetch("/api/admin/update-role", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          requesterId: currentUser?.id,
+          targetUserId,
+          ...updates
+        }),
+      });
+      if (res.ok) fetchUsers();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const handleDeleteUser = async (targetUserId: string) => {
     if (!confirm("Apakah Anda yakin ingin menghapus user ini? Tindakan ini tidak dapat dibatalkan.")) return;
     try {
