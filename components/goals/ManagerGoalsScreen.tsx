@@ -32,7 +32,7 @@ export default function ManagerGoalsScreen({ openModal }: Props) {
   // Filter for goals relevant to the manager
   // 1. Team & Company goals (All managers see these)
   // 2. Goals assigned by this manager to others (scope === 'assigned' && assignedById === user.id)
-  const teamGoals = state.goals.filter((g: any) => g.scope === 'team' || g.scope === 'company');
+
   const assignedGoals = state.goals.filter((g: any) => g.scope === 'assigned' && String(g.assignedById) === String(user.id));
 
   return (
@@ -62,17 +62,6 @@ export default function ManagerGoalsScreen({ openModal }: Props) {
       {/* ── OKR Tim ── */}
       {activeTab === 'okr' && (
         <>
-          {/* Team OKRs */}
-          <SectionHeader icon="target" label="Team & Company Goals" count={String(teamGoals.length)} action="+ Baru" onAction={() => openModal('new_goal')} />
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>
-            {teamGoals.map(g => (
-              <div key={g.id} onClick={() => openModal('new_goal', { goal: g })} className="hp-tap">
-                <GoalCard g={g} />
-              </div>
-            ))}
-            {teamGoals.length === 0 && <div style={{ textAlign: 'center', padding: 20, color: HP_TOKENS.inkMute }}>Belum ada OKR tim.</div>}
-          </div>
-
           {/* Assigned OKRs (KPIs) */}
           <SectionHeader icon="people" label="Assigned to Members (KPIs)" count={String(assignedGoals.length)} />
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
