@@ -24,7 +24,7 @@ const TONE: Record<string, string> = { sage: HP_TOKENS.sage, blue: HP_TOKENS.blu
 const TONE_SOFT: Record<string, string> = { sage: HP_TOKENS.sageSoft, blue: HP_TOKENS.blueSoft, lavender: HP_TOKENS.lavenderSoft, yellow: HP_TOKENS.yellowSoft, coral: HP_TOKENS.coralSoft };
 
 export default function ManagerGoalsScreen({ openModal }: Props) {
-  const { state, user } = useHP();
+  const { state, user, updateState } = useHP();
   const [activeTab, setActiveTab] = useState<'okr' | 'members' | 'attendance' | 'schedule'>('okr');
 
   if (!state || !user) return null;
