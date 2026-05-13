@@ -25,6 +25,9 @@ export async function GET() {
   
   // Specific check for columns used in storage route
   await runTest("User Coins Column", "SELECT coins FROM users LIMIT 1");
+  await runTest("User Role Context", "SELECT user_role_context FROM users LIMIT 1");
+  await runTest("Last Activity At", "SELECT last_activity_at FROM users LIMIT 1");
+  await runTest("Wellbeing Goal/Routine", "SELECT personal_wellbeing_goal, wellbeing_routine FROM users LIMIT 1");
   await runTest("Goal Status/KPI Columns", "SELECT status, is_kpi FROM goals LIMIT 1");
   await runTest("Priority GoalID Column", "SELECT goal_id FROM daily_priorities LIMIT 1");
 
