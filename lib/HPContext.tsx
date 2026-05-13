@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
 
 interface HPState {
   mood: string | null;
@@ -194,13 +194,13 @@ export function HPProvider({ children }: { children: React.ReactNode }) {
     }
   }, [state, user, loading]);
 
-  const updateState = (update: Partial<HPState> | ((prev: HPState) => HPState)) => {
+  const updateState = useCallback((update: Partial<HPState> | ((prev: HPState) => HPState)) => {
     setState((prev) => {
       if (!prev) return null;
       if (typeof update === "function") return update(prev);
       return { ...prev, ...update };
     });
-  };
+  }, []);
 
   const calculateLevel = (points: number) => {
     if (points < 1000) return Math.floor(points / 100) + 1; // Lv 1-10 (100 pts/ea)
@@ -217,7 +217,7 @@ export function HPProvider({ children }: { children: React.ReactNode }) {
     return 'S';
   };
 
-  const updateUser = (update: Partial<HPUser> | ((prev: HPUser) => HPUser)) => {
+  const updateUser = useCallback((update: Partial<HPUser> | ((prev: HPUser) => HPUser)) => {
     setUser((prev) => {
       if (!prev) return null;
       let next = typeof update === "function" ? update(prev) : { ...prev, ...update };
@@ -231,16 +231,16 @@ export function HPProvider({ children }: { children: React.ReactNode }) {
       
       return next;
     });
-  };
+  }, []);
 
-  const setUserRole = (role: UserRole) => {
+  const setUserRole = useCallback((role: UserRole) => {
     setUser((prev) => {
       if (!prev) return null;
       return { ...prev, userRole: role };
     });
-  };
+  }, []);
 
-  const syncSkillProgress = (source: string, amount: number) => {
+  const syncSkillProgress = useCallback((source: string, amount: number) => {
     setState((prev) => {
       if (!prev) return null;
       
@@ -276,15 +276,15 @@ export function HPProvider({ children }: { children: React.ReactNode }) {
       
       return { ...prev, skills: newSkills };
     });
-  };
+  }, []);
 
-  const resetData = async () => {
+  const resetData = useCallback(async () => {
     setLoading(true);
     // In a real app we'd have a reset endpoint, 
     // here we just clear the state and it will re-fetch if we refresh or we can hardcode reset.
     // For this prototype, we'll just reload the page to get the initial JSON state again.
     window.location.reload();
-  };
+  }, []);
 
   // Refresh ONLY surveys without resetting other state fields
   const refreshSurveys = useCallback(async () => {
@@ -299,13 +299,19 @@ export function HPProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const awardXP = async (actionType: string, description?: string) => {
-    if (!user) return;
+  // Keep a ref to user so stable callbacks can access latest value without stale closures
+  const userRef = useRef(user);
+  useEffect(() => { userRef.current = user; }, [user]);
+
+  const awardXP = useCallback(async (actionType: string, description?: string) => {
+    // Read user id from ref to avoid stale closure without adding `user` to deps
+    const currentUser = userRef.current;
+    if (!currentUser) return;
     try {
       const res = await fetch("/api/xp/award", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: user.id, actionType, description }),
+        body: JSON.stringify({ userId: currentUser.id, actionType, description }),
       });
       const data = await res.json();
       if (data.success) {
@@ -315,12 +321,16 @@ export function HPProvider({ children }: { children: React.ReactNode }) {
     } catch (e) {
       console.error("Failed to award XP:", e);
     }
-  };
+  }, [updateUser, updateState]);
+
+  const refresh = useCallback(async () => {
+    if (userRef.current?.id) await fetchData(userRef.current.id);
+  }, [fetchData]);
 
   return (
     <HPContext.Provider value={{ 
       state, user, updateState, updateUser, setUserRole, login, logout, awardXP,
-      loading, refresh: async () => { if (user?.id) await fetchData(user.id); },
+      loading, refresh,
       refreshSurveys, resetData, syncSkillProgress 
     }}>
       {children}
