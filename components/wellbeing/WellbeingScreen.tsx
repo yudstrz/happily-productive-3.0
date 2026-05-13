@@ -124,35 +124,7 @@ export default function WellbeingScreen({ openModal }: WellbeingScreenProps) {
         <HPGlyph name="arrow" size={18} color={HP_TOKENS.inkMute}/>
       </button>
 
-      <SectionHeader 
-        icon="calendar" 
-        label="Program & tantangan" 
-      />
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        {(wellbeing.programs || []).map((p: any) => (
-          <ProgramCardInteractive
-            key={p.id}
-            p={p}
-            onToggleJoin={(id: number) => {
-              updateState((s: any) => ({
-                ...s,
-                wellbeing: {
-                  ...s.wellbeing,
-                  programs: s.wellbeing.programs.map((prog: any) =>
-                    prog.id === id ? { ...prog, joinedByMe: !prog.joinedByMe } : prog
-                  ),
-                },
-              }));
-            }}
-          />
-        ))}
-        {(!wellbeing.programs || wellbeing.programs.length === 0) && (
-          <div style={{ textAlign: 'center', padding: '32px 20px', color: HP_TOKENS.inkMute }}>
-            <div style={{ fontSize: 32, marginBottom: 10 }}>🌱</div>
-            <div style={{ ...HP_TEXT.h, fontSize: 14 }}>Belum ada program dari manager.</div>
-          </div>
-        )}
-      </div>
+
 
 
       {/* NEW: Personal Wellbeing Goal & Routine */}
