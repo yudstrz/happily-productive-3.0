@@ -8,41 +8,35 @@ export async function GET(request: Request) {
 
     if (!userId) return NextResponse.json({ error: 'ManagerId missing' }, { status: 400 });
 
-    // 1. Get Manager's Team
-    const managerRes = await db.execute({
-      sql: "SELECT team_id FROM users WHERE id = ?",
-      args: [userId]
-    });
-    const teamId = managerRes.rows[0]?.team_id;
-
-    if (!teamId) return NextResponse.json({ members: [], goals: [] });
-
-    // 2. Fetch Team Members
+    // 1. Fetch Team Members (Direct Reports)
     const membersRes = await db.execute({
       sql: `SELECT u.*, 
             (SELECT mood_key FROM mood_checkins WHERE user_id = u.id ORDER BY created_at DESC LIMIT 1) as mood,
             (SELECT COUNT(*) FROM daily_priorities WHERE user_id = u.id AND is_done = 1) as tasks_done,
             (SELECT COUNT(*) FROM daily_priorities WHERE user_id = u.id) as tasks_total
-            FROM users u WHERE u.team_id = ? AND u.id != ?`,
-      args: [String(teamId), userId]
+            FROM users u WHERE u.manager_id = ?`,
+      args: [userId]
     });
 
     const members = membersRes.rows.map(m => ({
       id: m.id,
       name: m.name,
-      role: m.job_title,
+      role: m.job_title || 'Team Member',
       mood: m.mood || 'neutral',
       wellbeing: m.mood === 'joy' ? 90 : m.mood === 'stress' ? 30 : 70,
       tasks: { done: Number(m.tasks_done), total: Number(m.tasks_total) },
-      streak: m.streak,
+      streak: m.streak || 0,
       status: Number(m.tasks_done) === Number(m.tasks_total) && Number(m.tasks_total) > 0 ? 'Excellent' : 'On track',
       statusTone: m.mood === 'stress' ? 'coral' : 'sage'
     }));
 
-    // 3. Fetch Team Goals
+    // 2. Fetch Team Goals
+    const memberIds = members.map(m => String(m.id)).concat([userId]);
+    const placeholders = memberIds.map(() => '?').join(',');
+    
     const goalsRes = await db.execute({
-      sql: "SELECT * FROM goals WHERE scope = 'team' AND owner_id IN (SELECT id FROM users WHERE team_id = ?)",
-      args: [String(teamId)]
+      sql: `SELECT * FROM goals WHERE scope = 'team' AND owner_id IN (${placeholders})`,
+      args: memberIds
     });
 
     const goals = goalsRes.rows.map(g => ({
