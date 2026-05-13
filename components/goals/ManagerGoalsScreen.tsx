@@ -79,7 +79,7 @@ export default function ManagerGoalsScreen({ openModal }: Props) {
                     borderBottom: 'none',
                     display: 'flex', justifyContent: 'space-between', alignItems: 'center'
                   }}>
-                    <span>ASSIGNED TO: {g.owner.toUpperCase()}</span>
+                    <span>ASSIGNED TO: {(g.owner || 'Unknown').toUpperCase()}</span>
                     <span style={{ textTransform: 'uppercase' }}>{g.status || 'PENDING'}</span>
                   </div>
                   <HPCard padding={0} style={{ borderRadius: '0 0 16px 16px', overflow: 'hidden' }}>

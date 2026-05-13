@@ -64,6 +64,12 @@ export async function GET(request: Request) {
         sql: "SELECT * FROM sub_goals WHERE goal_id = ?",
         args: [String(r.id)]
       });
+      // Resolve owner name
+      let ownerName = 'Unknown';
+      if (r.owner_id) {
+        const ownerRes = await db.execute({ sql: "SELECT name FROM users WHERE id = ?", args: [String(r.owner_id)] });
+        ownerName = (ownerRes.rows[0]?.name as string) || 'Unknown';
+      }
       return {
         id: r.id, 
         title: r.title, 
@@ -73,6 +79,7 @@ export async function GET(request: Request) {
         tone: r.tone, 
         metric: r.metric, 
         scope: r.scope,
+        owner: ownerName,
         ownerId: r.owner_id,
         assignedById: r.assigned_by_id,
         parent_id: r.parent_id,

@@ -33,6 +33,7 @@ export async function POST(request: Request) {
       name: userRow.name,
       role: userRow.role,
       points: userRow.points,
+      coins: userRow.coins || 0,
       level: userRow.level,
       rank: userRow.rank,
       streak: userRow.streak,

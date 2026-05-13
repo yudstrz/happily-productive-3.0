@@ -176,10 +176,10 @@ export default function HomeScreen({ openModal }: any) {
       const update: any = { priorities: newPriorities };
 
       // Recalculate goal progress based on updated tasks
-      if (priority.goal && s.goals) {
+      if (priority.goal_id && s.goals) {
         const updatedGoals = s.goals.map((g: any) => {
-          if (g.title === priority.goal) {
-            const tasksForGoal = newPriorities.filter((p: any) => p.goal && p.goal === g.title);
+          if (String(g.id) === String(priority.goal_id)) {
+            const tasksForGoal = newPriorities.filter((p: any) => p.goal_id && String(p.goal_id) === String(g.id));
             const doneCount = tasksForGoal.filter((p: any) => p.done).length;
             const newProgress = tasksForGoal.length > 0 
               ? Math.round((doneCount / tasksForGoal.length) * 100) 
