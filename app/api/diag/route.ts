@@ -31,5 +31,13 @@ export async function GET() {
   await runTest("Goal Status/KPI Columns", "SELECT status, is_kpi FROM goals LIMIT 1");
   await runTest("Priority GoalID Column", "SELECT goal_id FROM daily_priorities LIMIT 1");
 
+  // Get all tables
+  try {
+    const res = await db.execute("SELECT name FROM sqlite_master WHERE type='table'");
+    report.push({ name: "All Tables", status: "OK", tables: res.rows.map(r => r.name) });
+  } catch (e: any) {
+    report.push({ name: "All Tables", status: "ERROR", message: e.message });
+  }
+
   return NextResponse.json({ report });
 }

@@ -86,6 +86,7 @@ export function HPProvider({ children }: { children: React.ReactNode }) {
     try {
       const res = await fetch(`/api/storage?userId=${userId}`);
       const data = await res.json();
+      if (data.error) throw new Error(`${data.error}: ${data.details || ''}`);
       if (data.state) setState(data.state);
       else {
         // Initialize default state if new user
