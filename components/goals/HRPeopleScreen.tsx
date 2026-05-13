@@ -28,7 +28,7 @@ import OfficeSettingsMap from "@/components/admin/OfficeSettingsMap";
 
 export default function HRPeopleScreen({ openModal }: Props) {
   const { state, user: currentUser, updateState, refreshSurveys } = useHP();
-  const isHR = currentUser?.role === 'hr' || currentUser?.role === 'admin';
+  const isHR = currentUser?.role === 'hr';
   const [activeTab, setActiveTab] = useState<'goals' | 'people' | 'dept' | 'surveys' | 'users' | 'attendance' | 'office' | 'schedule' | 'contacts'>(isHR ? 'users' : 'attendance');
   const [search, setSearch] = useState('');
   const [dbUsers, setDbUsers] = useState<any[]>([]);
@@ -41,7 +41,7 @@ export default function HRPeopleScreen({ openModal }: Props) {
     if (activeTab === 'surveys') {
       refreshSurveys();
     }
-  }, [activeTab, isAdmin]);
+  }, [activeTab, isHR, refreshSurveys]);
 
   const fetchUsers = async () => {
     setLoadingUsers(true);
@@ -83,8 +83,8 @@ export default function HRPeopleScreen({ openModal }: Props) {
   return (
     <div style={{ padding: '0 16px 120px', fontFamily: HP_FONT }}>
       <ScreenHeader 
-        title={isAdminOrHR ? "Management Console" : "People"} 
-        subtitle={isAdminOrHR ? "Kelola karyawan, role & pelaporan" : "Kelola karyawan & organisasi"} 
+        title={isHR ? "Management Console" : "People"} 
+        subtitle={isHR ? "Kelola karyawan, role & pelaporan" : "Kelola karyawan & organisasi"} 
       />
 
       {/* Tab switcher */}

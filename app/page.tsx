@@ -68,8 +68,7 @@ import ManageContactsModal from "@/components/modals/ManageContactsModal";
 
 
 // ─── Role pill badge colors ──────────────────────────────────────────────────
-const ROLE_META: Record<UserRole, { label: string; color: string; bg: string; glyph: string }> = {
-  admin:    { label: 'Admin',    color: HP_TOKENS.coral, bg: HP_TOKENS.coral + '15', glyph: 'sparkle' },
+const ROLE_META: Record<Exclude<UserRole, 'admin'>, { label: string; color: string; bg: string; glyph: string }> = {
   employee: { label: 'Employee', color: HP_TOKENS.yellow, bg: HP_TOKENS.yellowSoft, glyph: 'target' },
   manager:  { label: 'Manager',  color: HP_TOKENS.blue, bg: HP_TOKENS.blueSoft,  glyph: 'people' },
   hr:       { label: 'HR',       color: '#7B6BB5',       bg: '#EDE8F5',           glyph: 'medal' },
@@ -98,7 +97,7 @@ function AppContent() {
   // ── Determine Role ─────────────────────────────────────────────────────────
   const currentRole = (user?.role || 'employee') as UserRole;
   const isManager = currentRole === 'manager';
-  const isHR = currentRole === 'hr' || currentRole === 'admin';
+  const isHR = currentRole === 'hr';
 
   // ── Render screen by role + tab ─────────────────────────────────────────────
   const pad = { paddingTop: 58 };
@@ -120,8 +119,8 @@ function AppContent() {
       if (tab === 'growth')    return <div style={pad}><ManagerGrowthScreen openModal={openModal} /></div>;
       if (tab === 'wellbeing') return <div style={pad}><ManagerWellbeingScreen openModal={openModal} /></div>;
     }
-    // HR or Admin fallback to HR
-    if (currentRole === 'hr' || currentRole === 'admin') {
+    // HR view
+    if (currentRole === 'hr') {
       if (tab === 'home')      return <div style={pad}><HRHomeScreen openModal={openModal} /></div>;
       if (tab === 'goals')     return <div style={pad}><HRPeopleScreen openModal={openModal} /></div>;
       if (tab === 'recognize') return <div style={pad}><HRRecognizeScreen openModal={openModal} /></div>;
@@ -196,8 +195,7 @@ function AppContent() {
       </div>
 
       {/* Floating AI Coach button - DRAGGABLE */}
-      {currentRole !== 'admin' && (
-        <button
+      <button
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
@@ -223,9 +221,8 @@ function AppContent() {
         >
           <HPGlyph name="sparkle" size={26} color={currentRole === 'employee' ? HP_TOKENS.ink : "#fff"} />
         </button>
-      )}
 
-      {currentRole !== 'admin' && <TabNav tab={tab} setTab={setTab} userRole={currentRole} />}
+      <TabNav tab={tab} setTab={setTab} userRole={currentRole} />
 
       {/* Modal Renderer */}
       {modal?.name === 'checkin'          && <CheckInModal onClose={closeModal} />}

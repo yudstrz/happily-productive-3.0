@@ -20,7 +20,7 @@ export async function GET(request: Request) {
     let query = "";
     let args: any[] = [];
 
-    if (role === 'admin' || role === 'hr' || role === 'manager') {
+    if (role === 'hr' || role === 'manager') {
       // HR, Admin, and Manager see EVERYONE
       query = `
         SELECT a.*, u.name as user_name, u.email as user_email 

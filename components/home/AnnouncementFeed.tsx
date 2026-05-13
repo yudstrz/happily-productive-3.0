@@ -14,7 +14,7 @@ export default function AnnouncementFeed() {
   const [isPosting, setIsPosting] = useState(false);
   const [newPost, setNewPost] = useState({ title: "", content: "", tone: "blue" });
 
-  const isAdminOrHR = user?.role === 'admin' || user?.role === 'hr';
+  const isHR = user?.role === 'hr';
 
   const fetchAnnouncements = async () => {
     try {
@@ -63,11 +63,11 @@ export default function AnnouncementFeed() {
         icon="bullhorn" 
         label="Company News" 
         count={String(announcements.length)}
-        action={isAdminOrHR ? (isPosting ? "Batal" : "+ Post") : undefined}
+        action={isHR ? (isPosting ? "Batal" : "+ Post") : undefined}
         onAction={() => setIsPosting(!isPosting)}
       />
 
-      {isPosting && isAdminOrHR && (
+      {isPosting && isHR && (
         <HPCard padding={16} style={{ marginBottom: 16, border: `1.5px solid ${HP_TOKENS.blue}` }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             <input 

@@ -271,8 +271,8 @@ export async function POST(request: Request) {
       }
     }
 
-    // Sync Global Settings (Contacts, Work Schedule) - Admin/HR only
-    if (user.role === 'hr' || user.role === 'admin') {
+    // Sync Global Settings (Contacts, Work Schedule) - HR/Manager only
+    if (user.role === 'hr') {
       if (state.contacts) {
         await db.execute({
           sql: `INSERT INTO global_settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value`,

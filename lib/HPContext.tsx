@@ -43,7 +43,7 @@ interface HPState {
   managerData?: any;
 }
 
-export type UserRole = 'admin' | 'hr' | 'manager' | 'employee';
+export type UserRole = 'hr' | 'manager' | 'employee';
 
 interface HPUser {
   id: string;
@@ -139,7 +139,7 @@ export function HPProvider({ children }: { children: React.ReactNode }) {
 
   const fetchDashboards = useCallback(async (userId: string, role: string) => {
     try {
-      if (role === 'hr' || role === 'admin') {
+      if (role === 'hr') {
         const res = await fetch('/api/hr/dashboard');
         const data = await res.json();
         setState(prev => prev ? { ...prev, hrData: data } : null);
@@ -157,7 +157,7 @@ export function HPProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (user) {
       const activeRole = user.userRole || user.role;
-      if (activeRole === 'hr' || activeRole === 'admin' || activeRole === 'manager') {
+      if (activeRole === 'hr' || activeRole === 'manager') {
         fetchDashboards(user.id, activeRole);
       }
     }

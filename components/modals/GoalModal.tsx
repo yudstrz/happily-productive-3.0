@@ -179,9 +179,9 @@ export default function GoalModal({ onClose, goal }: { onClose: () => void; goal
 
   const scopes = [
     { key: 'personal', label: 'Personal', desc: 'Hanya untuk progres kamu', icon: 'sparkle' },
-    (user?.role === 'manager' || user?.role === 'hr' || user?.role === 'admin') && { key: 'employee', label: 'Assign', desc: 'Berikan OKR ke anggota tim', icon: 'people' },
-    (user?.role === 'manager' || user?.role === 'hr' || user?.role === 'admin') && { key: 'team', label: 'Team', desc: 'Target bersama satu divisi', icon: 'target' },
-    (user?.role === 'hr' || user?.role === 'admin') && { key: 'company', label: 'Company', desc: 'Visi besar organisasi', icon: 'leaf' },
+    (user?.role === 'manager' || user?.role === 'hr') && { key: 'employee', label: 'Assign', desc: 'Berikan OKR ke anggota tim', icon: 'people' },
+    (user?.role === 'manager' || user?.role === 'hr') && { key: 'team', label: 'Team', desc: 'Target bersama satu divisi', icon: 'target' },
+    (user?.role === 'hr') && { key: 'company', label: 'Company', desc: 'Visi besar organisasi', icon: 'leaf' },
   ].filter(Boolean) as any[];
 
   const parentOptions = state?.goals.filter((g: any) => {

@@ -31,7 +31,7 @@ export default function HRAttendanceView({ currentUser }: HRAttendanceViewProps)
       if (data.logs) setLogs(data.logs);
 
       // Fetch users if HR/Admin/Manager to compute absences
-      if (['admin', 'hr', 'manager'].includes(currentUser?.role)) {
+      if (['hr', 'manager'].includes(currentUser?.role)) {
         const uRes = await fetch(`/api/admin/users?adminId=${currentUser?.id}`);
         const uData = await uRes.json();
         if (uData.users) setUsers(uData.users);
@@ -105,7 +105,7 @@ export default function HRAttendanceView({ currentUser }: HRAttendanceViewProps)
 
       {/* Logs Table/List */}
       <div>
-        {['admin', 'hr', 'manager'].includes(currentUser?.role) && (
+        {['hr', 'manager'].includes(currentUser?.role) && (
           <AttendanceDashboard logs={logs} users={users} />
         )}
 
