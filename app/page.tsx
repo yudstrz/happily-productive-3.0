@@ -113,7 +113,6 @@ function AppContent() {
       if (tab === 'home')      return <div style={pad}><HomeScreen tab={tab} openModal={openModal} /></div>;
       if (tab === 'goals')     return <div style={pad}><GoalsScreen openModal={openModal} /></div>;
       if (tab === 'recognize') return <div style={pad}><RecognizeScreen openModal={openModal} /></div>;
-      if (tab === 'growth')    return <div style={pad}><GrowthScreen openModal={openModal} /></div>;
       if (tab === 'wellbeing') return <div style={pad}><WellbeingScreen openModal={openModal} /></div>;
     }
     // Manager
@@ -121,7 +120,6 @@ function AppContent() {
       if (tab === 'home')      return <div style={pad}><ManagerHomeScreen openModal={openModal} /></div>;
       if (tab === 'goals')     return <div style={pad}><ManagerGoalsScreen openModal={openModal} /></div>;
       if (tab === 'recognize') return <div style={pad}><ManagerRecognizeScreen openModal={openModal} /></div>;
-      if (tab === 'growth')    return <div style={pad}><ManagerGrowthScreen openModal={openModal} /></div>;
       if (tab === 'wellbeing') return <div style={pad}><ManagerWellbeingScreen openModal={openModal} /></div>;
     }
     // HR view

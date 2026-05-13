@@ -16,14 +16,12 @@ const TAB_CONFIG: Record<UserRole, Array<{ key: string; label: string; icon: str
     { key: 'home',      label: 'Home',       icon: 'home' },
     { key: 'goals',     label: 'Goals',      icon: 'target' },
     { key: 'recognize', label: 'Rewards',    icon: 'trophy' },
-    { key: 'growth',    label: 'Growth',     icon: 'tree' },
     { key: 'wellbeing', label: 'Wellbeing',  icon: 'leaf' },
   ],
   manager: [
     { key: 'home',      label: 'Dashboard',  icon: 'home' },
     { key: 'goals',     label: 'Tim & OKR',  icon: 'target' },
     { key: 'recognize', label: 'Rewards',    icon: 'trophy' },
-    { key: 'growth',    label: 'Growth Tim', icon: 'tree' },
     { key: 'wellbeing', label: 'Wellbeing',  icon: 'leaf' },
   ],
   hr: [
