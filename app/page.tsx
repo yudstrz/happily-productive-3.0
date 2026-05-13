@@ -95,7 +95,7 @@ function AppContent() {
   }
 
   // ── Determine Role (legacy 'admin' maps to 'hr') ─────────────────────────
-  const rawRole = user?.role || 'employee';
+  const rawRole = (user?.role || 'employee') as string;
   const currentRole: UserRole = rawRole === 'admin' ? 'hr' : rawRole as UserRole;
   const isManager = currentRole === 'manager';
   const isHR = currentRole === 'hr';
