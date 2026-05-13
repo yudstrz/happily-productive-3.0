@@ -31,7 +31,6 @@ const TAB_CONFIG: Record<UserRole, Array<{ key: string; label: string; icon: str
     { key: 'goals',     label: 'People',     icon: 'people' },
     { key: 'recognize', label: 'Rewards',    icon: 'trophy' },
   ],
-  admin: [],
 };
 
 export default function TabNav({ tab, setTab, userRole }: TabNavProps) {
