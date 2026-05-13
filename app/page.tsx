@@ -79,6 +79,9 @@ function AppContent() {
   const { state, loading, user, login, setUserRole } = useHP();
   const [tab, setTab] = useState('home');
   const [modal, setModal] = useState<{ name: string; props?: any } | null>(null);
+  const [coachPos, setCoachPos] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const dragRef = React.useRef<{ startX: number, startY: number, initialX: number, initialY: number } | null>(null);
 
   const openModal  = useCallback((name: string, props?: any) => setModal({ name, props }), []);
   const closeModal = useCallback(() => setModal(null), []);
@@ -132,10 +135,7 @@ function AppContent() {
 
   const meta = ROLE_META[currentRole];
 
-  // ── Draggable Coach Button ────────────────────────────────────────────────
-  const [coachPos, setCoachPos] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const dragRef = React.useRef<{ startX: number, startY: number, initialX: number, initialY: number } | null>(null);
+  // ── Draggable Coach Button Handlers ──────────────────────────────────────
 
   const handlePointerDown = (e: React.PointerEvent) => {
     dragRef.current = {

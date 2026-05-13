@@ -98,7 +98,7 @@ export default function HomeScreen({ openModal }: any) {
     const interval = setInterval(checkTime, 60000);
 
     // AI Nudge Logic (Duolingo Style)
-    const generateNudge = useCallback(() => {
+    const generateNudge = () => {
       if (!state) return;
       
       const now = new Date();
@@ -134,7 +134,7 @@ export default function HomeScreen({ openModal }: any) {
         text: cheerMessages[Math.floor(Math.random() * cheerMessages.length)],
         type: 'cheer'
       });
-    }, [state?.lastActivityDate, state?.mood]);
+    };
 
     generateNudge();
     
@@ -250,6 +250,9 @@ export default function HomeScreen({ openModal }: any) {
     if (e === 'mid') return 'Energi sedang pas untuk kolaborasi 🌿 Review wireframe dulu, kirim handoff setelah lunch.';
     return 'Energi tinggi — cocok untuk deep work 🔥 Blok 90 menit tanpa gangguan?';
   };
+
+  // Memoize AI insights at top level (not inside JSX)
+  const aiInsights = useMemo(() => generateAIInsights(state, user), [state, user]);
 
   return (
     <div style={{ position: 'relative', minHeight: '100%', paddingBottom: 120, fontFamily: HP_FONT }}>
@@ -717,7 +720,7 @@ export default function HomeScreen({ openModal }: any) {
         <div style={{ marginTop: 24 }}>
           <SectionHeader icon="heart" label="AI Coach Insights" action="Explore" onAction={() => openModal('coach')}/>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {useMemo(() => generateAIInsights(state, user), [state, user]).map((ins, i) => (
+            {aiInsights.map((ins, i) => (
               <InsightCard key={i} ins={ins} idx={i}/>
             ))}
           </div>
