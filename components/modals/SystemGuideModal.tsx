@@ -3,12 +3,14 @@
 import React from "react";
 import Modal from "@/components/ui/Modal";
 import { HP_TOKENS, HP_FONT, HP_TEXT } from "@/lib/constants";
+import { useHP } from "@/lib/HPContext";
 
 interface SystemGuideModalProps {
   onClose: () => void;
 }
 
 export default function SystemGuideModal({ onClose }: SystemGuideModalProps) {
+  const { updateState } = useHP();
   return (
     <Modal onClose={onClose} title="Sistem Guide & Rank Milestones 📖">
       <div style={{ display: 'flex', flexDirection: 'column', gap: 24, padding: '4px 0 12px' }}>
@@ -98,6 +100,26 @@ export default function SystemGuideModal({ onClose }: SystemGuideModalProps) {
             </ul>
           </div>
         </section>
+        
+        {/* Re-play Onboarding */}
+        <div style={{ marginTop: 8 }}>
+           <button 
+             onClick={() => {
+               updateState({ onboarded: false });
+               onClose();
+             }}
+             style={{
+               width: '100%', padding: '14px', borderRadius: 16,
+               background: HP_TOKENS.ink, color: '#fff', border: 'none',
+               fontFamily: HP_FONT, fontWeight: 800, fontSize: 13, cursor: 'pointer',
+               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+               boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+             }}
+           >
+             <span style={{ fontSize: 18 }}>🐝</span>
+             Lihat Onboarding Lagi
+           </button>
+        </div>
 
       </div>
     </Modal>

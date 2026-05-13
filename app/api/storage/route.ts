@@ -7,6 +7,12 @@ export async function GET(request: Request) {
     const userId = searchParams.get('userId');
 
     if (!userId) return NextResponse.json({ error: 'UserId missing' }, { status: 400 });
+    
+    // Auto-migrate: check for is_onboarded
+    try {
+       await db.execute("ALTER TABLE users ADD COLUMN is_onboarded BOOLEAN DEFAULT 0");
+       console.log("Auto-migrated: Added is_onboarded to users");
+    } catch (e) {}
 
     // 1. Fetch User
     const userRes = await db.execute({
@@ -26,7 +32,8 @@ export async function GET(request: Request) {
       level: userRow.level,
       rank: userRow.rank,
       avatarImage: userRow.avatar_image,
-      userRole: userRow.user_role_context || userRow.role
+      userRole: userRow.user_role_context || userRow.role,
+      onboarded: !!userRow.is_onboarded
     };
 
     // 2. Fetch State components
@@ -164,6 +171,18 @@ export async function GET(request: Request) {
       } catch (e) { return undefined; }
     }
 
+    const rewardsRes = await db.execute("SELECT * FROM rewards");
+    const rewards = rewardsRes.rows.map(r => ({
+      id: r.id, 
+      title: r.title, 
+      points: Number(r.points_cost), 
+      category: r.category, 
+      tone: r.tone, 
+      glyph: r.glyph, 
+      description: r.description, 
+      stock: Number(r.stock)
+    }));
+
     const state = {
       mood: latestMood?.mood_key || 'calm',
       energy: latestMood?.energy_key || 'mid',
@@ -181,7 +200,7 @@ export async function GET(request: Request) {
       points: user.points,
       coins: user.coins,
       notifications: 0,
-      rewards: [],
+      rewards,
       rewardHistory: [],
       logbook: [],
       lastActivityDate: userRow.last_activity_at,
@@ -214,17 +233,50 @@ export async function POST(request: Request) {
     if (!user || !userId || !state) return NextResponse.json({ error: 'User data, state or ID missing' });
 
     // Update User
-    await db.execute({
-      sql: `UPDATE users SET name = ?, streak = ?, points = ?, coins = ?, level = ?, rank = ?, avatar_image = ?, user_role_context = ?, last_activity_at = ?, personal_wellbeing_goal = ?, wellbeing_routine = ? WHERE id = ?`,
-      args: [
-        user.name, user.streak, user.points, user.coins, user.level, user.rank, 
-        user.avatarImage || null, 
-        user.userRole || user.role, state.lastActivityDate,
-        state.personalWellbeingGoal || "",
-        JSON.stringify(state.wellbeingRoutine || []),
-        userId
-      ]
-    });
+    try {
+      await db.execute({
+        sql: `UPDATE users SET name = ?, streak = ?, points = ?, coins = ?, level = ?, rank = ?, avatar_image = ?, user_role_context = ?, last_activity_at = ?, personal_wellbeing_goal = ?, wellbeing_routine = ?, is_onboarded = ? WHERE id = ?`,
+        args: [
+          user.name, user.streak, user.points, user.coins, user.level, user.rank, 
+          user.avatarImage || null, 
+          user.userRole || user.role, state.lastActivityDate,
+          state.personalWellbeingGoal || "",
+          JSON.stringify(state.wellbeingRoutine || []),
+          state.onboarded ? 1 : 0,
+          userId
+        ]
+      });
+    } catch (e: any) {
+      if (e.message?.includes('is_onboarded')) {
+        // Fallback if column doesn't exist yet
+        await db.execute({
+          sql: `UPDATE users SET name = ?, streak = ?, points = ?, coins = ?, level = ?, rank = ?, avatar_image = ?, user_role_context = ?, last_activity_at = ?, personal_wellbeing_goal = ?, wellbeing_routine = ? WHERE id = ?`,
+          args: [
+            user.name, user.streak, user.points, user.coins, user.level, user.rank, 
+            user.avatarImage || null, 
+            user.userRole || user.role, state.lastActivityDate,
+            state.personalWellbeingGoal || "",
+            JSON.stringify(state.wellbeingRoutine || []),
+            userId
+          ]
+        });
+      } else throw e;
+    }
+
+    // Sync Rewards (Only HR can manage global rewards)
+    if (user.role === 'hr' && state.rewards) {
+      try {
+        await db.execute("DELETE FROM rewards");
+        for (const r of state.rewards) {
+          await db.execute({
+            sql: `INSERT INTO rewards (id, title, points_cost, category, tone, glyph, description, stock) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            args: [String(r.id), r.title, r.points, r.category || 'General', r.tone || 'blue', r.glyph || 'gift', r.description || '', r.stock || 0]
+          });
+        }
+      } catch (e) {
+        console.error("Reward sync error:", e);
+      }
+    }
 
     // Sync Daily Priorities
     if (state.priorities) {

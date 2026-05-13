@@ -275,6 +275,23 @@ export default function HomeScreen({ openModal }: any) {
           boxShadow: '0 8px 24px rgba(0,0,0,0.02)',
           position: 'relative',
         }}>
+          <div style={{ position: 'absolute', top: 18, right: 18 }}>
+             <button 
+               onClick={(e) => {
+                 e.stopPropagation();
+                 openModal('system_guide');
+               }}
+               style={{
+                 width: 34, height: 34, borderRadius: 10, border: `1px solid ${HP_TOKENS.line}`,
+                 background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                 cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+               }}
+               className="hp-tap"
+             >
+               <HPGlyph name="book" size={16} color={HP_TOKENS.blue} />
+             </button>
+          </div>
+
           <div 
             onClick={() => openModal('profile_editor')}
             className="hp-tap"
