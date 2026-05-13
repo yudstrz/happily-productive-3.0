@@ -25,7 +25,6 @@ export default function AllRewardsModal({ onClose }: AllRewardsModalProps) {
   const { state, updateState } = useHP();
   const [view, setView] = useState<"available" | "history">("available");
   const [activeCategory, setActiveCategory] = useState("Semua");
-  const [showConfetti, setShowConfetti] = useState(false);
 
   const rewards = state?.rewards || [];
   const history = state?.rewardHistory || [];
@@ -57,9 +56,6 @@ export default function AllRewardsModal({ onClose }: AllRewardsModalProps) {
         ]
       }));
       
-      // Trigger confetti
-      setShowConfetti(true);
-      setTimeout(() => setShowConfetti(false), 3000);
       alert(`Berhasil! "${reward.title}" telah ditambahkan ke riwayat reward kamu. 🎉`);
     }
   };
@@ -67,22 +63,7 @@ export default function AllRewardsModal({ onClose }: AllRewardsModalProps) {
   return (
     <Modal title="Semua Reward" onClose={onClose}>
       <div style={{ position: 'relative' }}>
-        {/* Confetti Overlay */}
-        {showConfetti && (
-          <div style={{
-            position: 'absolute', top: -100, left: 0, right: 0, height: 400,
-            pointerEvents: 'none', zIndex: 999, overflow: 'hidden',
-            display: 'flex', justifyContent: 'center'
-          }}>
-            {[...Array(20)].map((_, i) => (
-              <div key={i} className="confetti-piece" style={{
-                left: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 2}s`,
-                background: [HP_TOKENS.sage, HP_TOKENS.yellow, HP_TOKENS.coral, HP_TOKENS.blue][i % 4]
-              }}/>
-            ))}
-          </div>
-        )}
+
 
         {/* View Toggle */}
         <div style={{
@@ -247,20 +228,7 @@ export default function AllRewardsModal({ onClose }: AllRewardsModalProps) {
         )}
       </div>
 
-      <style jsx>{`
-        .confetti-piece {
-          position: absolute;
-          width: 8px;
-          height: 16px;
-          top: -20px;
-          opacity: 0;
-          animation: drop 3s infinite ease-out;
-        }
-        @keyframes drop {
-          0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-          100% { transform: translateY(400px) rotate(360deg); opacity: 0; }
-        }
-      `}</style>
+
     </Modal>
   );
 }

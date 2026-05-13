@@ -89,7 +89,7 @@ function AppContent() {
   // ── Loading splash ─────────────────────────────────────────────────────────
   if (loading) return (
     <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: HP_TOKENS.paper }}>
-      <div className="hp-bounce" style={{ width: 40, height: 40, background: HP_TOKENS.yellow, borderRadius: 12 }} />
+      <div style={{ width: 40, height: 40, background: HP_TOKENS.yellow, borderRadius: 12, opacity: 0.6 }} />
     </div>
   );
 
@@ -216,7 +216,8 @@ function AppContent() {
               currentRole === 'hr' ? 'rgba(123,107,181,0.4)' :
               'rgba(253,185,19,0.4)'
             }`,
-            transition: isDragging ? 'none' : 'all 0.1s ease-out',
+            transition: 'transform 0.1s ease-out',
+            transform: isDragging ? 'scale(1.05)' : 'scale(1)',
           }}
         >
           <HPGlyph name="sparkle" size={26} color={currentRole === 'employee' ? HP_TOKENS.ink : "#fff"} />
